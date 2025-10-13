@@ -1,9 +1,26 @@
 {
+  "name": "sdn-asm",
+  "version": "1.0.0",
+  "description": "MERN Stack Perfume Management System",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "client": "cd frontend && npm start",
+    "install-client": "cd frontend && npm install",
+    "build": "cd frontend && npm run build"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
     "express": "^5.1.0",
+    "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.1",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.10"
   }
 }
