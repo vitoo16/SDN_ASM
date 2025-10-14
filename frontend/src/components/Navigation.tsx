@@ -28,7 +28,6 @@ import {
   Dashboard,
   Search,
   ShoppingCart,
-  Settings,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -255,15 +254,6 @@ export const Navigation: React.FC = () => {
               >
                 0
               </Box>
-            </IconButton>
-            <Typography
-              variant="body2"
-              sx={{ color: "#64748b", fontWeight: 500 }}
-            >
-              $0.00
-            </Typography>
-            <IconButton sx={{ color: "#64748b" }}>
-              <Settings />
             </IconButton>
 
             {isAuthenticated ? (

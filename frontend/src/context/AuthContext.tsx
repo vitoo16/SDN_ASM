@@ -152,7 +152,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (data: LoginFormData) => {
     try {
-      dispatch({ type: "AUTH_START" });
+      // Don't dispatch AUTH_START on login attempt - prevents remount issues
+      // dispatch({ type: "AUTH_START" });
       const response = await authAPI.login(data);
       const { member, token } = response.data.data;
 
@@ -165,14 +166,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         payload: { user: normalizedUser, token },
       });
     } catch (error) {
-      dispatch({ type: "AUTH_FAILURE" });
+      // Don't dispatch AUTH_FAILURE on login error - let the form handle it
+      // dispatch({ type: "AUTH_FAILURE" });
       throw error;
     }
   };
 
   const register = async (data: RegisterFormData) => {
     try {
-      dispatch({ type: "AUTH_START" });
+      // Don't dispatch AUTH_START on register attempt - prevents remount issues
+      // dispatch({ type: "AUTH_START" });
       const response = await authAPI.register(data);
       const { member, token } = response.data.data;
 
@@ -185,7 +188,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         payload: { user: normalizedUser, token },
       });
     } catch (error) {
-      dispatch({ type: "AUTH_FAILURE" });
+      // Don't dispatch AUTH_FAILURE on registration error - let the form handle it
+      // dispatch({ type: "AUTH_FAILURE" });
       throw error;
     }
   };
