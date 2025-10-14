@@ -78,19 +78,61 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
   };
 
   return (
-    <Container component="main" maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
-          <Typography component="h1" variant="h4" align="center" gutterBottom>
-            {isLogin ? 'Sign In' : 'Sign Up'}
-          </Typography>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 4
+      }}
+    >
+      <Container component="main" maxWidth="sm">
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              padding: 6, 
+              width: '100%',
+              borderRadius: 3,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Box
+                sx={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '2rem',
+                  fontWeight: 'bold',
+                  margin: '0 auto 16px'
+                }}
+              >
+                O
+              </Box>
+              <Typography component="h1" variant="h4" sx={{ fontWeight: 700, color: '#0f172a' }}>
+                {isLogin ? 'Welcome Back' : 'Join Odour'}
+              </Typography>
+              <Typography variant="body1" sx={{ color: '#64748b', mt: 1 }}>
+                {isLogin ? 'Sign in to your account' : 'Create your account to get started'}
+              </Typography>
+            </Box>
           
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -181,18 +223,44 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ 
+                mt: 3, 
+                mb: 2,
+                py: 1.5,
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
+                borderRadius: 2,
+                textTransform: 'none',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0891b2 100%)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 25px rgba(14, 165, 233, 0.3)'
+                }
+              }}
               disabled={isLoading}
             >
               {isLoading ? (
-                <CircularProgress size={24} />
+                <CircularProgress size={24} color="inherit" />
               ) : (
-                isLogin ? 'Sign In' : 'Sign Up'
+                isLogin ? 'Sign In' : 'Create Account'
               )}
             </Button>
             
             <Box textAlign="center">
-              <Link component={RouterLink} to={isLogin ? '/register' : '/login'} variant="body2">
+              <Link 
+                component={RouterLink} 
+                to={isLogin ? '/register' : '/login'} 
+                sx={{
+                  color: '#0ea5e9',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  '&:hover': {
+                    color: '#0284c7',
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
                 {isLogin 
                   ? "Don't have an account? Sign Up"
                   : "Already have an account? Sign In"
@@ -203,5 +271,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
         </Paper>
       </Box>
     </Container>
+    </Box>
   );
 };

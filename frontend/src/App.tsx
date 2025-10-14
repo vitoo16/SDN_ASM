@@ -5,7 +5,9 @@ import { CssBaseline, Box } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
 import { Navigation } from './components/Navigation';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { HomePage } from './pages/SimpleHomePage';
+import { HomePage } from './pages/HomePage';
+import { ProductsPage } from './pages/ProductsPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { AuthPage } from './pages/AuthPage';
 
 // Create theme
@@ -31,13 +33,14 @@ function App() {
             <Box component="main" sx={{ flexGrow: 1 }}>
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/products" element={<ProductsPage />} />
                 <Route path="/login" element={<AuthPage mode="login" />} />
                 <Route path="/register" element={<AuthPage mode="register" />} />
                 <Route
                   path="/profile"
                   element={
                     <ProtectedRoute>
-                      <div>Profile Page - Coming Soon</div>
+                      <ProfilePage />
                     </ProtectedRoute>
                   }
                 />

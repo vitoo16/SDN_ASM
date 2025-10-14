@@ -1,12 +1,13 @@
 export interface Member {
-  _id: string;
+  _id?: string;
+  id?: string; // Backend sometimes returns 'id' instead of '_id'
   email: string;
   name: string;
   YOB: number;
   gender: boolean;
   isAdmin: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Brand {

@@ -1,11 +1,11 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const Member = require('../models/Member');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const Member = require("../models/Member");
 
 // Generate JWT token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '30d',
+    expiresIn: process.env.JWT_EXPIRES_IN || "30d",
   });
 };
 
@@ -19,7 +19,7 @@ const registerMember = async (req, res) => {
     if (existingMember) {
       return res.status(400).json({
         success: false,
-        message: 'Member with this email already exists'
+        message: "Member with this email already exists",
       });
     }
 
@@ -34,7 +34,7 @@ const registerMember = async (req, res) => {
       name,
       YOB,
       gender,
-      isAdmin: false // Default to non-admin
+      isAdmin: false, // Default to non-admin
     });
 
     await member.save();
@@ -44,24 +44,24 @@ const registerMember = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Member registered successfully',
+      message: "Member registered successfully",
       data: {
         member: {
-          id: member._id,
+          _id: member._id,
           email: member.email,
           name: member.name,
           YOB: member.YOB,
           gender: member.gender,
-          isAdmin: member.isAdmin
+          isAdmin: member.isAdmin,
         },
-        token
-      }
+        token,
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error registering member',
-      error: error.message
+      message: "Error registering member",
+      error: error.message,
     });
   }
 };
@@ -76,7 +76,7 @@ const loginMember = async (req, res) => {
     if (!member) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password'
+        message: "Invalid email or password",
       });
     }
 
@@ -85,7 +85,7 @@ const loginMember = async (req, res) => {
     if (!isPasswordMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password'
+        message: "Invalid email or password",
       });
     }
 
@@ -94,24 +94,24 @@ const loginMember = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       data: {
         member: {
-          id: member._id,
+          _id: member._id,
           email: member.email,
           name: member.name,
           YOB: member.YOB,
           gender: member.gender,
-          isAdmin: member.isAdmin
+          isAdmin: member.isAdmin,
         },
-        token
-      }
+        token,
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error logging in',
-      error: error.message
+      message: "Error logging in",
+      error: error.message,
     });
   }
 };
@@ -119,17 +119,17 @@ const loginMember = async (req, res) => {
 // Get current member profile
 const getProfile = async (req, res) => {
   try {
-    const member = await Member.findById(req.user._id).select('-password');
-    
+    const member = await Member.findById(req.user._id).select("-password");
+
     res.json({
       success: true,
-      data: { member }
+      data: { member },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching profile',
-      error: error.message
+      message: "Error fetching profile",
+      error: error.message,
     });
   }
 };
@@ -140,29 +140,37 @@ const updateProfile = async (req, res) => {
     const { name, YOB, gender } = req.body;
     const memberId = req.params.id;
 
+    // Ensure the authenticated user exists
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
     const member = await Member.findByIdAndUpdate(
       memberId,
       { name, YOB, gender },
       { new: true, runValidators: true }
-    ).select('-password');
+    ).select("-password");
 
     if (!member) {
       return res.status(404).json({
         success: false,
-        message: 'Member not found'
+        message: "Member not found",
       });
     }
 
     res.json({
       success: true,
-      message: 'Profile updated successfully',
-      data: { member }
+      message: "Profile updated successfully",
+      data: { member },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error updating profile',
-      error: error.message
+      message: "Error updating profile",
+      error: error.message,
     });
   }
 };
@@ -173,20 +181,31 @@ const changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const memberId = req.params.id;
 
+    // Ensure the authenticated user exists
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
     const member = await Member.findById(memberId);
     if (!member) {
       return res.status(404).json({
         success: false,
-        message: 'Member not found'
+        message: "Member not found",
       });
     }
 
     // Verify current password
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, member.password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      member.password
+    );
     if (!isCurrentPasswordValid) {
       return res.status(400).json({
         success: false,
-        message: 'Current password is incorrect'
+        message: "Current password is incorrect",
       });
     }
 
@@ -199,13 +218,13 @@ const changePassword = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Password changed successfully'
+      message: "Password changed successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error changing password',
-      error: error.message
+      message: "Error changing password",
+      error: error.message,
     });
   }
 };
@@ -213,20 +232,20 @@ const changePassword = async (req, res) => {
 // Get all members (Admin only)
 const getAllMembers = async (req, res) => {
   try {
-    const members = await Member.find().select('-password');
-    
+    const members = await Member.find().select("-password");
+
     res.json({
       success: true,
-      data: { 
+      data: {
         members,
-        count: members.length
-      }
+        count: members.length,
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching members',
-      error: error.message
+      message: "Error fetching members",
+      error: error.message,
     });
   }
 };
@@ -237,5 +256,5 @@ module.exports = {
   getProfile,
   updateProfile,
   changePassword,
-  getAllMembers
+  getAllMembers,
 };

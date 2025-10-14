@@ -37,6 +37,20 @@ export const getConcentrationColor = (concentration: string): string => {
   return colors[concentration] || '#6b7280';
 };
 
+export const getConcentrationGradient = (concentration: string): string => {
+  const gradients: { [key: string]: string } = {
+    'Extrait': 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%)',
+    'EDP': 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
+    'EDT': 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+    'EDC': 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
+  };
+  return gradients[concentration] || 'linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)';
+};
+
+export const isExtraitConcentration = (concentration: string): boolean => {
+  return concentration === 'Extrait';
+};
+
 export const getTargetAudienceIcon = (targetAudience: string): string => {
   const icons: { [key: string]: string } = {
     'male': '♂',
