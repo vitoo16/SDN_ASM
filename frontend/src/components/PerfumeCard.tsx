@@ -10,6 +10,8 @@ import {
   CardActions,
   Tooltip,
   Zoom,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   Visibility,
@@ -20,24 +22,31 @@ import {
 import { Perfume } from "../types";
 import { formatPrice, getTargetAudienceIcon } from "../utils/helpers";
 import { ExtraitBadge } from "./ExtraitBadge";
+import { useCart } from "../context/CartContext";
 
 interface PerfumeCardProps {
   perfume: Perfume;
   onViewDetails: (perfumeId: string) => void;
-  featured?: boolean;
 }
 
 export const PerfumeCard: React.FC<PerfumeCardProps> = ({
   perfume,
   onViewDetails,
-  featured = false,
 }) => {
+  const { addToCart } = useCart();
   const [isFavorite, setIsFavorite] = React.useState(false);
   const [isHovered, setIsHovered] = React.useState(false);
+  const [showSnackbar, setShowSnackbar] = React.useState(false);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsFavorite(!isFavorite);
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToCart(perfume, 1);
+    setShowSnackbar(true);
   };
 
   return (
@@ -53,50 +62,19 @@ export const PerfumeCard: React.FC<PerfumeCardProps> = ({
         position: "relative",
         overflow: "hidden",
         borderRadius: 3,
-        boxShadow: featured
-          ? "0 4px 20px rgba(14, 165, 233, 0.2)"
-          : "0 2px 8px rgba(0,0,0,0.08)",
-        border: featured ? "2px solid #0ea5e9" : "1px solid #e2e8f0",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        border: "1px solid #e2e8f0",
         "&:hover": {
           transform: "translateY(-8px)",
-          boxShadow: featured
-            ? "0 12px 40px rgba(14, 165, 233, 0.3)"
-            : "0 12px 32px rgba(0,0,0,0.15)",
+          boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
         },
-        "&::before": featured
-          ? {
-              content: '""',
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 4,
-              background: "linear-gradient(90deg, #0ea5e9 0%, #06b6d4 100%)",
-            }
-          : {},
       }}
       onClick={() => onViewDetails(perfume._id)}
     >
-      {/* Featured Badge */}
-      {featured && (
-        <Chip
-          label="Featured"
-          size="small"
-          sx={{
-            position: "absolute",
-            top: 12,
-            left: 12,
-            zIndex: 2,
-            backgroundColor: "#0ea5e9",
-            color: "white",
-            fontWeight: 600,
-            fontSize: "0.75rem",
-          }}
-        />
-      )}
-
       {/* Favorite Button */}
-      <Tooltip title={isFavorite ? "Remove from favorites" : "Add to favorites"}>
+      <Tooltip
+        title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+      >
         <Box
           onClick={handleFavoriteClick}
           sx={{
@@ -290,10 +268,7 @@ export const PerfumeCard: React.FC<PerfumeCardProps> = ({
           fullWidth
           variant="contained"
           startIcon={<ShoppingCart />}
-          onClick={(e) => {
-            e.stopPropagation();
-            // Add to cart logic here
-          }}
+          onClick={handleAddToCart}
           sx={{
             py: 1.2,
             fontWeight: 600,
@@ -308,6 +283,22 @@ export const PerfumeCard: React.FC<PerfumeCardProps> = ({
           Add to Cart
         </Button>
       </CardActions>
+
+      {/* Snackbar notification */}
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setShowSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setShowSnackbar(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          Added to cart!
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };

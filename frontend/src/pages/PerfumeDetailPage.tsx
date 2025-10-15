@@ -11,6 +11,7 @@ import {
   Alert,
   Rating,
   Fade,
+  Snackbar,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -23,6 +24,7 @@ import {
 import { perfumesAPI } from "../services/api";
 import { Perfume } from "../types";
 import CommentSection from "../components/CommentSection";
+import { useCart } from "../context/CartContext";
 
 // Lazy load components
 const LoadingSpinner = lazy(() =>
@@ -34,9 +36,11 @@ const LoadingSpinner = lazy(() =>
 export const PerfumeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [perfume, setPerfume] = useState<Perfume | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const [showSnackbar, setShowSnackbar] = useState(false);
 
   const fetchPerfumeDetails = async () => {
     if (!id) return;
@@ -340,12 +344,16 @@ export const PerfumeDetailPage: React.FC = () => {
                   </Typography>
                 </Box>
 
-                {/* Add to Cart Button (placeholder) */}
+                {/* Add to Cart Button */}
                 <Button
                   variant="contained"
                   size="large"
                   fullWidth
                   startIcon={<ShoppingCart />}
+                  onClick={() => {
+                    addToCart(perfume, 1);
+                    setShowSnackbar(true);
+                  }}
                   sx={{
                     mt: 2,
                     py: 1.5,
@@ -378,6 +386,22 @@ export const PerfumeDetailPage: React.FC = () => {
           </Grid>
         </Fade>
       </Container>
+
+      {/* Snackbar notification */}
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setShowSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setShowSnackbar(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          Added to cart successfully!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

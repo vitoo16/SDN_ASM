@@ -35,11 +35,11 @@ export interface Perfume {
   perfumeName: string;
   uri: string;
   price: number;
-  concentration: 'Extrait' | 'EDP' | 'EDT' | 'EDC';
+  concentration: "Extrait" | "EDP" | "EDT" | "EDC";
   description: string;
   ingredients: string;
   volume: number;
-  targetAudience: 'male' | 'female' | 'unisex';
+  targetAudience: "male" | "female" | "unisex";
   comments: Comment[];
   brand: Brand;
   createdAt: string;
@@ -102,11 +102,11 @@ export interface PerfumeFormData {
   perfumeName: string;
   uri: string;
   price: number;
-  concentration: 'Extrait' | 'EDP' | 'EDT' | 'EDC';
+  concentration: "Extrait" | "EDP" | "EDT" | "EDC";
   description: string;
   ingredients: string;
   volume: number;
-  targetAudience: 'male' | 'female' | 'unisex';
+  targetAudience: "male" | "female" | "unisex";
   brand: string;
 }
 
@@ -117,8 +117,8 @@ export interface BrandFormData {
 export interface SearchFilters {
   search?: string;
   brand?: string;
-  targetAudience?: 'male' | 'female' | 'unisex';
-  concentration?: 'Extrait' | 'EDP' | 'EDT' | 'EDC';
+  targetAudience?: "male" | "female" | "unisex";
+  concentration?: "Extrait" | "EDP" | "EDT" | "EDC";
   page?: number;
   limit?: number;
 }
@@ -133,4 +133,9 @@ export interface UserReview {
   content: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CartItem {
+  perfume: Perfume;
+  quantity: number;
 }

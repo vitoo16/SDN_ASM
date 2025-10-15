@@ -223,8 +223,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         </Alert>
       )}
 
-      {/* Add Comment Form - Only show if authenticated and hasn't commented */}
-      {isAuthenticated && !userComment && (
+      {/* Add Comment Form - Only show if authenticated, not admin, and hasn't commented */}
+      {isAuthenticated && !user?.isAdmin && !userComment && (
         <Box sx={{ mb: 4 }}>
           <Typography
             variant="h6"
@@ -373,8 +373,15 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         </Alert>
       )}
 
+      {/* Admin cannot comment message */}
+      {isAuthenticated && user?.isAdmin && (
+        <Alert severity="info" sx={{ mb: 4 }}>
+          Admins cannot write reviews. Only customers can leave reviews.
+        </Alert>
+      )}
+
       {/* Already commented message */}
-      {isAuthenticated && userComment && (
+      {isAuthenticated && !user?.isAdmin && userComment && (
         <Alert severity="info" sx={{ mb: 4 }}>
           You have already reviewed this perfume. You can edit or delete your
           review above.

@@ -40,11 +40,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           key={perfume._id}
         >
           <Box>
-            <PerfumeCard
-              perfume={perfume}
-              onViewDetails={handleViewDetails}
-              featured={false}
-            />
+            <PerfumeCard perfume={perfume} onViewDetails={handleViewDetails} />
           </Box>
         </Fade>
       ))}

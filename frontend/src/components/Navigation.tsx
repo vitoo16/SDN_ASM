@@ -17,13 +17,13 @@ import {
   ListItemIcon,
   useTheme,
   useMediaQuery,
+  Badge,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
   AccountCircle,
   Home,
   Logout,
-  AdminPanelSettings,
   Person,
   Dashboard,
   Search,
@@ -31,11 +31,13 @@ import {
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
 export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+  const { getCartCount } = useCart();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -59,23 +61,8 @@ export const Navigation: React.FC = () => {
   const navigation = [
     { path: "/", label: "Home", icon: <Home /> },
     { path: "/products", label: "Products", icon: <Home /> },
-    { path: "/shop", label: "Shop", icon: <Home /> },
-    { path: "/blog", label: "Blog", icon: <Home /> },
-    { path: "/about", label: "About us", icon: <Home /> },
-    { path: "/contact", label: "Contact", icon: <Home /> },
     ...(isAuthenticated
-      ? [
-          { path: "/profile", label: "Profile", icon: <Person /> },
-          ...(user?.isAdmin
-            ? [
-                {
-                  path: "/admin",
-                  label: "Admin Dashboard",
-                  icon: <Dashboard />,
-                },
-              ]
-            : []),
-        ]
+      ? [{ path: "/profile", label: "Profile", icon: <Person /> }]
       : []),
   ];
 
@@ -102,14 +89,31 @@ export const Navigation: React.FC = () => {
             </ListItem>
           ))}
           {isAuthenticated ? (
-            <ListItem disablePadding>
-              <ListItemButton onClick={handleLogout}>
-                <ListItemIcon>
-                  <Logout />
-                </ListItemIcon>
-                <ListItemText primary="Logout" />
-              </ListItemButton>
-            </ListItem>
+            <>
+              {user?.isAdmin && (
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      navigate("/admin");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <Dashboard />
+                    </ListItemIcon>
+                    <ListItemText primary="Admin Dashboard" />
+                  </ListItemButton>
+                </ListItem>
+              )}
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemIcon>
+                    <Logout />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" />
+                </ListItemButton>
+              </ListItem>
+            </>
           ) : (
             <>
               <ListItem disablePadding>
@@ -155,55 +159,76 @@ export const Navigation: React.FC = () => {
           borderBottom: "1px solid #e2e8f0",
         }}
       >
-        <Toolbar sx={{ maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
-          {isMobile && (
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={() => setMobileMenuOpen(true)}
-              sx={{ mr: 2, color: "#1e293b" }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-
-          {/* Logo */}
-          <Typography
-            variant="h5"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              cursor: "pointer",
-              fontWeight: 700,
-              color: "#1e293b",
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-            }}
-            onClick={() => navigate("/")}
+        <Toolbar
+          sx={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          {/* Left Section - Logo */}
+          <Box
+            sx={{ display: "flex", alignItems: "center", minWidth: "150px" }}
           >
-            <Box
+            {isMobile && (
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={() => setMobileMenuOpen(true)}
+                sx={{ mr: 2, color: "#1e293b" }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+
+            <Typography
+              variant="h5"
+              component="div"
               sx={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
+                cursor: "pointer",
+                fontWeight: 700,
+                color: "#1e293b",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontSize: "1.2rem",
-                fontWeight: "bold",
+                gap: 1,
+              }}
+              onClick={() => navigate("/")}
+            >
+              <Box
+                sx={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  background:
+                    "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                }}
+              >
+                O
+              </Box>
+              Odour
+            </Typography>
+          </Box>
+
+          {/* Center Section - Navigation Links */}
+          {!isMobile && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1,
+                position: "absolute",
+                left: "50%",
+                transform: "translateX(-50%)",
               }}
             >
-              O
-            </Box>
-            Odour
-          </Typography>
-
-          {/* Navigation Links */}
-          {!isMobile && (
-            <Box sx={{ display: "flex", gap: 1, mx: 4 }}>
               {navigation.slice(0, 6).map((item) => (
                 <Button
                   key={item.path}
@@ -228,32 +253,36 @@ export const Navigation: React.FC = () => {
             </Box>
           )}
 
-          {/* Right side icons */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Right Section - Icons and User Menu */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              minWidth: "150px",
+              justifyContent: "flex-end",
+            }}
+          >
             <IconButton sx={{ color: "#64748b" }}>
               <Search />
             </IconButton>
-            <IconButton sx={{ color: "#64748b", position: "relative" }}>
-              <ShoppingCart />
-              <Box
+            <IconButton
+              onClick={() => navigate("/cart")}
+              sx={{ color: "#64748b", position: "relative" }}
+            >
+              <Badge
+                badgeContent={getCartCount()}
+                color="error"
                 sx={{
-                  position: "absolute",
-                  top: 8,
-                  right: 8,
-                  backgroundColor: "#ef4444",
-                  color: "white",
-                  borderRadius: "50%",
-                  width: 18,
-                  height: 18,
-                  fontSize: "0.7rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: "bold",
+                  "& .MuiBadge-badge": {
+                    fontSize: "0.7rem",
+                    height: 18,
+                    minWidth: 18,
+                  },
                 }}
               >
-                0
-              </Box>
+                <ShoppingCart />
+              </Badge>
             </IconButton>
 
             {isAuthenticated ? (
@@ -289,6 +318,7 @@ export const Navigation: React.FC = () => {
                     <Person sx={{ mr: 1 }} />
                     Profile
                   </MenuItem>
+
                   {user?.isAdmin && (
                     <MenuItem
                       onClick={() => {
@@ -296,10 +326,11 @@ export const Navigation: React.FC = () => {
                         handleMenuClose();
                       }}
                     >
-                      <AdminPanelSettings sx={{ mr: 1 }} />
+                      <Dashboard sx={{ mr: 1 }} />
                       Admin Dashboard
                     </MenuItem>
                   )}
+
                   <MenuItem onClick={handleLogout}>
                     <Logout sx={{ mr: 1 }} />
                     Logout

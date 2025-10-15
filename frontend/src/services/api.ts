@@ -82,6 +82,16 @@ export const membersAPI = {
   getUserReviews: (): Promise<
     AxiosResponse<ApiResponse<{ reviews: UserReview[]; count: number }>>
   > => api.get("/members/reviews"),
+
+  // Admin operations
+  deleteMember: (id: string): Promise<AxiosResponse<ApiResponse<{}>>> =>
+    api.delete(`/members/${id}`),
+
+  updateMemberAdmin: (
+    id: string,
+    data: Partial<Member>
+  ): Promise<AxiosResponse<ApiResponse<{ member: Member }>>> =>
+    api.put(`/members/${id}`, data),
 };
 
 // Brands API

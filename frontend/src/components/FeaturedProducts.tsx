@@ -129,7 +129,6 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                     <PerfumeCard
                       perfume={perfume}
                       onViewDetails={handleViewDetails}
-                      featured={index < 3}
                     />
                   </Box>
                 </Fade>

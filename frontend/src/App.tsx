@@ -1,7 +1,9 @@
+import React, { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { CssBaseline, Box } from "@mui/material";
+import { CssBaseline, Box, CircularProgress } from "@mui/material";
 import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
 import { Navigation } from "./components/Navigation";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { HomePage } from "./pages/HomePage";
@@ -9,6 +11,10 @@ import { ProductsPage } from "./pages/ProductsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { AuthPage } from "./pages/AuthPage";
 import { PerfumeDetailPage } from "./pages/PerfumeDetailPage";
+import { CartPage } from "./pages/CartPage";
+
+// Lazy load admin dashboard for better performance
+const AdminDashboard = React.lazy(() => import("./pages/AdminDashboard"));
 
 // Create theme
 const theme = createTheme({
@@ -27,7 +33,8 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <Router>
+        <CartProvider>
+          <Router>
           <Box
             sx={{
               display: "flex",
@@ -57,15 +64,32 @@ function App() {
                   path="/admin"
                   element={
                     <ProtectedRoute requireAdmin>
-                      <div>Admin Dashboard - Coming Soon</div>
+                      <Suspense
+                        fallback={
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              minHeight: "80vh",
+                            }}
+                          >
+                            <CircularProgress size={60} sx={{ color: "#0ea5e9" }} />
+                          </Box>
+                        }
+                      >
+                        <AdminDashboard />
+                      </Suspense>
                     </ProtectedRoute>
                   }
                 />
                 <Route path="/perfumes/:id" element={<PerfumeDetailPage />} />
+                <Route path="/cart" element={<CartPage />} />
               </Routes>
             </Box>
           </Box>
         </Router>
+        </CartProvider>
       </AuthProvider>
     </ThemeProvider>
   );
