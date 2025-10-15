@@ -1,27 +1,36 @@
-import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  Box,
-  TextField,
-  CircularProgress,
-  Alert,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Button,
-  Pagination,
-  Paper,
-} from "@mui/material";
-import { Search, ChevronLeft, ChevronRight } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, lazy, Suspense } from "react";
+import { Container, Box, Alert, Typography, Fade, Chip } from "@mui/material";
 import { perfumesAPI } from "../services/api";
 import { Perfume } from "../types";
-import { formatPrice } from "../utils/helpers";
-import { ExtraitBadge } from "../components/ExtraitBadge";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { Tune } from "@mui/icons-material";
+
+// Lazy load components
+const FilterSidebar = lazy(() =>
+  import("../components/FilterSidebar").then((module) => ({
+    default: module.FilterSidebar,
+  }))
+);
+const SearchBar = lazy(() =>
+  import("../components/SearchBar").then((module) => ({
+    default: module.SearchBar,
+  }))
+);
+const ProductGrid = lazy(() =>
+  import("../components/ProductGrid").then((module) => ({
+    default: module.ProductGrid,
+  }))
+);
+const ProductPagination = lazy(() =>
+  import("../components/ProductPagination").then((module) => ({
+    default: module.ProductPagination,
+  }))
+);
+const EmptyState = lazy(() =>
+  import("../components/EmptyState").then((module) => ({
+    default: module.EmptyState,
+  }))
+);
 
 export const ProductsPage: React.FC = () => {
   const [perfumes, setPerfumes] = useState<Perfume[]>([]);
@@ -29,15 +38,26 @@ export const ProductsPage: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6);
+  const [itemsPerPage] = useState(9);
 
   // Filter states
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedTargetAudiences, setSelectedTargetAudiences] = useState<
     string[]
   >([]);
+  const [selectedConcentrations, setSelectedConcentrations] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 
-  const navigate = useNavigate();
+  // Calculate min and max prices from perfumes
+  const minPrice = Math.min(...perfumes.map((p) => p.price), 0);
+  const maxPrice = Math.max(...perfumes.map((p) => p.price), 1000);
+
+  // Initialize price range when perfumes load
+  useEffect(() => {
+    if (perfumes.length > 0) {
+      setPriceRange([minPrice, maxPrice]);
+    }
+  }, [perfumes.length, minPrice, maxPrice]);
 
   const fetchPerfumes = async () => {
     try {
@@ -67,8 +87,13 @@ export const ProductsPage: React.FC = () => {
     const matchesTargetAudience =
       selectedTargetAudiences.length === 0 ||
       selectedTargetAudiences.includes(perfume.targetAudience);
+    const matchesConcentration =
+      selectedConcentrations.length === 0 ||
+      selectedConcentrations.includes(perfume.concentration);
+    const matchesPrice =
+      perfume.price >= priceRange[0] && perfume.price <= priceRange[1];
 
-    return matchesSearch && matchesBrand && matchesTargetAudience;
+    return matchesSearch && matchesBrand && matchesTargetAudience && matchesConcentration && matchesPrice;
   });
 
   // Pagination logic
@@ -77,13 +102,16 @@ export const ProductsPage: React.FC = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentPerfumes = filteredPerfumes.slice(startIndex, endIndex);
 
-  // Get unique brands and target audiences from perfumes data
+  // Get unique brands, target audiences, and concentrations from perfumes data
   const brandOptions = Array.from(
     new Set(perfumes.map((perfume) => perfume.brand.brandName))
   ).sort();
   const targetAudienceOptions = Array.from(
     new Set(perfumes.map((perfume) => perfume.targetAudience))
   ).sort();
+  const concentrationOptions = Array.from(
+    new Set(perfumes.map((perfume) => perfume.concentration))
+  ).sort() as Array<'Extrait' | 'EDP' | 'EDT' | 'EDC'>;
 
   const handleBrandChange = (brand: string) => {
     setSelectedBrands((prev) =>
@@ -97,6 +125,16 @@ export const ProductsPage: React.FC = () => {
         ? prev.filter((t) => t !== targetAudience)
         : [...prev, targetAudience]
     );
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  const handleConcentrationChange = (concentration: string) => {
+    setSelectedConcentrations((prev) =>
+      prev.includes(concentration)
+        ? prev.filter((c) => c !== concentration)
+        : [...prev, concentration]
+    );
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   const handlePageChange = (
@@ -104,12 +142,29 @@ export const ProductsPage: React.FC = () => {
     value: number
   ) => {
     setCurrentPage(value);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handlePerfumeClick = (perfumeId: string) => {
-    navigate(`/perfumes/${perfumeId}`);
+  const handlePriceChange = (newValue: number | number[]) => {
+    setPriceRange(newValue as [number, number]);
+    setCurrentPage(1);
   };
 
+  const handleClearFilters = () => {
+    setSelectedBrands([]);
+    setSelectedTargetAudiences([]);
+    setSelectedConcentrations([]);
+    setPriceRange([minPrice, maxPrice]);
+    setSearchTerm("");
+    setCurrentPage(1);
+  };
+
+  // Show loading state
+  if (loading) {
+    return <LoadingSpinner message="Loading products..." fullScreen />;
+  }
+
+  // Show error state
   if (error) {
     return (
       <Container sx={{ mt: 4 }}>
@@ -120,269 +175,125 @@ export const ProductsPage: React.FC = () => {
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
+      {/* Page Header */}
+      <Box
+        sx={{
+          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+          py: 6,
+          mb: 4,
+        }}
+      >
+        <Container maxWidth="xl">
+          <Fade in timeout={600}>
+            <Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Tune sx={{ fontSize: 32, color: "#0ea5e9" }} />
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 800,
+                    color: "white",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                  }}
+                >
+                  Browse Products
+                </Typography>
+              </Box>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#94a3b8",
+                  fontSize: "1.1rem",
+                  mb: 2,
+                }}
+              >
+                Discover our complete collection of premium fragrances
+              </Typography>
+              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                <Chip
+                  label={`${perfumes.length} Total Products`}
+                  sx={{
+                    backgroundColor: "rgba(14, 165, 233, 0.2)",
+                    color: "#0ea5e9",
+                    fontWeight: 600,
+                  }}
+                />
+                <Chip
+                  label={`${brandOptions.length} Brands`}
+                  sx={{
+                    backgroundColor: "rgba(6, 182, 212, 0.2)",
+                    color: "#06b6d4",
+                    fontWeight: 600,
+                  }}
+                />
+              </Box>
+            </Box>
+          </Fade>
+        </Container>
+      </Box>
+
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Box sx={{ display: "flex", gap: 4 }}>
           {/* Left Sidebar - Filters */}
-          <Paper
-            elevation={1}
-            sx={{
-              width: 280,
-              p: 3,
-              height: "fit-content",
-              position: "sticky",
-              top: 20,
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 3,
-              }}
-            >
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Filters
-              </Typography>
-              <Button
-                size="small"
-                onClick={() => {
-                  setSelectedBrands([]);
-                  setSelectedTargetAudiences([]);
-                  setSearchTerm("");
-                }}
-                sx={{ textTransform: "none", fontSize: "0.75rem" }}
-              >
-                Clear All
-              </Button>
-            </Box>
-
-            {/* Brand Filter */}
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
-                Brand
-              </Typography>
-              <FormGroup>
-                {brandOptions.map((brand) => (
-                  <FormControlLabel
-                    key={brand}
-                    control={
-                      <Checkbox
-                        checked={selectedBrands.includes(brand)}
-                        onChange={() => handleBrandChange(brand)}
-                        size="small"
-                      />
-                    }
-                    label={brand}
-                    sx={{ textTransform: "capitalize" }}
-                  />
-                ))}
-              </FormGroup>
-            </Box>
-
-            {/* Target Audience Filter */}
-            <Box>
-              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
-                Target Audience
-              </Typography>
-              <FormGroup>
-                {targetAudienceOptions.map((audience) => (
-                  <FormControlLabel
-                    key={audience}
-                    control={
-                      <Checkbox
-                        checked={selectedTargetAudiences.includes(audience)}
-                        onChange={() => handleTargetAudienceChange(audience)}
-                        size="small"
-                      />
-                    }
-                    label={audience}
-                    sx={{ textTransform: "capitalize" }}
-                  />
-                ))}
-              </FormGroup>
-            </Box>
-          </Paper>
+          <Suspense fallback={<LoadingSpinner />}>
+            <FilterSidebar
+              brandOptions={brandOptions}
+              targetAudienceOptions={targetAudienceOptions}
+              concentrationOptions={concentrationOptions}
+              selectedBrands={selectedBrands}
+              selectedTargetAudiences={selectedTargetAudiences}
+              selectedConcentrations={selectedConcentrations}
+              priceRange={priceRange}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              onBrandChange={handleBrandChange}
+              onTargetAudienceChange={handleTargetAudienceChange}
+              onConcentrationChange={handleConcentrationChange}
+              onPriceChange={handlePriceChange}
+              onClearAll={handleClearFilters}
+            />
+          </Suspense>
 
           {/* Main Content */}
           <Box sx={{ flex: 1 }}>
             {/* Search Bar */}
-            <Box sx={{ mb: 4 }}>
-              <TextField
-                fullWidth
-                placeholder="Search by perfume name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <Search sx={{ mr: 1, color: "action.active" }} />
-                  ),
+            <Suspense fallback={<LoadingSpinner />}>
+              <SearchBar
+                searchTerm={searchTerm}
+                onSearchChange={(value) => {
+                  setSearchTerm(value);
+                  setCurrentPage(1);
                 }}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 2,
-                  },
-                }}
+                resultCount={filteredPerfumes.length}
               />
-            </Box>
-
-            {/* Loading State */}
-            {loading && (
-              <Box display="flex" justifyContent="center" sx={{ mt: 4 }}>
-                <CircularProgress />
-              </Box>
-            )}
+            </Suspense>
 
             {/* Products Grid */}
-            {!loading && (
+            {filteredPerfumes.length > 0 ? (
               <>
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "1fr",
-                      sm: "repeat(2, 1fr)",
-                      md: "repeat(3, 1fr)",
-                    },
-                    gap: 3,
-                    mb: 4,
-                  }}
-                >
-                  {currentPerfumes.map((perfume, index) => {
-                    return (
-                      <Card
-                        key={perfume._id}
-                        className="perfume-card"
-                        sx={{
-                          height: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                          cursor: "pointer",
-                          transition: "transform 0.2s, box-shadow 0.2s",
-                          position: "relative",
-                          "&:hover": {
-                            transform: "translateY(-4px)",
-                            boxShadow: 4,
-                          },
-                        }}
-                        onClick={() => handlePerfumeClick(perfume._id)}
-                      >
-                        <CardMedia
-                          component="img"
-                          height="250"
-                          image={perfume.uri}
-                          alt={perfume.perfumeName}
-                          sx={{ objectFit: "cover" }}
-                        />
-                        <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "flex-start",
-                              mb: 1,
-                            }}
-                          >
-                            <Typography
-                              gutterBottom
-                              variant="h6"
-                              component="h2"
-                              noWrap
-                              title={perfume.perfumeName}
-                              sx={{ fontWeight: 600, flex: 1, mr: 1 }}
-                            >
-                              {perfume.perfumeName}
-                            </Typography>
-                            <ExtraitBadge
-                              concentration={perfume.concentration}
-                              size="small"
-                              variant="chip"
-                            />
-                          </Box>
-
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            sx={{ mb: 1 }}
-                          >
-                            {perfume.brand.brandName}
-                          </Typography>
-
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            sx={{ mb: 2, textTransform: "capitalize" }}
-                          >
-                            {perfume.targetAudience}
-                          </Typography>
-
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              color: "primary.main",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {formatPrice(perfume.price)}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </Box>
-
-                {/* No Results */}
-                {filteredPerfumes.length === 0 && !loading && (
-                  <Box textAlign="center" sx={{ mt: 4 }}>
-                    <Typography variant="h6" color="text.secondary">
-                      No perfumes found matching your search
-                    </Typography>
-                  </Box>
-                )}
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ProductGrid products={currentPerfumes} />
+                </Suspense>
 
                 {/* Pagination */}
-                {filteredPerfumes.length > 0 && (
-                  <Box
-                    sx={{ display: "flex", justifyContent: "center", mt: 6 }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <Button
-                        startIcon={<ChevronLeft />}
-                        onClick={() =>
-                          setCurrentPage((prev) => Math.max(1, prev - 1))
-                        }
-                        disabled={currentPage === 1}
-                        sx={{ textTransform: "none" }}
-                      >
-                        Previous
-                      </Button>
-
-                      <Pagination
-                        count={totalPages}
-                        page={currentPage}
-                        onChange={handlePageChange}
-                        color="primary"
-                        size="large"
-                      />
-
-                      <Button
-                        endIcon={<ChevronRight />}
-                        onClick={() =>
-                          setCurrentPage((prev) =>
-                            Math.min(totalPages, prev + 1)
-                          )
-                        }
-                        disabled={currentPage === totalPages}
-                        sx={{ textTransform: "none" }}
-                      >
-                        Next
-                      </Button>
-                    </Box>
-                  </Box>
-                )}
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ProductPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    startIndex={startIndex}
+                    endIndex={endIndex}
+                    totalItems={filteredPerfumes.length}
+                  />
+                </Suspense>
               </>
+            ) : (
+              <Suspense fallback={<LoadingSpinner />}>
+                <EmptyState
+                  message="No perfumes found"
+                  submessage="Try adjusting your search or filters to find what you're looking for"
+                />
+              </Suspense>
             )}
           </Box>
         </Box>

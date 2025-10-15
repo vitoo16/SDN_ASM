@@ -7,6 +7,7 @@ const {
   updateProfile,
   changePassword,
   getAllMembers,
+  getUserReviews,
 } = require("../controllers/memberController");
 const {
   authenticateToken,
@@ -74,6 +75,7 @@ router.post("/login", loginValidation, handleValidationErrors, loginMember);
 
 // Protected routes
 router.get("/profile", authenticateToken, getProfile);
+router.get("/reviews", authenticateToken, getUserReviews);
 router.put(
   "/:id",
   authenticateToken,

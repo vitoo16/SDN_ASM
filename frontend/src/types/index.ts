@@ -122,3 +122,15 @@ export interface SearchFilters {
   page?: number;
   limit?: number;
 }
+
+export interface UserReview {
+  _id: string;
+  perfumeId: string;
+  perfumeName: string;
+  perfumeImage: string;
+  brandName: string;
+  rating: number;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -13,6 +13,7 @@ import {
   PerfumeFormData,
   BrandFormData,
   SearchFilters,
+  UserReview,
 } from "../types";
 
 const API_BASE_URL =
@@ -77,6 +78,10 @@ export const membersAPI = {
   getAllMembers: (): Promise<
     AxiosResponse<ApiResponse<{ members: Member[]; count: number }>>
   > => api.get("/members/collectors"),
+
+  getUserReviews: (): Promise<
+    AxiosResponse<ApiResponse<{ reviews: UserReview[]; count: number }>>
+  > => api.get("/members/reviews"),
 };
 
 // Brands API

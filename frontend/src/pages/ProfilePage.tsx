@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Paper,
@@ -21,6 +21,9 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useAuth } from "../context/AuthContext";
+import { membersAPI } from "../services/api";
+import { UserReview } from "../types";
+import { useNavigate } from "react-router-dom";
 
 // Validation schemas
 const profileSchema = yup.object({
@@ -71,11 +74,14 @@ function TabPanel(props: TabPanelProps) {
 
 export const ProfilePage: React.FC = () => {
   const { user, updateProfile, changePassword } = useAuth();
+  const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [userReviews, setUserReviews] = useState<UserReview[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   // Profile form
   const {
@@ -168,25 +174,24 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
-  // Mock feedback data - in real app, this would come from API
-  const userFeedback = [
-    {
-      id: 1,
-      perfumeName: "Chanel No. 5",
-      brand: "Chanel",
-      rating: 5,
-      comment: "Absolutely love this classic fragrance!",
-      date: "2024-01-15",
-    },
-    {
-      id: 2,
-      perfumeName: "Dior Sauvage",
-      brand: "Dior",
-      rating: 4,
-      comment: "Great for everyday wear.",
-      date: "2024-01-10",
-    },
-  ];
+  // Fetch user reviews
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setReviewsLoading(true);
+        const response = await membersAPI.getUserReviews();
+        setUserReviews(response.data.data.reviews);
+      } catch (err: any) {
+        console.error("Error fetching reviews:", err);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchReviews();
+    }
+  }, [user]);
 
   // Show loading spinner if user is not loaded yet
   if (!user) {
@@ -468,7 +473,11 @@ export const ProfilePage: React.FC = () => {
             My Perfume Reviews
           </Typography>
 
-          {userFeedback.length === 0 ? (
+          {reviewsLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : userReviews.length === 0 ? (
             <Box sx={{ textAlign: "center", py: 4 }}>
               <Typography variant="body1" color="text.secondary">
                 You haven't reviewed any perfumes yet.
@@ -476,33 +485,73 @@ export const ProfilePage: React.FC = () => {
             </Box>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {userFeedback.map((feedback) => (
-                <Card key={feedback.id} variant="outlined">
+              {userReviews.map((review) => (
+                <Card 
+                  key={review._id} 
+                  variant="outlined"
+                  sx={{ 
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    "&:hover": {
+                      boxShadow: 3,
+                      transform: "translateY(-2px)",
+                    },
+                  }}
+                  onClick={() => navigate(`/perfumes/${review.perfumeId}`)}
+                >
                   <CardContent>
                     <Box
                       sx={{
                         display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
+                        gap: 2,
                         mb: 2,
                       }}
                     >
-                      <Box>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                          {feedback.perfumeName}
+                      {/* Perfume Image */}
+                      <Box
+                        component="img"
+                        src={review.perfumeImage}
+                        alt={review.perfumeName}
+                        sx={{
+                          width: 80,
+                          height: 80,
+                          objectFit: "cover",
+                          borderRadius: 2,
+                          flexShrink: 0,
+                        }}
+                      />
+                      
+                      {/* Review Details */}
+                      <Box sx={{ flex: 1 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            mb: 1,
+                          }}
+                        >
+                          <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                              {review.perfumeName}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              by {review.brandName}
+                            </Typography>
+                          </Box>
+                          <Rating value={review.rating} readOnly size="small" />
+                        </Box>
+                        <Typography variant="body2" sx={{ mb: 1 }}>
+                          {review.content}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          by {feedback.brand}
+                        <Typography variant="caption" color="text.secondary">
+                          Reviewed on {new Date(review.createdAt).toLocaleDateString()}
+                          {review.updatedAt !== review.createdAt && 
+                            ` (edited ${new Date(review.updatedAt).toLocaleDateString()})`
+                          }
                         </Typography>
                       </Box>
-                      <Rating value={feedback.rating} readOnly size="small" />
                     </Box>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      {feedback.comment}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Reviewed on {new Date(feedback.date).toLocaleDateString()}
-                    </Typography>
                   </CardContent>
                 </Card>
               ))}

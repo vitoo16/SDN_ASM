@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Member = require("../models/Member");
+const Perfume = require("../models/Perfume");
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -250,6 +251,59 @@ const getAllMembers = async (req, res) => {
   }
 };
 
+// Get user's reviews/comments
+const getUserReviews = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Find all perfumes that contain comments by this user
+    const perfumes = await Perfume.find({
+      "comments.author": userId,
+    })
+      .populate("brand", "brandName")
+      .select("perfumeName uri comments brand");
+
+    // Extract only the user's comments from each perfume
+    const userReviews = [];
+    perfumes.forEach((perfume) => {
+      const userComments = perfume.comments.filter(
+        (comment) => comment.author.toString() === userId.toString()
+      );
+
+      userComments.forEach((comment) => {
+        userReviews.push({
+          _id: comment._id,
+          perfumeId: perfume._id,
+          perfumeName: perfume.perfumeName,
+          perfumeImage: perfume.uri,
+          brandName: perfume.brand?.brandName || "Unknown Brand",
+          rating: comment.rating,
+          content: comment.content,
+          createdAt: comment.createdAt,
+          updatedAt: comment.updatedAt,
+        });
+      });
+    });
+
+    // Sort by creation date, newest first
+    userReviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    res.json({
+      success: true,
+      data: {
+        reviews: userReviews,
+        count: userReviews.length,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching user reviews",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerMember,
   loginMember,
@@ -257,4 +311,5 @@ module.exports = {
   updateProfile,
   changePassword,
   getAllMembers,
+  getUserReviews,
 };
