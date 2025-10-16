@@ -2,9 +2,11 @@ import React, { useCallback, useMemo } from "react";
 import { Box, Typography, CircularProgress, Alert } from "@mui/material";
 import { Member } from "../../types";
 import { membersAPI } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 import MemberTable from "./MemberTable";
 
 const MembersManagement: React.FC = () => {
+  const { user } = useAuth(); // Get current user
   const [members, setMembers] = React.useState<Member[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -70,9 +72,10 @@ const MembersManagement: React.FC = () => {
         members={members}
         onDelete={handleDelete}
         onToggleAdmin={handleToggleAdmin}
+        currentUserId={user?._id} // Pass current user ID
       />
     ),
-    [members, handleDelete, handleToggleAdmin]
+    [members, handleDelete, handleToggleAdmin, user?._id]
   );
 
   if (loading) {

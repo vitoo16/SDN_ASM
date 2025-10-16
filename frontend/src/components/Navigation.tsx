@@ -61,9 +61,6 @@ export const Navigation: React.FC = () => {
   const navigation = [
     { path: "/", label: "Home", icon: <Home /> },
     { path: "/products", label: "Products", icon: <Home /> },
-    ...(isAuthenticated
-      ? [{ path: "/profile", label: "Profile", icon: <Person /> }]
-      : []),
   ];
 
   const MobileMenu = () => (

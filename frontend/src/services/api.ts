@@ -98,12 +98,16 @@ export const membersAPI = {
 export const brandsAPI = {
   getAllBrands: (): Promise<
     AxiosResponse<ApiResponse<{ brands: Brand[]; count: number }>>
-  > => api.get("/brands"),
+  > => api.get("/brands", { 
+    params: { _t: Date.now() } // Cache busting
+  }),
 
   getBrandById: (
     id: string
   ): Promise<AxiosResponse<ApiResponse<{ brand: Brand }>>> =>
-    api.get(`/brands/${id}`),
+    api.get(`/brands/${id}`, { 
+      params: { _t: Date.now() } // Cache busting
+    }),
 
   createBrand: (
     data: BrandFormData
@@ -134,6 +138,9 @@ export const perfumesAPI = {
       params.append("concentration", filters.concentration);
     if (filters?.page) params.append("page", filters.page.toString());
     if (filters?.limit) params.append("limit", filters.limit.toString());
+    
+    // Add cache busting for fresh data
+    params.append("_t", Date.now().toString());
 
     return api.get(`/perfumes?${params.toString()}`);
   },
@@ -141,7 +148,9 @@ export const perfumesAPI = {
   getPerfumeById: (
     id: string
   ): Promise<AxiosResponse<ApiResponse<{ perfume: Perfume }>>> =>
-    api.get(`/perfumes/${id}`),
+    api.get(`/perfumes/${id}`, { 
+      params: { _t: Date.now() } // Cache busting
+    }),
 
   createPerfume: (
     data: PerfumeFormData

@@ -1,22 +1,23 @@
-const Brand = require('../models/Brand');
+const Brand = require("../models/Brand");
+const Perfume = require("../models/Perfume");
 
 // Get all brands
 const getAllBrands = async (req, res) => {
   try {
     const brands = await Brand.find().sort({ brandName: 1 });
-    
+
     res.json({
       success: true,
-      data: { 
+      data: {
         brands,
-        count: brands.length
-      }
+        count: brands.length,
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching brands',
-      error: error.message
+      message: "Error fetching brands",
+      error: error.message,
     });
   }
 };
@@ -25,23 +26,23 @@ const getAllBrands = async (req, res) => {
 const getBrandById = async (req, res) => {
   try {
     const brand = await Brand.findById(req.params.brandId);
-    
+
     if (!brand) {
       return res.status(404).json({
         success: false,
-        message: 'Brand not found'
+        message: "Brand not found",
       });
     }
 
     res.json({
       success: true,
-      data: { brand }
+      data: { brand },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching brand',
-      error: error.message
+      message: "Error fetching brand",
+      error: error.message,
     });
   }
 };
@@ -56,7 +57,7 @@ const createBrand = async (req, res) => {
     if (existingBrand) {
       return res.status(400).json({
         success: false,
-        message: 'Brand with this name already exists'
+        message: "Brand with this name already exists",
       });
     }
 
@@ -65,14 +66,14 @@ const createBrand = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Brand created successfully',
-      data: { brand }
+      message: "Brand created successfully",
+      data: { brand },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error creating brand',
-      error: error.message
+      message: "Error creating brand",
+      error: error.message,
     });
   }
 };
@@ -84,15 +85,15 @@ const updateBrand = async (req, res) => {
     const brandId = req.params.brandId;
 
     // Check if another brand with the same name exists
-    const existingBrand = await Brand.findOne({ 
-      brandName, 
-      _id: { $ne: brandId } 
+    const existingBrand = await Brand.findOne({
+      brandName,
+      _id: { $ne: brandId },
     });
-    
+
     if (existingBrand) {
       return res.status(400).json({
         success: false,
-        message: 'Brand with this name already exists'
+        message: "Brand with this name already exists",
       });
     }
 
@@ -105,20 +106,20 @@ const updateBrand = async (req, res) => {
     if (!brand) {
       return res.status(404).json({
         success: false,
-        message: 'Brand not found'
+        message: "Brand not found",
       });
     }
 
     res.json({
       success: true,
-      message: 'Brand updated successfully',
-      data: { brand }
+      message: "Brand updated successfully",
+      data: { brand },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error updating brand',
-      error: error.message
+      message: "Error updating brand",
+      error: error.message,
     });
   }
 };
@@ -126,24 +127,47 @@ const updateBrand = async (req, res) => {
 // Delete brand (Admin only)
 const deleteBrand = async (req, res) => {
   try {
-    const brand = await Brand.findByIdAndDelete(req.params.brandId);
-    
+    const brandId = req.params.brandId;
+
+    // First check if brand exists
+    const brand = await Brand.findById(brandId);
     if (!brand) {
       return res.status(404).json({
         success: false,
-        message: 'Brand not found'
+        message: "Brand not found",
       });
     }
 
+    // Check if there are any perfumes associated with this brand
+    const relatedPerfumes = await Perfume.find({ brand: brandId });
+
+    if (relatedPerfumes.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete brand. There are ${relatedPerfumes.length} perfume(s) associated with this brand. Please remove or reassign these perfumes first.`,
+        data: {
+          relatedPerfumesCount: relatedPerfumes.length,
+          relatedPerfumes: relatedPerfumes.map((perfume) => ({
+            id: perfume._id,
+            name: perfume.perfumeName,
+            brand: perfume.brand,
+          })),
+        },
+      });
+    }
+
+    // If no related perfumes, proceed with deletion
+    await Brand.findByIdAndDelete(brandId);
+
     res.json({
       success: true,
-      message: 'Brand deleted successfully'
+      message: "Brand deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error deleting brand',
-      error: error.message
+      message: "Error deleting brand",
+      error: error.message,
     });
   }
 };
@@ -153,5 +177,5 @@ module.exports = {
   getBrandById,
   createBrand,
   updateBrand,
-  deleteBrand
+  deleteBrand,
 };

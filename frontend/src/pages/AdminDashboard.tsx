@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { Dashboard, Inventory, People, Bookmark } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
-
 // Lazy load tab components for performance
 const PerfumesManagement = lazy(
   () => import("../components/admin/PerfumesManagement")
@@ -21,9 +20,6 @@ const BrandsManagement = lazy(
 );
 const MembersManagement = lazy(
   () => import("../components/admin/MembersManagement")
-);
-const DashboardOverview = lazy(
-  () => import("../components/admin/DashboardOverview")
 );
 
 interface TabPanelProps {
@@ -93,7 +89,6 @@ const AdminDashboard: React.FC = () => {
             Manage perfumes, brands, and members
           </Typography>
         </Box>
-
         {/* Main Content */}
         <Paper
           elevation={0}
@@ -130,7 +125,6 @@ const AdminDashboard: React.FC = () => {
                 },
               }}
             >
-              <Tab icon={<Dashboard />} label="Overview" iconPosition="start" />
               <Tab icon={<Inventory />} label="Perfumes" iconPosition="start" />
               <Tab icon={<Bookmark />} label="Brands" iconPosition="start" />
               <Tab icon={<People />} label="Members" iconPosition="start" />
@@ -154,15 +148,12 @@ const AdminDashboard: React.FC = () => {
               }
             >
               <TabPanel value={activeTab} index={0}>
-                <DashboardOverview />
-              </TabPanel>
-              <TabPanel value={activeTab} index={1}>
                 <PerfumesManagement />
               </TabPanel>
-              <TabPanel value={activeTab} index={2}>
+              <TabPanel value={activeTab} index={1}>
                 <BrandsManagement />
               </TabPanel>
-              <TabPanel value={activeTab} index={3}>
+              <TabPanel value={activeTab} index={2}>
                 <MembersManagement />
               </TabPanel>
             </Suspense>

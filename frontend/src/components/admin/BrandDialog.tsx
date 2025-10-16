@@ -16,7 +16,7 @@ interface BrandDialogProps {
   open: boolean;
   brand: Brand | null;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (message?: string) => void;
 }
 
 const BrandDialog: React.FC<BrandDialogProps> = ({
@@ -58,10 +58,11 @@ const BrandDialog: React.FC<BrandDialogProps> = ({
     try {
       if (brand) {
         await brandsAPI.updateBrand(brand._id, formData);
+        onSuccess(`Brand "${formData.brandName}" updated successfully`);
       } else {
         await brandsAPI.createBrand(formData);
+        onSuccess(`Brand "${formData.brandName}" created successfully`);
       }
-      onSuccess();
     } catch (error: any) {
       setError(
         error.response?.data?.message ||

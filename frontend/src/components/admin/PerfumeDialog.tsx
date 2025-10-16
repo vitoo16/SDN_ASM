@@ -18,7 +18,7 @@ interface PerfumeDialogProps {
   open: boolean;
   perfume: Perfume | null;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (message?: string) => void;
 }
 
 const PerfumeDialog: React.FC<PerfumeDialogProps> = ({
@@ -103,10 +103,11 @@ const PerfumeDialog: React.FC<PerfumeDialogProps> = ({
     try {
       if (perfume) {
         await perfumesAPI.updatePerfume(perfume._id, formData);
+        onSuccess(`Perfume "${formData.perfumeName}" updated successfully`);
       } else {
         await perfumesAPI.createPerfume(formData);
+        onSuccess(`Perfume "${formData.perfumeName}" created successfully`);
       }
-      onSuccess();
     } catch (error: any) {
       setError(
         error.response?.data?.message ||

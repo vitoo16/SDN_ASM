@@ -7,24 +7,24 @@ import {
   TableHead,
   TableRow,
   Paper,
-  IconButton,
   Tooltip,
   Box,
   Typography,
   Chip,
   Switch,
 } from "@mui/material";
-import { Delete, AdminPanelSettings, Person } from "@mui/icons-material";
+import { AdminPanelSettings, Person } from "@mui/icons-material";
 import { Member } from "../../types";
 
 interface MemberTableProps {
   members: Member[];
   onDelete: (id: string) => void;
   onToggleAdmin: (id: string, currentStatus: boolean) => void;
+  currentUserId?: string; // Add current user ID to prevent self-revocation
 }
 
 const MemberTable: React.FC<MemberTableProps> = React.memo(
-  ({ members, onDelete, onToggleAdmin }) => {
+  ({ members, onDelete, onToggleAdmin, currentUserId }) => {
     if (members.length === 0) {
       return (
         <Box
@@ -69,15 +69,6 @@ const MemberTable: React.FC<MemberTableProps> = React.memo(
               <TableCell sx={{ fontWeight: 700, color: "#0f172a" }}>
                 Role
               </TableCell>
-              <TableCell sx={{ fontWeight: 700, color: "#0f172a" }}>
-                Admin
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ fontWeight: 700, color: "#0f172a" }}
-              >
-                Actions
-              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -96,9 +87,7 @@ const MemberTable: React.FC<MemberTableProps> = React.memo(
                         width: 40,
                         height: 40,
                         borderRadius: "50%",
-                        backgroundColor: member.isAdmin
-                          ? "#fef3c7"
-                          : "#dbeafe",
+                        backgroundColor: member.isAdmin ? "#fef3c7" : "#dbeafe",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -138,45 +127,6 @@ const MemberTable: React.FC<MemberTableProps> = React.memo(
                       fontWeight: 600,
                     }}
                   />
-                </TableCell>
-                <TableCell>
-                  <Tooltip
-                    title={
-                      member.isAdmin
-                        ? "Revoke admin privileges"
-                        : "Grant admin privileges"
-                    }
-                  >
-                    <Switch
-                      checked={member.isAdmin}
-                      onChange={() =>
-                        member._id && onToggleAdmin(member._id, member.isAdmin)
-                      }
-                      sx={{
-                        "& .MuiSwitch-switchBase.Mui-checked": {
-                          color: "#10b981",
-                        },
-                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                          {
-                            backgroundColor: "#10b981",
-                          },
-                      }}
-                    />
-                  </Tooltip>
-                </TableCell>
-                <TableCell align="right">
-                  <Tooltip title="Delete">
-                    <IconButton
-                      size="small"
-                      onClick={() => member._id && onDelete(member._id)}
-                      sx={{
-                        color: "#64748b",
-                        "&:hover": { color: "#ef4444" },
-                      }}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}
