@@ -100,10 +100,10 @@ export const PerfumeDetailPage: React.FC = () => {
         <Alert severity="error">{error || "Perfume not found"}</Alert>
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate("/products")}
+          onClick={() => navigate("/")}
           sx={{ mt: 2 }}
         >
-          Back to Products
+          Back to Home
         </Button>
       </Container>
     );
@@ -115,7 +115,7 @@ export const PerfumeDetailPage: React.FC = () => {
         {/* Back Button */}
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate("/products")}
+          onClick={() => navigate("/")}
           sx={{
             mb: 3,
             color: "#0ea5e9",

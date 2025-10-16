@@ -51,7 +51,15 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
           </Link>
           <Link
             component="button"
-            onClick={() => navigate("/products")}
+            onClick={() => {
+              navigate("/");
+              setTimeout(() => {
+                const element = document.getElementById('products-section');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }, 100);
+            }}
             sx={{
               color: "#64748b",
               textDecoration: "none",
@@ -71,7 +79,15 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
         {/* Back Button */}
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate("/products")}
+          onClick={() => {
+            navigate("/");
+            setTimeout(() => {
+              const element = document.getElementById('products-section');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }, 100);
+          }}
           sx={{
             textTransform: "none",
             color: "#64748b",

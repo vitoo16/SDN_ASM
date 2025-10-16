@@ -10,9 +10,9 @@ const HeroSection = lazy(() =>
     default: module.HeroSection,
   }))
 );
-const FeaturedProducts = lazy(() =>
-  import("../components/FeaturedProducts").then((module) => ({
-    default: module.FeaturedProducts,
+const ProductsSection = lazy(() =>
+  import("../components/ProductsSection").then((module) => ({
+    default: module.ProductsSection,
   }))
 );
 const FeaturesSection = lazy(() =>
@@ -48,9 +48,8 @@ export const HomePage: React.FC = () => {
     fetchPerfumes();
   }, []);
 
-  // Get featured perfumes for hero section and special products
+  // Get featured perfumes for hero section
   const featuredPerfumes = perfumes.slice(0, 5);
-  const specialProducts = perfumes.slice(0, 6);
 
   // Show loading state
   if (loading) {
@@ -78,11 +77,11 @@ export const HomePage: React.FC = () => {
         <FeaturesSection />
       </Suspense>
 
-      {/* Featured Products Section with lazy loading */}
+      {/* Products Section with lazy loading */}
       <Suspense
-        fallback={<LoadingSpinner message="Loading featured products..." />}
+        fallback={<LoadingSpinner message="Loading products..." />}
       >
-        <FeaturedProducts perfumes={specialProducts} loading={false} />
+        <ProductsSection perfumes={[]} loading={loading} />
       </Suspense>
 
       {/* Newsletter Section with lazy loading */}

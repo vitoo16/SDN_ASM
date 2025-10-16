@@ -7,11 +7,9 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Tooltip,
   Box,
   Typography,
   Chip,
-  Switch,
 } from "@mui/material";
 import { AdminPanelSettings, Person } from "@mui/icons-material";
 import { Member } from "../../types";

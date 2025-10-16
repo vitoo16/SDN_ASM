@@ -2,39 +2,47 @@ import React, { useState, useEffect, lazy, Suspense } from "react";
 import { Container, Box, Alert, Typography, Fade, Chip } from "@mui/material";
 import { perfumesAPI } from "../services/api";
 import { Perfume } from "../types";
-import { LoadingSpinner } from "../components/LoadingSpinner";
+import { LoadingSpinner } from "./LoadingSpinner";
 import { Tune } from "@mui/icons-material";
 
 // Lazy load components
 const FilterSidebar = lazy(() =>
-  import("../components/FilterSidebar").then((module) => ({
+  import("./FilterSidebar").then((module) => ({
     default: module.FilterSidebar,
   }))
 );
 const SearchBar = lazy(() =>
-  import("../components/SearchBar").then((module) => ({
+  import("./SearchBar").then((module) => ({
     default: module.SearchBar,
   }))
 );
 const ProductGrid = lazy(() =>
-  import("../components/ProductGrid").then((module) => ({
+  import("./ProductGrid").then((module) => ({
     default: module.ProductGrid,
   }))
 );
 const ProductPagination = lazy(() =>
-  import("../components/ProductPagination").then((module) => ({
+  import("./ProductPagination").then((module) => ({
     default: module.ProductPagination,
   }))
 );
 const EmptyState = lazy(() =>
-  import("../components/EmptyState").then((module) => ({
+  import("./EmptyState").then((module) => ({
     default: module.EmptyState,
   }))
 );
 
-export const ProductsPage: React.FC = () => {
-  const [perfumes, setPerfumes] = useState<Perfume[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ProductsSectionProps {
+  perfumes: Perfume[];
+  loading?: boolean;
+}
+
+export const ProductsSection: React.FC<ProductsSectionProps> = ({
+  perfumes: initialPerfumes,
+  loading: initialLoading = false,
+}) => {
+  const [perfumes, setPerfumes] = useState<Perfume[]>(initialPerfumes);
+  const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -59,6 +67,12 @@ export const ProductsPage: React.FC = () => {
     }
   }, [perfumes.length, minPrice, maxPrice]);
 
+  // Update perfumes when props change
+  useEffect(() => {
+    setPerfumes(initialPerfumes);
+    setLoading(initialLoading);
+  }, [initialPerfumes, initialLoading]);
+
   const fetchPerfumes = async () => {
     try {
       setLoading(true);
@@ -72,9 +86,12 @@ export const ProductsPage: React.FC = () => {
     }
   };
 
+  // If no initial perfumes provided, fetch them
   useEffect(() => {
-    fetchPerfumes();
-  }, []);
+    if (initialPerfumes.length === 0 && !initialLoading) {
+      fetchPerfumes();
+    }
+  }, [initialPerfumes.length, initialLoading]);
 
   // Filter and search logic
   const filteredPerfumes = perfumes.filter((perfume) => {
@@ -142,7 +159,11 @@ export const ProductsPage: React.FC = () => {
     value: number
   ) => {
     setCurrentPage(value);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Scroll to the section header instead of top of page
+    const element = document.getElementById('products-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   const handlePriceChange = (newValue: number | number[]) => {
@@ -161,7 +182,7 @@ export const ProductsPage: React.FC = () => {
 
   // Show loading state
   if (loading) {
-    return <LoadingSpinner message="Loading products..." fullScreen />;
+    return <LoadingSpinner message="Loading products..." />;
   }
 
   // Show error state
@@ -174,29 +195,49 @@ export const ProductsPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
-      {/* Page Header */}
+    <Box 
+      id="products-section"
+      sx={{ 
+        py: { xs: 8, md: 12 }, 
+        backgroundColor: "#f8fafc",
+        position: "relative",
+      }}
+    >
+      {/* Section Header */}
       <Box
         sx={{
           background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
           py: 6,
-          mb: 4,
+          mb: 6,
+          position: "relative",
+          overflow: "hidden",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "url('/api/placeholder/100/100') repeat",
+            opacity: 0.05,
+          },
         }}
       >
         <Container maxWidth="xl">
           <Fade in timeout={600}>
-            <Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+            <Box sx={{ position: "relative", zIndex: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, justifyContent: "center" }}>
                 <Tune sx={{ fontSize: 32, color: "#0ea5e9" }} />
                 <Typography
-                  variant="h3"
+                  variant="h2"
                   sx={{
                     fontWeight: 800,
                     color: "white",
                     fontSize: { xs: "2rem", md: "2.5rem" },
+                    textAlign: "center",
                   }}
                 >
-                  Browse Products
+                  Explore Our Collection
                 </Typography>
               </Box>
               <Typography
@@ -204,12 +245,15 @@ export const ProductsPage: React.FC = () => {
                 sx={{
                   color: "#94a3b8",
                   fontSize: "1.1rem",
-                  mb: 2,
+                  mb: 3,
+                  textAlign: "center",
+                  maxWidth: "600px",
+                  mx: "auto",
                 }}
               >
-                Discover our complete collection of premium fragrances
+                Discover our complete collection of premium fragrances with advanced filtering and search
               </Typography>
-              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center" }}>
                 <Chip
                   label={`${perfumes.length} Total Products`}
                   sx={{
@@ -226,36 +270,48 @@ export const ProductsPage: React.FC = () => {
                     fontWeight: 600,
                   }}
                 />
+                {filteredPerfumes.length !== perfumes.length && (
+                  <Chip
+                    label={`${filteredPerfumes.length} Filtered Results`}
+                    sx={{
+                      backgroundColor: "rgba(236, 72, 153, 0.2)",
+                      color: "#ec4899",
+                      fontWeight: 600,
+                    }}
+                  />
+                )}
               </Box>
             </Box>
           </Fade>
         </Container>
       </Box>
 
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Box sx={{ display: "flex", gap: 4 }}>
+      <Container maxWidth="xl">
+        <Box sx={{ display: "flex", gap: 4, flexDirection: { xs: "column", lg: "row" } }}>
           {/* Left Sidebar - Filters */}
-          <Suspense fallback={<LoadingSpinner />}>
-            <FilterSidebar
-              brandOptions={brandOptions}
-              targetAudienceOptions={targetAudienceOptions}
-              concentrationOptions={concentrationOptions}
-              selectedBrands={selectedBrands}
-              selectedTargetAudiences={selectedTargetAudiences}
-              selectedConcentrations={selectedConcentrations}
-              priceRange={priceRange}
-              minPrice={minPrice}
-              maxPrice={maxPrice}
-              onBrandChange={handleBrandChange}
-              onTargetAudienceChange={handleTargetAudienceChange}
-              onConcentrationChange={handleConcentrationChange}
-              onPriceChange={handlePriceChange}
-              onClearAll={handleClearFilters}
-            />
-          </Suspense>
+          <Box sx={{ width: { lg: 280 }, flexShrink: 0 }}>
+            <Suspense fallback={<LoadingSpinner />}>
+              <FilterSidebar
+                brandOptions={brandOptions}
+                targetAudienceOptions={targetAudienceOptions}
+                concentrationOptions={concentrationOptions}
+                selectedBrands={selectedBrands}
+                selectedTargetAudiences={selectedTargetAudiences}
+                selectedConcentrations={selectedConcentrations}
+                priceRange={priceRange}
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                onBrandChange={handleBrandChange}
+                onTargetAudienceChange={handleTargetAudienceChange}
+                onConcentrationChange={handleConcentrationChange}
+                onPriceChange={handlePriceChange}
+                onClearAll={handleClearFilters}
+              />
+            </Suspense>
+          </Box>
 
           {/* Main Content */}
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             {/* Search Bar */}
             <Suspense fallback={<LoadingSpinner />}>
               <SearchBar
@@ -276,16 +332,18 @@ export const ProductsPage: React.FC = () => {
                 </Suspense>
 
                 {/* Pagination */}
-                <Suspense fallback={<LoadingSpinner />}>
-                  <ProductPagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                    startIndex={startIndex}
-                    endIndex={endIndex}
-                    totalItems={filteredPerfumes.length}
-                  />
-                </Suspense>
+                {totalPages > 1 && (
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <ProductPagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      startIndex={startIndex}
+                      endIndex={endIndex}
+                      totalItems={filteredPerfumes.length}
+                    />
+                  </Suspense>
+                )}
               </>
             ) : (
               <Suspense fallback={<LoadingSpinner />}>

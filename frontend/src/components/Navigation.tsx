@@ -60,8 +60,23 @@ export const Navigation: React.FC = () => {
 
   const navigation = [
     { path: "/", label: "Home", icon: <Home /> },
-    { path: "/products", label: "Products", icon: <Home /> },
   ];
+
+  const scrollToProducts = () => {
+    const element = document.getElementById('products-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      // If not on homepage, navigate to home first then scroll
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById('products-section');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  };
 
   const MobileMenu = () => (
     <Drawer
@@ -85,6 +100,19 @@ export const Navigation: React.FC = () => {
               </ListItemButton>
             </ListItem>
           ))}
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                scrollToProducts();
+                setMobileMenuOpen(false);
+              }}
+            >
+              <ListItemIcon>
+                <Home />
+              </ListItemIcon>
+              <ListItemText primary="Shop" />
+            </ListItemButton>
+          </ListItem>
           {isAuthenticated ? (
             <>
               {user?.isAdmin && (
@@ -247,6 +275,23 @@ export const Navigation: React.FC = () => {
                   {item.label}
                 </Button>
               ))}
+              <Button
+                onClick={scrollToProducts}
+                sx={{
+                  color: "#64748b",
+                  fontWeight: 500,
+                  textTransform: "none",
+                  px: 2,
+                  py: 1,
+                  borderRadius: "8px",
+                  "&:hover": {
+                    backgroundColor: "#f1f5f9",
+                    color: "#0ea5e9",
+                  },
+                }}
+              >
+                Shop
+              </Button>
             </Box>
           )}
 

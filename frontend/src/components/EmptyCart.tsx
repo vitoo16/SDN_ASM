@@ -100,7 +100,15 @@ export const EmptyCart: React.FC = () => {
           <Button
             variant="contained"
             size="large"
-            onClick={() => navigate("/products")}
+            onClick={() => {
+              navigate("/");
+              setTimeout(() => {
+                const element = document.getElementById('products-section');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }, 100);
+            }}
             sx={{
               background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
               px: { xs: 3, sm: 4 },

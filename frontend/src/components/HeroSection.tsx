@@ -9,7 +9,6 @@ import {
   Grow,
 } from "@mui/material";
 import { ArrowBack, ArrowForward, ShoppingBag } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
 import { Perfume } from "../types";
 
 interface HeroSectionProps {
@@ -20,7 +19,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   featuredPerfumes,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const navigate = useNavigate();
 
   const handlePrevious = () => {
     setCurrentIndex((prev) =>
@@ -133,7 +131,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   variant="contained"
                   size="large"
                   startIcon={<ShoppingBag />}
-                  onClick={() => navigate("/products")}
+                  onClick={() => {
+                    const element = document.getElementById('products-section');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
                   sx={{
                     px: 4,
                     py: 1.8,
@@ -158,7 +161,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <Button
                   variant="outlined"
                   size="large"
-                  onClick={() => navigate("/products")}
+                  onClick={() => {
+                    const element = document.getElementById('products-section');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
                   sx={{
                     px: 4,
                     py: 1.8,
