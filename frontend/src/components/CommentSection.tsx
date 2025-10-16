@@ -16,13 +16,7 @@ import {
   IconButton,
   Chip,
 } from "@mui/material";
-import {
-  Edit,
-  Delete,
-  Send,
-  RateReview,
-  Person,
-} from "@mui/icons-material";
+import { Edit, Delete, Send, RateReview, Person } from "@mui/icons-material";
 import { perfumesAPI } from "../services/api";
 import { Perfume, Comment } from "../types";
 import { useAuth } from "../context/AuthContext";
@@ -34,10 +28,14 @@ const formatTimeAgo = (date: string) => {
   const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
 
   if (diffInSeconds < 60) return "just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
-  if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+  if (diffInSeconds < 3600)
+    return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400)
+    return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  if (diffInSeconds < 2592000)
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  if (diffInSeconds < 31536000)
+    return `${Math.floor(diffInSeconds / 2592000)} months ago`;
   return `${Math.floor(diffInSeconds / 31536000)} years ago`;
 };
 
@@ -54,13 +52,13 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   onCommentUpdated,
   onCommentDeleted,
 }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, openAuthModal } = useAuth();
   const [rating, setRating] = useState<number>(5);
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
-  
+
   // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editCommentId, setEditCommentId] = useState<string>("");
@@ -73,7 +71,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
   // Check if user has already commented
   const userComment = perfume.comments.find(
-    (comment) => comment.author._id === user?._id || comment.author._id === user?.id
+    (comment) =>
+      comment.author._id === user?._id || comment.author._id === user?.id
   );
 
   const handleSubmitComment = async () => {
@@ -103,7 +102,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
       onCommentAdded();
     } catch (err: any) {
       setError(
-        err.response?.data?.message || "Failed to add comment. Please try again."
+        err.response?.data?.message ||
+          "Failed to add comment. Please try again."
       );
     } finally {
       setLoading(false);
@@ -145,7 +145,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
       onCommentUpdated();
     } catch (err: any) {
       setError(
-        err.response?.data?.message || "Failed to update comment. Please try again."
+        err.response?.data?.message ||
+          "Failed to update comment. Please try again."
       );
     } finally {
       setLoading(false);
@@ -175,7 +176,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
       onCommentDeleted();
     } catch (err: any) {
       setError(
-        err.response?.data?.message || "Failed to delete comment. Please try again."
+        err.response?.data?.message ||
+          "Failed to delete comment. Please try again."
       );
     } finally {
       setLoading(false);
@@ -287,8 +289,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               py: 1,
               borderRadius: 2,
               "&:hover": {
-                background:
-                  "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
+                background: "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
               },
               "&:disabled": {
                 background: "#cbd5e1",
@@ -369,7 +370,24 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
       {/* Login prompt for unauthenticated users */}
       {!isAuthenticated && (
         <Alert severity="info" sx={{ mb: 4 }}>
-          Please log in to write a review for this perfume.
+          Please{" "}
+          <Box
+            component="span"
+            onClick={() => openAuthModal("login")}
+            sx={{
+              fontWeight: 700,
+              color: "#0ea5e9",
+              cursor: "pointer",
+              textDecoration: "underline",
+              "&:hover": {
+                color: "#0284c7",
+                textDecoration: "none",
+              },
+            }}
+          >
+            log in
+          </Box>{" "}
+          to write a review for this perfume.
         </Alert>
       )}
 
@@ -544,8 +562,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               textTransform: "none",
               px: 3,
               "&:hover": {
-                background:
-                  "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
+                background: "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
               },
             }}
           >

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CircularProgress, Box } from '@mui/material';
 import { AccessDeniedPage } from '../pages/AccessDeniedPage';
@@ -13,8 +13,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   requireAdmin = false 
 }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
-  const location = useLocation();
+  const { isAuthenticated, isLoading, user, openAuthModal } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      openAuthModal('login');
+    }
+  }, [isLoading, isAuthenticated, openAuthModal]);
 
   if (isLoading) {
     return (
@@ -25,7 +30,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (requireAdmin && !user?.isAdmin) {

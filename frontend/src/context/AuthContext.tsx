@@ -13,6 +13,9 @@ interface AuthState {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  // Modal state
+  isAuthModalOpen: boolean;
+  authModalMode: 'login' | 'register';
 }
 
 interface AuthContextType extends AuthState {
@@ -29,6 +32,9 @@ interface AuthContextType extends AuthState {
     currentPassword: string,
     newPassword: string
   ) => Promise<void>;
+  // Modal methods
+  openAuthModal: (mode?: 'login' | 'register') => void;
+  closeAuthModal: () => void;
 }
 
 type AuthAction =
@@ -36,13 +42,17 @@ type AuthAction =
   | { type: "AUTH_SUCCESS"; payload: { user: Member; token: string } }
   | { type: "AUTH_FAILURE" }
   | { type: "LOGOUT" }
-  | { type: "UPDATE_USER"; payload: Member };
+  | { type: "UPDATE_USER"; payload: Member }
+  | { type: "OPEN_AUTH_MODAL"; payload: 'login' | 'register' }
+  | { type: "CLOSE_AUTH_MODAL" };
 
 const initialState: AuthState = {
   user: null,
   token: null,
   isLoading: true,
   isAuthenticated: false,
+  isAuthModalOpen: false,
+  authModalMode: 'login',
 };
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
@@ -80,6 +90,17 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         user: action.payload,
+      };
+    case "OPEN_AUTH_MODAL":
+      return {
+        ...state,
+        isAuthModalOpen: true,
+        authModalMode: action.payload,
+      };
+    case "CLOSE_AUTH_MODAL":
+      return {
+        ...state,
+        isAuthModalOpen: false,
       };
     default:
       return state;
@@ -251,6 +272,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const openAuthModal = (mode: 'login' | 'register' = 'login') => {
+    dispatch({ type: "OPEN_AUTH_MODAL", payload: mode });
+  };
+
+  const closeAuthModal = () => {
+    dispatch({ type: "CLOSE_AUTH_MODAL" });
+  };
+
   const value: AuthContextType = {
     ...state,
     login,
@@ -259,6 +288,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateUser,
     updateProfile,
     changePassword,
+    openAuthModal,
+    closeAuthModal,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

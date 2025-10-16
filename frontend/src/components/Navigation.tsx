@@ -36,7 +36,7 @@ import { useCart } from "../context/CartContext";
 export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const { getCartCount } = useCart();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -144,7 +144,7 @@ export const Navigation: React.FC = () => {
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => {
-                    navigate("/login");
+                    openAuthModal('login');
                     setMobileMenuOpen(false);
                   }}
                 >
@@ -157,7 +157,7 @@ export const Navigation: React.FC = () => {
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => {
-                    navigate("/register");
+                    openAuthModal('register');
                     setMobileMenuOpen(false);
                   }}
                 >
@@ -384,7 +384,7 @@ export const Navigation: React.FC = () => {
                 <Box sx={{ ml: 2, display: "flex", gap: 1 }}>
                   <Button
                     variant="outlined"
-                    onClick={() => navigate("/login")}
+                    onClick={() => openAuthModal('login')}
                     sx={{
                       borderColor: "#0ea5e9",
                       color: "#0ea5e9",
@@ -398,7 +398,7 @@ export const Navigation: React.FC = () => {
                   </Button>
                   <Button
                     variant="contained"
-                    onClick={() => navigate("/register")}
+                    onClick={() => openAuthModal('register')}
                     sx={{
                       backgroundColor: "#0ea5e9",
                       "&:hover": {
