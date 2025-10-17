@@ -36,7 +36,7 @@ import { useCart } from "../context/CartContext";
 export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAuthenticated, logout, openAuthModal } = useAuth();
+  const { user, isAuthenticated, logout, openAuthModal, setPreLoginPath } = useAuth();
   const { getCartCount } = useCart();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -144,6 +144,7 @@ export const Navigation: React.FC = () => {
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => {
+                    setPreLoginPath(location.pathname);
                     openAuthModal('login');
                     setMobileMenuOpen(false);
                   }}
@@ -157,6 +158,7 @@ export const Navigation: React.FC = () => {
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => {
+                    setPreLoginPath(location.pathname);
                     openAuthModal('register');
                     setMobileMenuOpen(false);
                   }}
@@ -384,7 +386,10 @@ export const Navigation: React.FC = () => {
                 <Box sx={{ ml: 2, display: "flex", gap: 1 }}>
                   <Button
                     variant="outlined"
-                    onClick={() => openAuthModal('login')}
+                    onClick={() => {
+                      setPreLoginPath(location.pathname);
+                      openAuthModal('login');
+                    }}
                     sx={{
                       borderColor: "#0ea5e9",
                       color: "#0ea5e9",
@@ -398,7 +403,10 @@ export const Navigation: React.FC = () => {
                   </Button>
                   <Button
                     variant="contained"
-                    onClick={() => openAuthModal('register')}
+                    onClick={() => {
+                      setPreLoginPath(location.pathname);
+                      openAuthModal('register');
+                    }}
                     sx={{
                       backgroundColor: "#0ea5e9",
                       "&:hover": {

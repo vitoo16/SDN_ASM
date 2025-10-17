@@ -1,29 +1,43 @@
-import React, { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { CircularProgress, Box } from '@mui/material';
-import { AccessDeniedPage } from '../pages/AccessDeniedPage';
+import React, { useEffect } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { CircularProgress, Box } from "@mui/material";
+import { AccessDeniedPage } from "../pages/AccessDeniedPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requireAdmin = false 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requireAdmin = false,
 }) => {
-  const { isAuthenticated, isLoading, user, openAuthModal } = useAuth();
+  const location = useLocation();
+  const { isAuthenticated, isLoading, user, openAuthModal, setPreLoginPath } =
+    useAuth();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      openAuthModal('login');
+      setPreLoginPath(location.pathname);
+      openAuthModal("login");
     }
-  }, [isLoading, isAuthenticated, openAuthModal]);
+  }, [
+    isLoading,
+    isAuthenticated,
+    openAuthModal,
+    setPreLoginPath,
+    location.pathname,
+  ]);
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="50vh"
+      >
         <CircularProgress />
       </Box>
     );

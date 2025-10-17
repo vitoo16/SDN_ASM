@@ -16,6 +16,8 @@ interface AuthState {
   // Modal state
   isAuthModalOpen: boolean;
   authModalMode: 'login' | 'register';
+  // Navigation state
+  preLoginPath: string | null;
 }
 
 interface AuthContextType extends AuthState {
@@ -35,6 +37,9 @@ interface AuthContextType extends AuthState {
   // Modal methods
   openAuthModal: (mode?: 'login' | 'register') => void;
   closeAuthModal: () => void;
+  // Navigation methods
+  setPreLoginPath: (path: string) => void;
+  clearPreLoginPath: () => void;
 }
 
 type AuthAction =
@@ -44,7 +49,9 @@ type AuthAction =
   | { type: "LOGOUT" }
   | { type: "UPDATE_USER"; payload: Member }
   | { type: "OPEN_AUTH_MODAL"; payload: 'login' | 'register' }
-  | { type: "CLOSE_AUTH_MODAL" };
+  | { type: "CLOSE_AUTH_MODAL" }
+  | { type: "SET_PRE_LOGIN_PATH"; payload: string }
+  | { type: "CLEAR_PRE_LOGIN_PATH" };
 
 const initialState: AuthState = {
   user: null,
@@ -53,6 +60,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isAuthModalOpen: false,
   authModalMode: 'login',
+  preLoginPath: null,
 };
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
@@ -101,6 +109,16 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         isAuthModalOpen: false,
+      };
+    case "SET_PRE_LOGIN_PATH":
+      return {
+        ...state,
+        preLoginPath: action.payload,
+      };
+    case "CLEAR_PRE_LOGIN_PATH":
+      return {
+        ...state,
+        preLoginPath: null,
       };
     default:
       return state;
@@ -280,6 +298,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: "CLOSE_AUTH_MODAL" });
   };
 
+  const setPreLoginPath = (path: string) => {
+    dispatch({ type: "SET_PRE_LOGIN_PATH", payload: path });
+  };
+
+  const clearPreLoginPath = () => {
+    dispatch({ type: "CLEAR_PRE_LOGIN_PATH" });
+  };
+
   const value: AuthContextType = {
     ...state,
     login,
@@ -290,6 +316,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     changePassword,
     openAuthModal,
     closeAuthModal,
+    setPreLoginPath,
+    clearPreLoginPath,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -7,6 +7,7 @@ import { CartProvider } from "./context/CartContext";
 import { Navigation } from "./components/Navigation";
 import { AuthModal } from "./components/AuthModal";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { LoginNavigationHandler } from "./components/LoginNavigationHandler";
 import { HomePage } from "./pages/HomePage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { PerfumeDetailPage } from "./pages/PerfumeDetailPage";
@@ -40,6 +41,7 @@ const AppContent = () => {
         }}
       >
         <Navigation />
+        <LoginNavigationHandler />
         <Box component="main" sx={{ flexGrow: 1 }}>
           <Routes>
             <Route path="/" element={<HomePage />} />

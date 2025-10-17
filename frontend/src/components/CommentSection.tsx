@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Paper,
   Box,
@@ -52,7 +53,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   onCommentUpdated,
   onCommentDeleted,
 }) => {
-  const { user, isAuthenticated, openAuthModal } = useAuth();
+  const location = useLocation();
+  const { user, isAuthenticated, openAuthModal, setPreLoginPath } = useAuth();
   const [rating, setRating] = useState<number>(5);
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -373,7 +375,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           Please{" "}
           <Box
             component="span"
-            onClick={() => openAuthModal("login")}
+            onClick={() => {
+              setPreLoginPath(location.pathname);
+              openAuthModal("login");
+            }}
             sx={{
               fontWeight: 700,
               color: "#0ea5e9",

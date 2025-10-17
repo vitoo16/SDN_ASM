@@ -78,10 +78,8 @@ export const HomePage: React.FC = () => {
       </Suspense>
 
       {/* Products Section with lazy loading */}
-      <Suspense
-        fallback={<LoadingSpinner message="Loading products..." />}
-      >
-        <ProductsSection perfumes={[]} loading={loading} />
+      <Suspense fallback={<LoadingSpinner message="Loading products..." />}>
+        <ProductsSection perfumes={perfumes} loading={loading} />
       </Suspense>
 
       {/* Newsletter Section with lazy loading */}
