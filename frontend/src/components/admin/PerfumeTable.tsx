@@ -149,7 +149,7 @@ const PerfumeTable: React.FC<PerfumeTableProps> = React.memo(
                     <Tooltip title="View Details">
                       <IconButton
                         size="small"
-                        onClick={() => navigate(`/perfumes/${perfume._id}`)}
+                        onClick={() => navigate(`/${perfume._id}`)}
                         sx={{
                           color: "#64748b",
                           "&:hover": { color: "#0ea5e9" },

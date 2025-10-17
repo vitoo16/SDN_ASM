@@ -73,7 +73,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                 transform: "scale(1.05)",
               },
             }}
-            onClick={() => navigate(`/perfumes/${item.perfume._id}`)}
+            onClick={() => navigate(`/${item.perfume._id}`)}
           />
         </Box>
 
@@ -107,7 +107,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                     color: "#0ea5e9",
                   },
                 }}
-                onClick={() => navigate(`/perfumes/${item.perfume._id}`)}
+                onClick={() => navigate(`/${item.perfume._id}`)}
               >
                 {item.perfume.perfumeName}
               </Typography>

@@ -16,7 +16,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   const navigate = useNavigate();
 
   const handleViewDetails = (perfumeId: string) => {
-    navigate(`/perfumes/${perfumeId}`);
+    navigate(`/${perfumeId}`);
   };
 
   return (

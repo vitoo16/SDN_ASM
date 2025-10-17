@@ -486,10 +486,10 @@ export const ProfilePage: React.FC = () => {
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {userReviews.map((review) => (
-                <Card 
-                  key={review._id} 
+                <Card
+                  key={review._id}
                   variant="outlined"
-                  sx={{ 
+                  sx={{
                     cursor: "pointer",
                     transition: "all 0.2s",
                     "&:hover": {
@@ -497,7 +497,7 @@ export const ProfilePage: React.FC = () => {
                       transform: "translateY(-2px)",
                     },
                   }}
-                  onClick={() => navigate(`/perfumes/${review.perfumeId}`)}
+                  onClick={() => navigate(`/${review.perfumeId}`)}
                 >
                   <CardContent>
                     <Box
@@ -520,7 +520,7 @@ export const ProfilePage: React.FC = () => {
                           flexShrink: 0,
                         }}
                       />
-                      
+
                       {/* Review Details */}
                       <Box sx={{ flex: 1 }}>
                         <Box
@@ -545,10 +545,12 @@ export const ProfilePage: React.FC = () => {
                           {review.content}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          Reviewed on {new Date(review.createdAt).toLocaleDateString()}
-                          {review.updatedAt !== review.createdAt && 
-                            ` (edited ${new Date(review.updatedAt).toLocaleDateString()})`
-                          }
+                          Reviewed on{" "}
+                          {new Date(review.createdAt).toLocaleDateString()}
+                          {review.updatedAt !== review.createdAt &&
+                            ` (edited ${new Date(
+                              review.updatedAt
+                            ).toLocaleDateString()})`}
                         </Typography>
                       </Box>
                     </Box>

@@ -74,12 +74,12 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
-            <Route path="/perfumes/:id" element={<PerfumeDetailPage />} />
+            <Route path="/:id" element={<PerfumeDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
           </Routes>
         </Box>
       </Box>
-      
+
       {/* Global Auth Modal */}
       <AuthModal
         open={isAuthModalOpen}
