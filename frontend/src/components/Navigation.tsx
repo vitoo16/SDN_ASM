@@ -18,6 +18,7 @@ import {
   useTheme,
   useMediaQuery,
   Badge,
+  Divider,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -43,6 +44,7 @@ export const Navigation: React.FC = () => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const navigation = [{ path: "/", label: "Home", icon: <Home /> }];
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -58,23 +60,18 @@ export const Navigation: React.FC = () => {
     handleMenuClose();
   };
 
-  const navigation = [
-    { path: "/", label: "Home", icon: <Home /> },
-  ];
-
   const scrollToProducts = () => {
-    const element = document.getElementById('products-section');
+    const element = document.getElementById("products-section");
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
-      // If not on homepage, navigate to home first then scroll
-      navigate('/');
+      navigate("/");
       setTimeout(() => {
-        const element = document.getElementById('products-section');
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const target = document.getElementById("products-section");
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
         }
-      }, 100);
+      }, 120);
     }
   };
 
@@ -83,8 +80,29 @@ export const Navigation: React.FC = () => {
       anchor="left"
       open={mobileMenuOpen}
       onClose={() => setMobileMenuOpen(false)}
+      PaperProps={{
+        sx: {
+          width: 270,
+          backgroundColor: "rgba(10, 12, 18, 0.96)",
+          backdropFilter: "blur(26px)",
+          borderRight: "1px solid rgba(255,255,255,0.08)",
+        },
+      }}
     >
-      <Box sx={{ width: 250 }} role="presentation">
+      <Box sx={{ py: 3 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            px: 3,
+            mb: 2,
+            fontFamily: "'Playfair Display', serif",
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.85)",
+          }}
+        >
+          Odour
+        </Typography>
         <List>
           {navigation.map((item) => (
             <ListItem key={item.path} disablePadding>
@@ -94,25 +112,51 @@ export const Navigation: React.FC = () => {
                   setMobileMenuOpen(false);
                 }}
                 selected={location.pathname === item.path}
+                sx={{
+                  color: "rgba(255,255,255,0.78)",
+                  "&.Mui-selected": {
+                    color: theme.palette.primary.main,
+                    backgroundColor: "rgba(193, 156, 255, 0.1)",
+                  },
+                }}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.label} />
+                <ListItemIcon sx={{ color: "inherit" }}>{item.icon}</ListItemIcon>
+                <ListItemText
+                  primaryTypographyProps={{
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    fontSize: "0.85rem",
+                  }}
+                  primary={item.label}
+                />
               </ListItemButton>
             </ListItem>
           ))}
+
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => {
                 scrollToProducts();
                 setMobileMenuOpen(false);
               }}
+              sx={{ color: "rgba(255,255,255,0.78)" }}
             >
-              <ListItemIcon>
+              <ListItemIcon sx={{ color: "inherit" }}>
                 <Home />
               </ListItemIcon>
-              <ListItemText primary="Shop" />
+              <ListItemText
+                primaryTypographyProps={{
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  fontSize: "0.85rem",
+                }}
+                primary="Shop"
+              />
             </ListItemButton>
           </ListItem>
+
+          <Divider sx={{ my: 1.5, borderColor: "rgba(255,255,255,0.08)" }} />
+
           {isAuthenticated ? (
             <>
               {user?.isAdmin && (
@@ -122,20 +166,35 @@ export const Navigation: React.FC = () => {
                       navigate("/admin");
                       setMobileMenuOpen(false);
                     }}
+                    sx={{ color: "rgba(255,255,255,0.8)" }}
                   >
-                    <ListItemIcon>
+                    <ListItemIcon sx={{ color: "inherit" }}>
                       <Dashboard />
                     </ListItemIcon>
-                    <ListItemText primary="Admin Dashboard" />
+                    <ListItemText
+                      primaryTypographyProps={{
+                        letterSpacing: "0.12em",
+                        textTransform: "uppercase",
+                        fontSize: "0.85rem",
+                      }}
+                      primary="Admin"
+                    />
                   </ListItemButton>
                 </ListItem>
               )}
               <ListItem disablePadding>
                 <ListItemButton onClick={handleLogout}>
-                  <ListItemIcon>
+                  <ListItemIcon sx={{ color: theme.palette.error.light }}>
                     <Logout />
                   </ListItemIcon>
-                  <ListItemText primary="Logout" />
+                  <ListItemText
+                    primaryTypographyProps={{
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      fontSize: "0.85rem",
+                    }}
+                    primary="Logout"
+                  />
                 </ListItemButton>
               </ListItem>
             </>
@@ -145,28 +204,44 @@ export const Navigation: React.FC = () => {
                 <ListItemButton
                   onClick={() => {
                     setPreLoginPath(location.pathname);
-                    openAuthModal('login');
+                    openAuthModal("login");
                     setMobileMenuOpen(false);
                   }}
+                  sx={{ color: "rgba(255,255,255,0.78)" }}
                 >
-                  <ListItemIcon>
+                  <ListItemIcon sx={{ color: "inherit" }}>
                     <AccountCircle />
                   </ListItemIcon>
-                  <ListItemText primary="Login" />
+                  <ListItemText
+                    primaryTypographyProps={{
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      fontSize: "0.85rem",
+                    }}
+                    primary="Login"
+                  />
                 </ListItemButton>
               </ListItem>
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => {
                     setPreLoginPath(location.pathname);
-                    openAuthModal('register');
+                    openAuthModal("register");
                     setMobileMenuOpen(false);
                   }}
+                  sx={{ color: theme.palette.primary.main }}
                 >
-                  <ListItemIcon>
+                  <ListItemIcon sx={{ color: "inherit" }}>
                     <Person />
                   </ListItemIcon>
-                  <ListItemText primary="Register" />
+                  <ListItemText
+                    primaryTypographyProps={{
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      fontSize: "0.85rem",
+                    }}
+                    primary="Register"
+                  />
                 </ListItemButton>
               </ListItem>
             </>
@@ -180,32 +255,43 @@ export const Navigation: React.FC = () => {
     <>
       <AppBar
         position="sticky"
+        elevation={0}
         sx={{
-          backgroundColor: "white",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          borderBottom: "1px solid #e2e8f0",
+          top: 0,
+          px: { xs: 2, md: 4 },
+          backgroundColor: "rgba(6, 8, 12, 0.78)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+          backdropFilter: "blur(28px)",
         }}
       >
         <Toolbar
           sx={{
-            maxWidth: "1200px",
+            maxWidth: "1280px",
             margin: "0 auto",
             width: "100%",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            py: 1.5,
           }}
         >
           {/* Left Section - Logo */}
           <Box
-            sx={{ display: "flex", alignItems: "center", minWidth: "150px" }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              minWidth: "160px",
+              gap: 1.5,
+            }}
           >
             {isMobile && (
               <IconButton
                 edge="start"
-                color="inherit"
                 onClick={() => setMobileMenuOpen(true)}
-                sx={{ mr: 2, color: "#1e293b" }}
+                sx={{
+                  mr: 1,
+                  color: "rgba(255,255,255,0.85)",
+                }}
               >
                 <MenuIcon />
               </IconButton>
@@ -216,27 +302,30 @@ export const Navigation: React.FC = () => {
               component="div"
               sx={{
                 cursor: "pointer",
-                fontWeight: 700,
-                color: "#1e293b",
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
+                fontFamily: "'Playfair Display', serif",
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.92)",
               }}
               onClick={() => navigate("/")}
             >
               <Box
                 sx={{
-                  width: 32,
-                  height: 32,
+                  width: 36,
+                  height: 36,
                   borderRadius: "50%",
                   background:
-                    "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
+                    "linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(198, 162, 255, 0.8) 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "white",
+                  color: "#0b0d12",
                   fontSize: "1.2rem",
-                  fontWeight: "bold",
+                  fontWeight: 700,
+                  boxShadow: "0 10px 25px rgba(193, 156, 255, 0.25)",
                 }}
               >
                 O
@@ -250,45 +339,78 @@ export const Navigation: React.FC = () => {
             <Box
               sx={{
                 display: "flex",
-                gap: 1,
+                gap: 2.5,
+                alignItems: "center",
                 position: "absolute",
                 left: "50%",
                 transform: "translateX(-50%)",
               }}
             >
-              {navigation.slice(0, 6).map((item) => (
-                <Button
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
-                  sx={{
-                    color:
-                      location.pathname === item.path ? "#0ea5e9" : "#64748b",
-                    fontWeight: location.pathname === item.path ? 600 : 500,
-                    textTransform: "none",
-                    px: 2,
-                    py: 1,
-                    borderRadius: "8px",
-                    "&:hover": {
-                      backgroundColor: "#f1f5f9",
-                      color: "#0ea5e9",
-                    },
-                  }}
-                >
-                  {item.label}
-                </Button>
-              ))}
+              {navigation.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Button
+                    key={item.path}
+                    onClick={() => navigate(item.path)}
+                    sx={{
+                      position: "relative",
+                      color: isActive
+                        ? theme.palette.primary.main
+                        : "rgba(255,255,255,0.62)",
+                      fontWeight: isActive ? 700 : 500,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.16em",
+                      px: 1.5,
+                      py: 0.5,
+                      "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        left: 0,
+                        bottom: -8,
+                        width: isActive ? "100%" : "0%",
+                        height: 2,
+                        background:
+                          "linear-gradient(90deg, transparent, rgba(224,212,255,0.9), transparent)",
+                        transition: "width 0.35s ease",
+                      },
+                      "&:hover": {
+                        color: theme.palette.primary.main,
+                      },
+                      "&:hover::after": {
+                        width: "100%",
+                      },
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+                );
+              })}
               <Button
                 onClick={scrollToProducts}
                 sx={{
-                  color: "#64748b",
+                  position: "relative",
+                  color: "rgba(255,255,255,0.62)",
                   fontWeight: 500,
-                  textTransform: "none",
-                  px: 2,
-                  py: 1,
-                  borderRadius: "8px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.16em",
+                  px: 1.5,
+                  py: 0.5,
+                  "&::after": {
+                    content: '""',
+                    position: "absolute",
+                    left: 0,
+                    bottom: -8,
+                    width: "0%",
+                    height: 2,
+                    background:
+                      "linear-gradient(90deg, transparent, rgba(224,212,255,0.9), transparent)",
+                    transition: "width 0.35s ease",
+                  },
                   "&:hover": {
-                    backgroundColor: "#f1f5f9",
-                    color: "#0ea5e9",
+                    color: theme.palette.primary.main,
+                  },
+                  "&:hover::after": {
+                    width: "100%",
                   },
                 }}
               >
@@ -302,26 +424,29 @@ export const Navigation: React.FC = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1,
-              minWidth: "150px",
+              gap: 1.5,
+              minWidth: "160px",
               justifyContent: "flex-end",
             }}
           >
-            <IconButton sx={{ color: "#64748b" }}>
+            <IconButton sx={{ color: "rgba(255,255,255,0.6)" }}>
               <Search />
             </IconButton>
             <IconButton
               onClick={() => navigate("/cart")}
-              sx={{ color: "#64748b", position: "relative" }}
+              sx={{ color: "rgba(255,255,255,0.7)", position: "relative" }}
             >
               <Badge
                 badgeContent={getCartCount()}
-                color="error"
+                color="primary"
+                max={99}
                 sx={{
                   "& .MuiBadge-badge": {
-                    fontSize: "0.7rem",
+                    fontSize: "0.65rem",
                     height: 18,
                     minWidth: 18,
+                    background: "linear-gradient(135deg, #c19cff 0%, #9ad6f7 100%)",
+                    color: "#0b0d12",
                   },
                 }}
               >
@@ -330,13 +455,21 @@ export const Navigation: React.FC = () => {
             </IconButton>
 
             {isAuthenticated ? (
-              <Box sx={{ ml: 2 }}>
+              <Box sx={{ ml: 1 }}>
                 <IconButton
                   size="large"
                   onClick={handleMenuOpen}
-                  sx={{ color: "#1e293b" }}
+                  sx={{ color: "rgba(255,255,255,0.82)" }}
                 >
-                  <Avatar sx={{ width: 32, height: 32, bgcolor: "#0ea5e9" }}>
+                  <Avatar
+                    sx={{
+                      width: 34,
+                      height: 34,
+                      bgcolor: "rgba(193, 156, 255, 0.85)",
+                      color: "#0b0d12",
+                      fontWeight: 700,
+                    }}
+                  >
                     {user?.name.charAt(0).toUpperCase()}
                   </Avatar>
                 </IconButton>
@@ -352,14 +485,24 @@ export const Navigation: React.FC = () => {
                     vertical: "top",
                     horizontal: "right",
                   }}
+                  MenuListProps={{
+                    sx: {
+                      py: 1,
+                      minWidth: 200,
+                    },
+                  }}
                 >
                   <MenuItem
                     onClick={() => {
                       navigate("/profile");
                       handleMenuClose();
                     }}
+                    sx={{
+                      gap: 1,
+                      color: "rgba(255,255,255,0.82)",
+                    }}
                   >
-                    <Person sx={{ mr: 1 }} />
+                    <Person fontSize="small" />
                     Profile
                   </MenuItem>
 
@@ -369,34 +512,38 @@ export const Navigation: React.FC = () => {
                         navigate("/admin");
                         handleMenuClose();
                       }}
+                      sx={{
+                        gap: 1,
+                        color: "rgba(255,255,255,0.82)",
+                      }}
                     >
-                      <Dashboard sx={{ mr: 1 }} />
+                      <Dashboard fontSize="small" />
                       Admin Dashboard
                     </MenuItem>
                   )}
 
-                  <MenuItem onClick={handleLogout}>
-                    <Logout sx={{ mr: 1 }} />
+                  <Divider sx={{ my: 1, borderColor: "rgba(255,255,255,0.08)" }} />
+
+                  <MenuItem
+                    onClick={handleLogout}
+                    sx={{
+                      gap: 1,
+                      color: theme.palette.error.light,
+                    }}
+                  >
+                    <Logout fontSize="small" />
                     Logout
                   </MenuItem>
                 </Menu>
               </Box>
             ) : (
               !isMobile && (
-                <Box sx={{ ml: 2, display: "flex", gap: 1 }}>
+                <Box sx={{ ml: 1.5, display: "flex", gap: 1 }}>
                   <Button
                     variant="outlined"
                     onClick={() => {
                       setPreLoginPath(location.pathname);
-                      openAuthModal('login');
-                    }}
-                    sx={{
-                      borderColor: "#0ea5e9",
-                      color: "#0ea5e9",
-                      "&:hover": {
-                        borderColor: "#0284c7",
-                        backgroundColor: "#f0f9ff",
-                      },
+                      openAuthModal("login");
                     }}
                   >
                     Login
@@ -405,13 +552,7 @@ export const Navigation: React.FC = () => {
                     variant="contained"
                     onClick={() => {
                       setPreLoginPath(location.pathname);
-                      openAuthModal('register');
-                    }}
-                    sx={{
-                      backgroundColor: "#0ea5e9",
-                      "&:hover": {
-                        backgroundColor: "#0284c7",
-                      },
+                      openAuthModal("register");
                     }}
                   >
                     Register

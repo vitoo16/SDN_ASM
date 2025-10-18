@@ -45,8 +45,11 @@ export const FeaturesSection: React.FC = () => {
   return (
     <Box
       sx={{
-        py: { xs: 6, md: 10 },
-        backgroundColor: "#f8fafc",
+        py: { xs: 8, md: 12 },
+        background:
+          "radial-gradient(circle at 12% 0%, rgba(193, 156, 255, 0.08), transparent 55%)," +
+          "radial-gradient(circle at 88% 0%, rgba(149, 207, 255, 0.1), transparent 45%)," +
+          "linear-gradient(180deg, rgba(9, 11, 17, 0.95) 0%, rgba(9, 11, 17, 0.98) 60%, rgba(8, 10, 15, 1) 100%)",
       }}
     >
       <Container maxWidth="lg">
@@ -72,20 +75,23 @@ export const FeaturesSection: React.FC = () => {
                 sx={{
                   height: "100%",
                   textAlign: "center",
-                  py: 3,
-                  px: 2,
-                  borderRadius: 3,
-                  border: "1px solid #e2e8f0",
-                  boxShadow: "none",
-                  transition: "all 0.3s ease",
+                  py: 4,
+                  px: 3,
+                  borderRadius: 4,
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  background: "var(--bg-elevated)",
+                  boxShadow: "0 26px 60px rgba(0, 0, 0, 0.45)",
+                  transition: "transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease",
+                  position: "relative",
+                  overflow: "hidden",
                   "&:hover": {
-                    transform: "translateY(-8px)",
-                    boxShadow: "0 12px 32px rgba(0,0,0,0.1)",
-                    borderColor: feature.color,
+                    transform: "translateY(-10px)",
+                    boxShadow: "0 36px 80px rgba(0, 0, 0, 0.55)",
+                    borderColor: `${feature.color}60`,
                   },
                 }}
               >
-                <CardContent>
+                <CardContent sx={{ position: "relative", zIndex: 1 }}>
                   <Box
                     sx={{
                       display: "inline-flex",
@@ -94,12 +100,12 @@ export const FeaturesSection: React.FC = () => {
                       width: 80,
                       height: 80,
                       borderRadius: "50%",
-                      backgroundColor: `${feature.color}15`,
+                      background:
+                        `linear-gradient(135deg, ${feature.color}33 0%, ${feature.color}18 100%)`,
                       mb: 2,
                       transition: "all 0.3s ease",
-                      "&:hover": {
-                        transform: "rotate(360deg)",
-                      },
+                      border: `1px solid ${feature.color}55`,
+                      boxShadow: `0 16px 32px ${feature.color}26`,
                     }}
                   >
                     <feature.icon
@@ -113,8 +119,9 @@ export const FeaturesSection: React.FC = () => {
                     variant="h6"
                     sx={{
                       fontWeight: 700,
-                      color: "#0f172a",
+                      color: "var(--text-primary)",
                       mb: 1,
+                      letterSpacing: "0.04em",
                     }}
                   >
                     {feature.title}
@@ -122,12 +129,22 @@ export const FeaturesSection: React.FC = () => {
                   <Typography
                     variant="body2"
                     sx={{
-                      color: "#64748b",
+                      color: "var(--text-secondary)",
                     }}
                   >
                     {feature.description}
                   </Typography>
                 </CardContent>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    pointerEvents: "none",
+                    background:
+                      "radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 55%)",
+                    opacity: 0.4,
+                  }}
+                />
               </Card>
             </Fade>
           ))}

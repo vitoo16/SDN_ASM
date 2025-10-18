@@ -23,22 +23,23 @@ export const NewsletterSection: React.FC = () => {
   return (
     <Box
       sx={{
-        py: { xs: 8, md: 12 },
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        py: { xs: 10, md: 14 },
+        background:
+          "radial-gradient(circle at 15% 5%, rgba(193, 156, 255, 0.12), transparent 55%)," +
+          "radial-gradient(circle at 85% 0%, rgba(149, 207, 255, 0.1), transparent 45%)," +
+          "linear-gradient(180deg, rgba(8, 10, 15, 0.95) 0%, rgba(8, 10, 15, 0.98) 60%, rgba(7, 9, 13, 1) 100%)",
         position: "relative",
         overflow: "hidden",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background:
-            "radial-gradient(circle at 30% 50%, rgba(14, 165, 233, 0.1) 0%, transparent 50%)",
-        },
       }}
     >
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(circle at 20% 40%, rgba(224, 212, 255, 0.08) 0%, transparent 55%)",
+        }}
+      />
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
         <Box
           sx={{
@@ -51,70 +52,72 @@ export const NewsletterSection: React.FC = () => {
           <Fade in timeout={800}>
             <Box>
               <Typography
-                  variant="overline"
-                  sx={{
-                    color: "#0ea5e9",
-                    fontSize: "0.9rem",
-                    fontWeight: 600,
-                    letterSpacing: 2,
-                    mb: 2,
-                    display: "block",
-                  }}
-                >
-                  STAY UPDATED
-                </Typography>
-                <Typography
-                  variant="h3"
-                  sx={{
-                    color: "white",
-                    fontWeight: 800,
-                    mb: 2,
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                  }}
-                >
-                  Join Our Newsletter
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: "#94a3b8",
-                    fontSize: "1.1rem",
-                    mb: 4,
-                  }}
-                >
-                  Subscribe to get special offers, free giveaways, and exclusive
-                  deals delivered to your inbox.
-                </Typography>
+                variant="overline"
+                sx={{
+                  color: "var(--accent-primary)",
+                  fontSize: "0.9rem",
+                  fontWeight: 600,
+                  letterSpacing: 6,
+                  mb: 2,
+                  display: "block",
+                }}
+              >
+                Stay Updated
+              </Typography>
+              <Typography
+                variant="h3"
+                sx={{
+                  color: "var(--text-primary)",
+                  fontWeight: 800,
+                  mb: 2.5,
+                  fontSize: { xs: "2.1rem", md: "2.7rem" },
+                  letterSpacing: "0.04em",
+                }}
+              >
+                Join Our Newsletter
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "var(--text-secondary)",
+                  fontSize: "1.08rem",
+                  mb: 4,
+                  maxWidth: 520,
+                }}
+              >
+                Subscribe for curated releases, private previews, and atelier stories delivered with poise.
+              </Typography>
 
-                {/* Social Links */}
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  {[
-                    { icon: Instagram, color: "#E4405F" },
-                    { icon: Facebook, color: "#1877F2" },
-                    { icon: Twitter, color: "#1DA1F2" },
-                  ].map((social, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: "50%",
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        transition: "all 0.3s ease",
-                        "&:hover": {
-                          backgroundColor: social.color,
-                          transform: "translateY(-4px)",
-                        },
-                      }}
-                    >
-                      <social.icon sx={{ color: "white", fontSize: 24 }} />
-                    </Box>
-                  ))}
-                </Box>
+              {/* Social Links */}
+              <Box sx={{ display: "flex", gap: 2 }}>
+                {[
+                  { icon: Instagram, label: "Instagram" },
+                  { icon: Facebook, label: "Facebook" },
+                  { icon: Twitter, label: "Twitter" },
+                ].map((social, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: "50%",
+                      background: "rgba(255, 255, 255, 0.08)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                      border: "1px solid rgba(255, 255, 255, 0.12)",
+                      "&:hover": {
+                        background: "rgba(224, 212, 255, 0.2)",
+                        transform: "translateY(-4px)",
+                      },
+                    }}
+                  >
+                    <social.icon sx={{ color: "var(--text-primary)", fontSize: 24 }} />
+                  </Box>
+                ))}
+              </Box>
             </Box>
           </Fade>
 
@@ -123,19 +126,21 @@ export const NewsletterSection: React.FC = () => {
                 component="form"
                 onSubmit={handleSubmit}
                 sx={{
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
-                  backdropFilter: "blur(10px)",
-                  p: 4,
-                  borderRadius: 3,
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  background: "var(--bg-elevated)",
+                  backdropFilter: "var(--surface-blur)",
+                  p: { xs: 3, md: 4.5 },
+                  borderRadius: 4,
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  boxShadow: "0 32px 72px rgba(0, 0, 0, 0.55)",
                 }}
               >
                 <Typography
                   variant="h6"
                   sx={{
-                    color: "white",
+                    color: "var(--text-primary)",
                     fontWeight: 600,
                     mb: 3,
+                    letterSpacing: "0.04em",
                   }}
                 >
                   Subscribe Now
@@ -152,16 +157,24 @@ export const NewsletterSection: React.FC = () => {
                       flex: 1,
                       minWidth: "200px",
                       "& .MuiOutlinedInput-root": {
-                        backgroundColor: "rgba(255, 255, 255, 0.95)",
-                        borderRadius: 2,
+                        backgroundColor: "rgba(255, 255, 255, 0.06)",
+                        borderRadius: 3,
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        transition: "all 0.3s ease",
+                        "& input": {
+                          color: "var(--text-primary)",
+                        },
                         "& fieldset": {
                           borderColor: "transparent",
                         },
-                        "&:hover fieldset": {
-                          borderColor: "#0ea5e9",
+                        "&:hover": {
+                          backgroundColor: "rgba(224, 212, 255, 0.12)",
+                          borderColor: "rgba(224, 212, 255, 0.2)",
                         },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#0ea5e9",
+                        "&.Mui-focused": {
+                          backgroundColor: "rgba(224, 212, 255, 0.18)",
+                          borderColor: "rgba(224, 212, 255, 0.45)",
+                          boxShadow: "0 0 0 1px rgba(224, 212, 255, 0.3)",
                         },
                       },
                     }}
@@ -171,15 +184,22 @@ export const NewsletterSection: React.FC = () => {
                     variant="contained"
                     endIcon={<Send />}
                     sx={{
-                      px: 4,
+                      px: 4.5,
                       py: 1.8,
                       fontWeight: 600,
+                      textTransform: "none",
+                      letterSpacing: "0.08em",
                       background:
-                        "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
-                      borderRadius: 2,
+                        "linear-gradient(130deg, rgba(250, 244, 255, 0.92) 0%, rgba(227, 239, 255, 0.94) 50%, rgba(254, 248, 231, 0.92) 100%)",
+                      color: "#0b0d12",
+                      borderRadius: 999,
+                      boxShadow:
+                        "0 28px 52px rgba(193, 156, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) inset",
                       "&:hover": {
                         background:
-                          "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
+                          "linear-gradient(130deg, rgba(255, 255, 255, 0.96) 0%, rgba(233, 242, 255, 0.98) 50%, rgba(255, 241, 210, 0.96) 100%)",
+                        boxShadow:
+                          "0 34px 60px rgba(193, 156, 255, 0.52), 0 0 0 1px rgba(255, 255, 255, 0.22) inset",
                       },
                     }}
                   >
@@ -189,7 +209,7 @@ export const NewsletterSection: React.FC = () => {
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "#94a3b8",
+                    color: "var(--text-secondary)",
                     display: "block",
                     mt: 2,
                   }}
@@ -198,8 +218,9 @@ export const NewsletterSection: React.FC = () => {
                   <Link
                     href="#"
                     sx={{
-                      color: "#0ea5e9",
+                      color: "var(--accent-primary)",
                       textDecoration: "none",
+                      fontWeight: 600,
                       "&:hover": { textDecoration: "underline" },
                     }}
                   >

@@ -188,16 +188,29 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
   return (
     <Paper
-      elevation={2}
+      elevation={0}
       sx={{
-        p: 4,
-        borderRadius: 3,
+        p: { xs: 3, md: 4 },
+        borderRadius: 4,
+        background: "var(--bg-elevated)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+        boxShadow: "0 24px 60px rgba(0, 0, 0, 0.35)",
+        backdropFilter: "var(--surface-blur)",
       }}
     >
       {/* Header */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-        <RateReview sx={{ color: "#0ea5e9", fontSize: 28 }} />
-        <Typography variant="h5" sx={{ fontWeight: 700, color: "#0f172a" }}>
+        <RateReview
+          sx={{
+            color: "var(--accent-primary)",
+            fontSize: 28,
+            filter: "drop-shadow(0 6px 16px rgba(193, 156, 255, 0.45))",
+          }}
+        />
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 700, color: "var(--text-primary)", letterSpacing: "0.04em" }}
+        >
           Reviews & Ratings
         </Typography>
         <Chip
@@ -206,14 +219,15 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           }`}
           size="small"
           sx={{
-            backgroundColor: "#e0f2fe",
-            color: "#0ea5e9",
+            background: "rgba(224, 212, 255, 0.18)",
+            color: "var(--accent-primary)",
             fontWeight: 600,
+            border: "1px solid rgba(224, 212, 255, 0.35)",
           }}
         />
       </Box>
 
-      <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 3, borderColor: "var(--divider)" }} />
 
       {/* Success/Error Messages */}
       {success && (
@@ -232,7 +246,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         <Box sx={{ mb: 4 }}>
           <Typography
             variant="h6"
-            sx={{ fontWeight: 600, color: "#0f172a", mb: 2 }}
+            sx={{ fontWeight: 600, color: "var(--text-primary)", mb: 2 }}
           >
             Write a Review
           </Typography>
@@ -240,7 +254,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           <Box sx={{ mb: 2 }}>
             <Typography
               variant="body2"
-              sx={{ color: "#64748b", mb: 1, fontWeight: 500 }}
+              sx={{ color: "var(--text-secondary)", mb: 1, fontWeight: 500 }}
             >
               Your Rating
             </Typography>
@@ -251,7 +265,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               }}
               size="large"
               sx={{
-                color: "#f59e0b",
+                color: "#f6c561",
+                filter: "drop-shadow(0 6px 12px rgba(246, 197, 97, 0.4))",
               }}
             />
           </Box>
@@ -269,10 +284,11 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               "& .MuiOutlinedInput-root": {
                 borderRadius: 2,
                 "&:hover fieldset": {
-                  borderColor: "#0ea5e9",
+                  borderColor: "rgba(224, 212, 255, 0.6)",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#0ea5e9",
+                  borderColor: "rgba(224, 212, 255, 0.9)",
+                  boxShadow: "0 0 0 1px rgba(224, 212, 255, 0.35)",
                 },
               },
             }}
@@ -284,17 +300,26 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             onClick={handleSubmitComment}
             disabled={loading}
             sx={{
-              background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
+              background:
+                "linear-gradient(120deg, rgba(250, 244, 255, 0.92) 0%, rgba(227, 239, 255, 0.92) 60%, rgba(254, 248, 231, 0.92) 100%)",
+              color: "#0b0d12",
               fontWeight: 600,
               textTransform: "none",
               px: 4,
               py: 1,
-              borderRadius: 2,
+              borderRadius: 999,
+              letterSpacing: "0.08em",
+              boxShadow:
+                "0 18px 32px rgba(193, 156, 255, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.12) inset",
               "&:hover": {
-                background: "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
+                background:
+                  "linear-gradient(120deg, rgba(255, 255, 255, 0.96) 0%, rgba(233, 242, 255, 0.96) 55%, rgba(255, 241, 210, 0.96) 100%)",
+                boxShadow:
+                  "0 26px 42px rgba(193, 156, 255, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.18) inset",
               },
               "&:disabled": {
-                background: "#cbd5e1",
+                background: "rgba(255, 255, 255, 0.12)",
+                color: "var(--text-secondary)",
               },
             }}
           >
@@ -309,9 +334,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           sx={{
             mb: 4,
             p: 3,
-            backgroundColor: "#f0f9ff",
-            borderRadius: 2,
-            border: "2px solid #0ea5e9",
+            background: "rgba(224, 212, 255, 0.08)",
+            borderRadius: 3,
+            border: "1px solid rgba(224, 212, 255, 0.35)",
+            boxShadow: "0 18px 36px rgba(0, 0, 0, 0.35)",
           }}
         >
           <Box
@@ -325,11 +351,11 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             <Box>
               <Typography
                 variant="subtitle1"
-                sx={{ fontWeight: 700, color: "#0f172a" }}
+                sx={{ fontWeight: 700, color: "var(--text-primary)" }}
               >
                 Your Review
               </Typography>
-              <Typography variant="caption" sx={{ color: "#64748b" }}>
+              <Typography variant="caption" sx={{ color: "var(--text-secondary)" }}>
                 {userComment.createdAt && formatTimeAgo(userComment.createdAt)}
               </Typography>
             </Box>
@@ -338,8 +364,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                 size="small"
                 onClick={() => handleOpenEditDialog(userComment)}
                 sx={{
-                  color: "#0ea5e9",
-                  "&:hover": { backgroundColor: "#e0f2fe" },
+                  color: "var(--accent-primary)",
+                  border: "1px solid rgba(224, 212, 255, 0.25)",
+                  borderRadius: 2,
+                  "&:hover": { backgroundColor: "rgba(224, 212, 255, 0.1)" },
                 }}
               >
                 <Edit fontSize="small" />
@@ -349,7 +377,9 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                 onClick={() => handleOpenDeleteDialog(userComment._id)}
                 sx={{
                   color: "#ef4444",
-                  "&:hover": { backgroundColor: "#fee2e2" },
+                  border: "1px solid rgba(239, 68, 68, 0.25)",
+                  borderRadius: 2,
+                  "&:hover": { backgroundColor: "rgba(239, 68, 68, 0.08)" },
                 }}
               >
                 <Delete fontSize="small" />
@@ -361,9 +391,9 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             value={userComment.rating}
             readOnly
             size="small"
-            sx={{ mb: 1, color: "#f59e0b" }}
+            sx={{ mb: 1, color: "#f6c561" }}
           />
-          <Typography variant="body1" sx={{ color: "#475569" }}>
+          <Typography variant="body1" sx={{ color: "var(--text-secondary)" }}>
             {userComment.content}
           </Typography>
         </Box>
@@ -381,11 +411,11 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             }}
             sx={{
               fontWeight: 700,
-              color: "#0ea5e9",
+              color: "var(--accent-primary)",
               cursor: "pointer",
               textDecoration: "underline",
               "&:hover": {
-                color: "#0284c7",
+                color: "var(--accent-strong)",
                 textDecoration: "none",
               },
             }}
@@ -414,7 +444,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
       {/* All Comments List */}
       <Typography
         variant="h6"
-        sx={{ fontWeight: 600, color: "#0f172a", mb: 3 }}
+        sx={{ fontWeight: 600, color: "var(--text-primary)", mb: 3 }}
       >
         All Reviews ({perfume.comments.length})
       </Typography>
@@ -424,10 +454,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           sx={{
             textAlign: "center",
             py: 6,
-            color: "#94a3b8",
+            color: "var(--text-secondary)",
           }}
         >
-          <RateReview sx={{ fontSize: 64, opacity: 0.3, mb: 2 }} />
+          <RateReview
+            sx={{ fontSize: 64, opacity: 0.3, mb: 2, color: "var(--accent-primary)" }}
+          />
           <Typography variant="body1">
             No reviews yet. Be the first to review this perfume!
           </Typography>
@@ -445,9 +477,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               >
                 <Avatar
                   sx={{
-                    backgroundColor: "#0ea5e9",
+                    background:
+                      "linear-gradient(135deg, rgba(224, 212, 255, 0.85) 0%, rgba(149, 207, 255, 0.85) 100%)",
                     width: 48,
                     height: 48,
+                    color: "#0b0d12",
+                    boxShadow: "0 12px 24px rgba(193, 156, 255, 0.3)",
                   }}
                 >
                   <Person />
@@ -464,11 +499,11 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                     <Box>
                       <Typography
                         variant="subtitle2"
-                        sx={{ fontWeight: 700, color: "#0f172a" }}
+                        sx={{ fontWeight: 700, color: "var(--text-primary)" }}
                       >
                         {comment.author.name}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: "#64748b" }}>
+                      <Typography variant="caption" sx={{ color: "var(--text-secondary)" }}>
                         {comment.createdAt && formatTimeAgo(comment.createdAt)}
                       </Typography>
                     </Box>
@@ -476,18 +511,20 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                       value={comment.rating}
                       readOnly
                       size="small"
-                      sx={{ color: "#f59e0b" }}
+                      sx={{ color: "#f6c561" }}
                     />
                   </Box>
                   <Typography
                     variant="body2"
-                    sx={{ color: "#475569", lineHeight: 1.7 }}
+                    sx={{ color: "var(--text-secondary)", lineHeight: 1.75 }}
                   >
                     {comment.content}
                   </Typography>
                 </Box>
               </Box>
-              {index < perfume.comments.length - 1 && <Divider />}
+              {index < perfume.comments.length - 1 && (
+                <Divider sx={{ borderColor: "var(--divider)" }} />
+              )}
             </Box>
           ))}
         </Box>
@@ -499,15 +536,23 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         onClose={handleCloseEditDialog}
         maxWidth="sm"
         fullWidth
+        PaperProps={{
+          sx: {
+            background: "var(--bg-elevated)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            boxShadow: "0 24px 60px rgba(0, 0, 0, 0.45)",
+            backdropFilter: "var(--surface-blur)",
+          },
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 700, color: "#0f172a" }}>
+        <DialogTitle sx={{ fontWeight: 700, color: "var(--text-primary)" }}>
           Edit Your Review
         </DialogTitle>
         <DialogContent>
           <Box sx={{ mb: 3, mt: 1 }}>
             <Typography
               variant="body2"
-              sx={{ color: "#64748b", mb: 1, fontWeight: 500 }}
+              sx={{ color: "var(--text-secondary)", mb: 1, fontWeight: 500 }}
             >
               Your Rating
             </Typography>
@@ -518,7 +563,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               }}
               size="large"
               sx={{
-                color: "#f59e0b",
+                color: "#f6c561",
+                filter: "drop-shadow(0 6px 12px rgba(246, 197, 97, 0.4))",
               }}
             />
           </Box>
@@ -535,10 +581,11 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               "& .MuiOutlinedInput-root": {
                 borderRadius: 2,
                 "&:hover fieldset": {
-                  borderColor: "#0ea5e9",
+                  borderColor: "rgba(224, 212, 255, 0.6)",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#0ea5e9",
+                  borderColor: "rgba(224, 212, 255, 0.9)",
+                  boxShadow: "0 0 0 1px rgba(224, 212, 255, 0.35)",
                 },
               },
             }}
@@ -548,10 +595,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           <Button
             onClick={handleCloseEditDialog}
             sx={{
-              color: "#64748b",
+              color: "var(--text-secondary)",
               textTransform: "none",
+              borderRadius: 999,
+              px: 2.5,
               "&:hover": {
-                backgroundColor: "#f1f5f9",
+                backgroundColor: "rgba(224, 212, 255, 0.12)",
               },
             }}
           >
@@ -562,12 +611,20 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             disabled={loading}
             variant="contained"
             sx={{
-              background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
+              background:
+                "linear-gradient(120deg, rgba(250, 244, 255, 0.92) 0%, rgba(227, 239, 255, 0.92) 60%, rgba(254, 248, 231, 0.92) 100%)",
+              color: "#0b0d12",
               fontWeight: 600,
               textTransform: "none",
               px: 3,
+              borderRadius: 999,
+              boxShadow:
+                "0 16px 32px rgba(193, 156, 255, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.12) inset",
               "&:hover": {
-                background: "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
+                background:
+                  "linear-gradient(120deg, rgba(255, 255, 255, 0.96) 0%, rgba(233, 242, 255, 0.96) 60%, rgba(255, 241, 210, 0.96) 100%)",
+                boxShadow:
+                  "0 24px 40px rgba(193, 156, 255, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.18) inset",
               },
             }}
           >
@@ -582,12 +639,20 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         onClose={handleCloseDeleteDialog}
         maxWidth="xs"
         fullWidth
+        PaperProps={{
+          sx: {
+            background: "var(--bg-elevated)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            boxShadow: "0 24px 60px rgba(0, 0, 0, 0.45)",
+            backdropFilter: "var(--surface-blur)",
+          },
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 700, color: "#0f172a" }}>
+        <DialogTitle sx={{ fontWeight: 700, color: "var(--text-primary)" }}>
           Delete Review
         </DialogTitle>
         <DialogContent>
-          <Typography variant="body1" sx={{ color: "#475569" }}>
+          <Typography variant="body1" sx={{ color: "var(--text-secondary)" }}>
             Are you sure you want to delete your review? This action cannot be
             undone.
           </Typography>
@@ -596,10 +661,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           <Button
             onClick={handleCloseDeleteDialog}
             sx={{
-              color: "#64748b",
+              color: "var(--text-secondary)",
               textTransform: "none",
+              borderRadius: 999,
+              px: 2.5,
               "&:hover": {
-                backgroundColor: "#f1f5f9",
+                backgroundColor: "rgba(224, 212, 255, 0.12)",
               },
             }}
           >
@@ -610,12 +677,17 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             disabled={loading}
             variant="contained"
             sx={{
-              backgroundColor: "#ef4444",
+              background:
+                "linear-gradient(120deg, rgba(255, 94, 94, 0.92) 0%, rgba(255, 150, 150, 0.92) 100%)",
+              color: "#0b0d12",
               fontWeight: 600,
               textTransform: "none",
               px: 3,
+              borderRadius: 999,
+              boxShadow: "0 18px 32px rgba(255, 99, 132, 0.35)",
               "&:hover": {
-                backgroundColor: "#dc2626",
+                background:
+                  "linear-gradient(120deg, rgba(255, 110, 110, 0.98) 0%, rgba(255, 166, 166, 0.98) 100%)",
               },
             }}
           >

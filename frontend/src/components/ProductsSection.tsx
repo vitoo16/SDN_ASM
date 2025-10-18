@@ -195,46 +195,67 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
   }
 
   return (
-    <Box 
+    <Box
       id="products-section"
-      sx={{ 
-        py: { xs: 8, md: 12 }, 
-        backgroundColor: "#f8fafc",
+      sx={{
         position: "relative",
+        py: { xs: 10, md: 14 },
+        background:
+          "radial-gradient(circle at 8% 0%, rgba(193, 156, 255, 0.08), transparent 55%)," +
+          "radial-gradient(circle at 92% 0%, rgba(135, 202, 255, 0.1), transparent 45%)," +
+          "linear-gradient(180deg, rgba(10, 12, 18, 0.95) 0%, rgba(10, 12, 18, 0.98) 60%, rgba(8, 10, 15, 1) 100%)",
       }}
     >
-      {/* Section Header */}
-      <Box
-        sx={{
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-          py: 6,
-          mb: 6,
-          position: "relative",
-          overflow: "hidden",
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "url('/api/placeholder/100/100') repeat",
-            opacity: 0.05,
-          },
-        }}
-      >
-        <Container maxWidth="xl">
-          <Fade in timeout={600}>
+      <Container maxWidth="xl">
+        {/* Section Header */}
+        <Fade in timeout={700}>
+          <Box
+            sx={{
+              mb: { xs: 6, md: 8 },
+              borderRadius: 4,
+              background: "var(--bg-elevated)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              boxShadow: "0 32px 72px rgba(0, 0, 0, 0.55)",
+              position: "relative",
+              overflow: "hidden",
+              px: { xs: 3, md: 6 },
+              py: { xs: 5, md: 7 },
+            }}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "linear-gradient(130deg, rgba(224, 212, 255, 0.08) 0%, rgba(149, 207, 255, 0.06) 45%, rgba(255, 247, 220, 0.06) 100%)",
+                opacity: 0.9,
+              }}
+            />
             <Box sx={{ position: "relative", zIndex: 1 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, justifyContent: "center" }}>
-                <Tune sx={{ fontSize: 32, color: "#0ea5e9" }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  mb: 2.5,
+                  justifyContent: "center",
+                }}
+              >
+                <Tune
+                  sx={{
+                    fontSize: 34,
+                    color: "var(--accent-primary)",
+                    filter: "drop-shadow(0 8px 20px rgba(193, 156, 255, 0.45))",
+                  }}
+                />
                 <Typography
                   variant="h2"
                   sx={{
                     fontWeight: 800,
-                    color: "white",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    color: "var(--text-primary)",
+                    fontSize: { xs: "2rem", md: "2.6rem" },
                     textAlign: "center",
+                    letterSpacing: "0.04em",
                   }}
                 >
                   Explore Our Collection
@@ -243,53 +264,70 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
               <Typography
                 variant="body1"
                 sx={{
-                  color: "#94a3b8",
-                  fontSize: "1.1rem",
-                  mb: 3,
+                  color: "var(--text-secondary)",
+                  fontSize: "1.08rem",
+                  mb: 3.5,
                   textAlign: "center",
-                  maxWidth: "600px",
+                  maxWidth: "640px",
                   mx: "auto",
                 }}
               >
-                Discover our complete collection of premium fragrances with advanced filtering and search
+                Discover curated fragrances with precise filters and a gallery-grade shopping experience.
               </Typography>
-              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                }}
+              >
                 <Chip
-                  label={`${perfumes.length} Total Products`}
+                  label={`${perfumes.length} Total Selections`}
                   sx={{
-                    backgroundColor: "rgba(14, 165, 233, 0.2)",
-                    color: "#0ea5e9",
+                    background: "rgba(224, 212, 255, 0.18)",
+                    color: "var(--accent-primary)",
                     fontWeight: 600,
+                    borderRadius: 999,
+                    border: "1px solid rgba(224, 212, 255, 0.28)",
                   }}
                 />
                 <Chip
-                  label={`${brandOptions.length} Brands`}
+                  label={`${brandOptions.length} Maisons`}
                   sx={{
-                    backgroundColor: "rgba(6, 182, 212, 0.2)",
-                    color: "#06b6d4",
+                    background: "rgba(149, 207, 255, 0.16)",
+                    color: "var(--text-primary)",
                     fontWeight: 600,
+                    borderRadius: 999,
+                    border: "1px solid rgba(149, 207, 255, 0.28)",
                   }}
                 />
                 {filteredPerfumes.length !== perfumes.length && (
                   <Chip
-                    label={`${filteredPerfumes.length} Filtered Results`}
+                    label={`${filteredPerfumes.length} Refined Results`}
                     sx={{
-                      backgroundColor: "rgba(236, 72, 153, 0.2)",
-                      color: "#ec4899",
+                      background: "rgba(255, 221, 183, 0.18)",
+                      color: "var(--text-primary)",
                       fontWeight: 600,
+                      borderRadius: 999,
+                      border: "1px solid rgba(255, 221, 183, 0.28)",
                     }}
                   />
                 )}
               </Box>
             </Box>
-          </Fade>
-        </Container>
-      </Box>
+          </Box>
+        </Fade>
 
-      <Container maxWidth="xl">
-        <Box sx={{ display: "flex", gap: 4, flexDirection: { xs: "column", lg: "row" } }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: { xs: 4, lg: 6 },
+            flexDirection: { xs: "column", lg: "row" },
+          }}
+        >
           {/* Left Sidebar - Filters */}
-          <Box sx={{ width: { lg: 280 }, flexShrink: 0 }}>
+          <Box sx={{ width: { lg: 320 }, flexShrink: 0 }}>
             <Suspense fallback={<LoadingSpinner />}>
               <FilterSidebar
                 brandOptions={brandOptions}
@@ -311,7 +349,15 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
           </Box>
 
           {/* Main Content */}
-          <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+            }}
+          >
             {/* Search Bar */}
             <Suspense fallback={<LoadingSpinner />}>
               <SearchBar

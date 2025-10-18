@@ -1,14 +1,22 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Container,
   Typography,
   Button,
   IconButton,
+  Stack,
+  Chip,
   Fade,
-  Grow,
 } from "@mui/material";
-import { ArrowBack, ArrowForward, ShoppingBag } from "@mui/icons-material";
+import {
+  ArrowBackIosNew,
+  ArrowForwardIos,
+  ShoppingBag,
+  PlayArrow,
+} from "@mui/icons-material";
+import ImageNotSupportedIcon from "@mui/icons-material/ImageNotSupported";
+import { useNavigate } from "react-router-dom";
 import { Perfume } from "../types";
 
 interface HeroSectionProps {
@@ -18,349 +26,380 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({
   featuredPerfumes,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [heroImageError, setHeroImageError] = useState(false);
+  const navigate = useNavigate();
 
-  const handlePrevious = () => {
-    setCurrentIndex((prev) =>
+  const hasPerfumes = Boolean(featuredPerfumes && featuredPerfumes.length > 0);
+  const safeIndex = hasPerfumes ? activeIndex % featuredPerfumes.length : 0;
+  const currentPerfume = useMemo(() => {
+    if (!hasPerfumes) {
+      return null;
+    }
+    return featuredPerfumes[safeIndex];
+  }, [featuredPerfumes, hasPerfumes, safeIndex]);
+
+  useEffect(() => {
+    setHeroImageError(false);
+  }, [safeIndex]);
+
+  const handlePrevious = useCallback(() => {
+    if (featuredPerfumes.length === 0) {
+      return;
+    }
+    setActiveIndex((prev) =>
       prev === 0 ? featuredPerfumes.length - 1 : prev - 1
     );
-  };
+  }, [featuredPerfumes.length]);
 
-  const handleNext = () => {
-    setCurrentIndex((prev) =>
+  const handleNext = useCallback(() => {
+    if (featuredPerfumes.length === 0) {
+      return;
+    }
+    setActiveIndex((prev) =>
       prev === featuredPerfumes.length - 1 ? 0 : prev + 1
     );
+  }, [featuredPerfumes.length]);
+
+  useEffect(() => {
+    if (!hasPerfumes || featuredPerfumes.length <= 1) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActiveIndex((prev) =>
+        prev === featuredPerfumes.length - 1 ? 0 : prev + 1
+      );
+    }, 7000);
+
+    return () => window.clearInterval(intervalId);
+  }, [featuredPerfumes.length, hasPerfumes]);
+
+  if (!currentPerfume) {
+    return null;
+  }
+
+  const scrollToCollection = () => {
+    const element = document.getElementById("products-section");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        const target = document.getElementById("products-section");
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 120);
+    }
   };
-
-  const currentPerfume = featuredPerfumes[currentIndex];
-
-  if (!currentPerfume) return null;
 
   return (
     <Box
       sx={{
-        background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
-        minHeight: { xs: "70vh", md: "85vh" },
         position: "relative",
         overflow: "hidden",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background:
-            "radial-gradient(circle at 20% 50%, rgba(14, 165, 233, 0.1) 0%, transparent 50%)",
-        },
-        "&::after": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background:
-            "radial-gradient(circle at 80% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 50%)",
-        },
+        background:
+          "radial-gradient(circle at 10% 20%, rgba(193,156,255,0.25), transparent 45%), linear-gradient(135deg, #07090f 0%, #10131c 55%, #0b0d12 100%)",
+        minHeight: { xs: "78vh", md: "88vh" },
+        color: "#f5f6f9",
       }}
     >
-      <Container
-        maxWidth="lg"
+      <Box
         sx={{
-          height: "100%",
-          position: "relative",
-          zIndex: 1,
-          py: { xs: 6, md: 10 },
+          position: "absolute",
+          top: "10%",
+          right: "-20%",
+          width: { xs: "80vw", md: "45vw" },
+          height: { xs: "80vw", md: "45vw" },
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(154,214,247,0.22) 0%, transparent 65%)",
+          filter: "blur(4px)",
         }}
+      />
+
+      <Container
+        maxWidth="xl"
+        sx={{ position: "relative", zIndex: 1, py: { xs: 8, md: 12 } }}
       >
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: "center",
-            gap: { xs: 4, md: 8 },
-            height: "100%",
+            flexDirection: { xs: "column", lg: "row" },
+            gap: { xs: 6, lg: 10 },
+            alignItems: { xs: "flex-start", lg: "center" },
           }}
         >
-          {/* Text Content */}
-          <Fade in timeout={800}>
-            <Box sx={{ flex: 1, zIndex: 2 }}>
+          <Fade in key={currentPerfume._id} timeout={700}>
+            <Box sx={{ flex: 1, maxWidth: 600 }}>
               <Typography
                 variant="overline"
                 sx={{
-                  fontSize: "0.9rem",
-                  fontWeight: 600,
-                  color: "#0ea5e9",
-                  letterSpacing: 2,
-                  mb: 2,
+                  letterSpacing: "0.5em",
+                  color: "rgba(224,212,255,0.78)",
+                  mb: 3,
                   display: "block",
                 }}
               >
-                DISCOVER LUXURY
+                CURATED COLLECTION
               </Typography>
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: { xs: "2.5rem", md: "4rem", lg: "4.5rem" },
-                  fontWeight: 800,
-                  color: "#0f172a",
+                  fontSize: { xs: "2.8rem", md: "4.2rem" },
+                  fontWeight: 600,
                   mb: 3,
-                  lineHeight: 1.1,
+                  lineHeight: { xs: 1.2, md: 1.1 },
+                  textTransform: "uppercase",
+                  letterSpacing: { xs: "0.15em", md: "0.2em" },
                 }}
               >
-                Exquisite
-                <br />
-                Fragrances
+                Minimalist
+                <Box
+                  component="span"
+                  sx={{ display: "block", color: "#d8c6ff" }}
+                >
+                  Gallery Aura
+                </Box>
               </Typography>
               <Typography
                 variant="body1"
                 sx={{
-                  fontSize: { xs: "1rem", md: "1.25rem" },
-                  color: "#64748b",
+                  color: "rgba(245,246,249,0.72)",
+                  fontSize: { xs: "1.05rem", md: "1.2rem" },
+                  lineHeight: 1.9,
                   mb: 4,
-                  lineHeight: 1.8,
-                  maxWidth: "500px",
                 }}
               >
-                Experience the art of perfumery with our curated collection of
-                premium fragrances. Each scent tells a unique story.
+                {currentPerfume.description.slice(0, 180)}
+                {currentPerfume.description.length > 180 ? "…" : ""}
               </Typography>
-              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                sx={{ mb: 6 }}
+              >
                 <Button
                   variant="contained"
                   size="large"
                   startIcon={<ShoppingBag />}
-                  onClick={() => {
-                    const element = document.getElementById('products-section');
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }}
-                  sx={{
-                    px: 4,
-                    py: 1.8,
-                    fontSize: "1rem",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    borderRadius: 2,
-                    background:
-                      "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
-                    boxShadow: "0 4px 20px rgba(14, 165, 233, 0.4)",
-                    "&:hover": {
-                      background:
-                        "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
-                      transform: "translateY(-2px)",
-                      boxShadow: "0 8px 30px rgba(14, 165, 233, 0.5)",
-                    },
-                    transition: "all 0.3s ease",
-                  }}
+                  onClick={scrollToCollection}
                 >
-                  Shop Now
+                  Shop Collection
                 </Button>
                 <Button
                   variant="outlined"
                   size="large"
-                  onClick={() => {
-                    const element = document.getElementById('products-section');
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }}
-                  sx={{
-                    px: 4,
-                    py: 1.8,
-                    fontSize: "1rem",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    borderRadius: 2,
-                    borderColor: "#1e293b",
-                    color: "#1e293b",
-                    borderWidth: 2,
-                    "&:hover": {
-                      backgroundColor: "#1e293b",
-                      color: "white",
-                      borderWidth: 2,
-                      transform: "translateY(-2px)",
-                    },
-                    transition: "all 0.3s ease",
-                  }}
+                  startIcon={<PlayArrow />}
+                  onClick={() => navigate(`/${currentPerfume._id}`)}
                 >
-                  Explore
+                  View Details
                 </Button>
-              </Box>
+              </Stack>
+
+              <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+                <Chip
+                  label={`${currentPerfume.brand.brandName}`}
+                  sx={{
+                    backgroundColor: "rgba(193,156,255,0.15)",
+                    color: "#e0d4ff",
+                    letterSpacing: "0.1em",
+                  }}
+                />
+                <Chip
+                  label={`${currentPerfume.concentration}`}
+                  sx={{
+                    backgroundColor: "rgba(154,214,247,0.12)",
+                    color: "#9ad6f7",
+                    letterSpacing: "0.1em",
+                  }}
+                />
+                <Chip
+                  label={`${currentPerfume.volume} ml`}
+                  sx={{
+                    backgroundColor: "rgba(255,255,255,0.08)",
+                    color: "rgba(245,246,249,0.86)",
+                    letterSpacing: "0.1em",
+                  }}
+                />
+              </Stack>
             </Box>
           </Fade>
 
-          {/* Carousel Section */}
           <Box
             sx={{
               flex: 1,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              position: "relative",
             }}
           >
-            {featuredPerfumes.length > 1 && (
-              <>
-                <IconButton
-                  onClick={handlePrevious}
+            <Box
+              sx={{
+                position: "relative",
+                width: "100%",
+                maxWidth: { xs: 340, md: 400 },
+                aspectRatio: { xs: "3 / 4", md: "7 / 9" },
+                borderRadius: 6,
+                p: { xs: 3.5, md: 4.5 },
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background:
+                  "linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(13,16,23,0.65) 55%, rgba(10,14,20,0.95) 100%)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: "0 35px 65px rgba(0,0,0,0.45)",
+                overflow: "hidden",
+                "&::after": {
+                  content: '""',
+                  position: "absolute",
+                  inset: 0,
+                  background:
+                    "radial-gradient(circle at 50% -20%, rgba(255,255,255,0.25), transparent 55%)",
+                  opacity: 0.65,
+                },
+              }}
+            >
+              {!heroImageError ? (
+                <Box
+                  component="img"
+                  src={currentPerfume.uri}
+                  alt={currentPerfume.perfumeName}
+                  onError={() => setHeroImageError(true)}
+                  onLoad={() => setHeroImageError(false)}
                   sx={{
-                    position: "absolute",
-                    left: { xs: -10, md: -30 },
-                    zIndex: 3,
-                    width: 56,
-                    height: 56,
-                    backgroundColor: "white",
-                    color: "#1e293b",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-                    "&:hover": {
-                      backgroundColor: "#f8fafc",
-                      transform: "scale(1.1)",
-                    },
-                    transition: "all 0.3s ease",
+                    position: "relative",
+                    zIndex: 2,
+                    width: { xs: "78%", md: "74%" },
+                    height: "auto",
+                    maxHeight: "82%",
+                    objectFit: "contain",
+                    filter: "drop-shadow(0 32px 42px rgba(0,0,0,0.52))",
+                    transition: "transform 320ms ease, filter 320ms ease",
+                    transform: "scale(1)",
                   }}
-                >
-                  <ArrowBack />
-                </IconButton>
-
-                <IconButton
-                  onClick={handleNext}
-                  sx={{
-                    position: "absolute",
-                    right: { xs: -10, md: -30 },
-                    zIndex: 3,
-                    width: 56,
-                    height: 56,
-                    backgroundColor: "white",
-                    color: "#1e293b",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-                    "&:hover": {
-                      backgroundColor: "#f8fafc",
-                      transform: "scale(1.1)",
-                    },
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  <ArrowForward />
-                </IconButton>
-              </>
-            )}
-
-            <Grow in timeout={600} key={currentIndex}>
-              <Box
-                sx={{
-                  textAlign: "center",
-                  position: "relative",
-                }}
-              >
+                />
+              ) : (
                 <Box
                   sx={{
                     position: "relative",
-                    display: "inline-block",
-                    "&::before": {
-                      content: '""',
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "120%",
-                      height: "120%",
-                      background:
-                        "radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%)",
-                      borderRadius: "50%",
-                      animation: "pulse 2s ease-in-out infinite",
-                    },
+                    zIndex: 2,
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    color: "rgba(245,246,249,0.75)",
                   }}
                 >
-                  <Box
-                    component="img"
-                    src={currentPerfume.uri}
-                    alt={currentPerfume.perfumeName}
-                    sx={{
-                      width: { xs: 200, md: 300 },
-                      height: { xs: 300, md: 450 },
-                      objectFit: "contain",
-                      filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))",
-                      position: "relative",
-                      zIndex: 1,
-                    }}
-                  />
+                  <ImageNotSupportedIcon sx={{ fontSize: 64, mb: 1 }} />
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ letterSpacing: "0.18em", textTransform: "uppercase" }}
+                  >
+                    Visual unavailable
+                  </Typography>
                 </Box>
-                <Typography
-                  variant="h4"
-                  sx={{
-                    mt: 3,
-                    fontFamily: '"Playfair Display", serif',
-                    fontSize: { xs: "1.5rem", md: "2rem" },
-                    fontWeight: 600,
-                    color: "#1e293b",
-                  }}
-                >
-                  {currentPerfume.perfumeName}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#64748b", mt: 1, fontSize: "1rem" }}
-                >
-                  {currentPerfume.brand.brandName}
-                </Typography>
-              </Box>
-            </Grow>
-
-            {/* Carousel Indicators */}
-            {featuredPerfumes.length > 1 && (
+              )}
               <Box
                 sx={{
                   position: "absolute",
-                  bottom: -40,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  display: "flex",
-                  gap: 1.5,
+                  bottom: 0,
+                  left: "10%",
+                  width: "80%",
+                  height: 1,
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent)",
+                }}
+              />
+
+              <IconButton
+                onClick={handlePrevious}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: 12,
+                  transform: "translateY(-50%)",
+                  color: "rgba(255,255,255,0.78)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  backgroundColor: "rgba(7,9,15,0.5)",
+                  backdropFilter: "blur(8px)",
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.15)",
+                  },
+                  zIndex: 3,
                 }}
               >
-                {featuredPerfumes.map((_, index) => (
-                  <Box
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    sx={{
-                      width: currentIndex === index ? 32 : 12,
-                      height: 12,
-                      borderRadius: 6,
-                      backgroundColor:
-                        currentIndex === index ? "#0ea5e9" : "#cbd5e1",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        backgroundColor:
-                          currentIndex === index ? "#0284c7" : "#94a3b8",
-                      },
-                    }}
-                  />
-                ))}
-              </Box>
-            )}
+                <ArrowBackIosNew fontSize="small" />
+              </IconButton>
+
+              <IconButton
+                onClick={handleNext}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  right: 12,
+                  transform: "translateY(-50%)",
+                  color: "rgba(255,255,255,0.78)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  backgroundColor: "rgba(7,9,15,0.5)",
+                  backdropFilter: "blur(8px)",
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.15)",
+                  },
+                  zIndex: 3,
+                }}
+              >
+                <ArrowForwardIos fontSize="small" />
+              </IconButton>
+            </Box>
           </Box>
         </Box>
-      </Container>
 
-      {/* Keyframe animation */}
-      <style>
-        {`
-          @keyframes pulse {
-            0%, 100% {
-              opacity: 1;
-              transform: translate(-50%, -50%) scale(1);
-            }
-            50% {
-              opacity: 0.8;
-              transform: translate(-50%, -50%) scale(1.05);
-            }
-          }
-        `}
-      </style>
+        {featuredPerfumes.length > 1 && (
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              mt: { xs: 6, md: 10 },
+              justifyContent: "flex-end",
+              flexWrap: "wrap",
+              gap: 1.5,
+            }}
+          >
+            {featuredPerfumes.map((perfume, index) => {
+              const isActive = index === safeIndex;
+              return (
+                <Button
+                  key={perfume._id}
+                  onClick={() => setActiveIndex(index)}
+                  variant={isActive ? "contained" : "outlined"}
+                  color={isActive ? "primary" : "inherit"}
+                  sx={{
+                    borderRadius: 999,
+                    px: 3,
+                    py: 1.2,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    fontSize: "0.75rem",
+                    backgroundColor: isActive
+                      ? undefined
+                      : "rgba(255,255,255,0.04)",
+                    borderColor: isActive
+                      ? undefined
+                      : "rgba(255,255,255,0.12)",
+                  }}
+                >
+                  {perfume.perfumeName}
+                </Button>
+              );
+            })}
+          </Stack>
+        )}
+      </Container>
     </Box>
   );
 };

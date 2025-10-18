@@ -24,11 +24,30 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
 
   return (
     <Fade in timeout={300}>
-      <Box sx={{ mb: 4 }}>
+      <Box
+        sx={{
+          mb: 5,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2.5,
+          color: "var(--text-primary)",
+        }}
+      >
         {/* Breadcrumbs */}
         <Breadcrumbs
-          separator={<NavigateNext fontSize="small" />}
-          sx={{ mb: 2 }}
+          separator={
+            <NavigateNext
+              fontSize="small"
+              sx={{ color: "rgba(148,163,184,0.6) !important" }}
+            />
+          }
+          sx={{
+            mb: 1,
+            "& a": {
+              color: "var(--text-secondary)",
+              fontSize: "0.875rem",
+            },
+          }}
           aria-label="breadcrumb"
         >
           <Link
@@ -38,11 +57,11 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
               display: "flex",
               alignItems: "center",
               gap: 0.5,
-              color: "#64748b",
+              color: "var(--text-secondary)",
               textDecoration: "none",
               fontSize: "0.875rem",
               "&:hover": {
-                color: "#0ea5e9",
+                color: "var(--accent-primary)",
               },
             }}
           >
@@ -54,24 +73,35 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
             onClick={() => {
               navigate("/");
               setTimeout(() => {
-                const element = document.getElementById('products-section');
+                const element = document.getElementById("products-section");
                 if (element) {
-                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  element.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
                 }
               }, 100);
             }}
             sx={{
-              color: "#64748b",
+              color: "var(--text-secondary)",
               textDecoration: "none",
               fontSize: "0.875rem",
               "&:hover": {
-                color: "#0ea5e9",
+                color: "var(--accent-primary)",
               },
             }}
           >
             Products
           </Link>
-          <Typography sx={{ color: "#0f172a", fontSize: "0.875rem", fontWeight: 600 }}>
+          <Typography
+            sx={{
+              color: "var(--text-primary)",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+            }}
+          >
             Shopping Cart
           </Typography>
         </Breadcrumbs>
@@ -82,23 +112,23 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
           onClick={() => {
             navigate("/");
             setTimeout(() => {
-              const element = document.getElementById('products-section');
+              const element = document.getElementById("products-section");
               if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                element.scrollIntoView({ behavior: "smooth", block: "start" });
               }
             }, 100);
           }}
           sx={{
             textTransform: "none",
-            color: "#64748b",
-            mb: 3,
+            color: "var(--text-secondary)",
             px: 0,
-            fontWeight: 500,
-            transition: "all 0.2s ease",
+            fontWeight: 600,
+            letterSpacing: "0.12em",
+            transition: "all 0.3s ease",
             "&:hover": {
-              color: "#0ea5e9",
+              color: "var(--accent-primary)",
               backgroundColor: "transparent",
-              transform: "translateX(-4px)",
+              transform: "translateX(-6px)",
             },
           }}
         >
@@ -119,20 +149,31 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
             <Box
               sx={{
                 display: "inline-flex",
-                p: 1.5,
-                borderRadius: 2,
-                background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
+                p: 1.6,
+                borderRadius: 3,
+                background:
+                  "linear-gradient(140deg, rgba(224,212,255,0.24) 0%, rgba(96,165,250,0.18) 100%)",
+                border: "1px solid rgba(224,212,255,0.25)",
+                boxShadow: "0 20px 40px rgba(69,94,151,0.35)",
               }}
             >
-              <ShoppingBag sx={{ fontSize: 28, color: "white" }} />
+              <ShoppingBag
+                sx={{
+                  fontSize: 28,
+                  color: "var(--accent-primary)",
+                  filter: "drop-shadow(0 0 18px rgba(164,196,255,0.35))",
+                }}
+              />
             </Box>
             <Box>
               <Typography
                 variant="h4"
                 sx={{
                   fontWeight: 700,
-                  color: "#0f172a",
+                  color: "var(--text-primary)",
                   fontSize: { xs: "1.75rem", sm: "2.125rem" },
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
                 }}
               >
                 Shopping Cart
@@ -140,9 +181,10 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
               <Typography
                 variant="body1"
                 sx={{
-                  color: "#64748b",
-                  mt: 0.5,
+                  color: "var(--text-secondary)",
+                  mt: 0.75,
                   fontSize: { xs: "0.875rem", sm: "1rem" },
+                  letterSpacing: "0.08em",
                 }}
               >
                 {itemCount} {itemCount === 1 ? "item" : "items"} in your cart
@@ -158,9 +200,10 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
               gap: 1,
               px: 2,
               py: 1,
-              backgroundColor: "#f0f9ff",
-              borderRadius: 2,
-              border: "1px solid #bae6fd",
+              backgroundColor: "rgba(224,212,255,0.08)",
+              borderRadius: 999,
+              border: "1px solid rgba(224,212,255,0.18)",
+              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.04)",
             }}
           >
             <Box
@@ -168,12 +211,19 @@ export const CartHeader: React.FC<CartHeaderProps> = ({ itemCount }) => {
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                backgroundColor: "#0ea5e9",
+                background:
+                  "linear-gradient(135deg, rgba(224,212,255,0.9) 0%, rgba(149,207,255,0.9) 100%)",
               }}
             />
             <Typography
               variant="body2"
-              sx={{ color: "#0284c7", fontWeight: 600, fontSize: "0.875rem" }}
+              sx={{
+                color: "var(--accent-primary)",
+                fontWeight: 600,
+                fontSize: "0.875rem",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+              }}
             >
               Step 1 of 3
             </Typography>

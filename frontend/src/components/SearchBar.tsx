@@ -15,12 +15,15 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   return (
     <Paper
-      elevation={2}
+      elevation={0}
       sx={{
-        p: 2,
-        borderRadius: 3,
-        border: "1px solid #e2e8f0",
-        mb: 4,
+        p: { xs: 2.5, md: 3 },
+        borderRadius: 4,
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+        mb: 3,
+        background: "var(--bg-elevated)",
+        boxShadow: "0 24px 60px rgba(0, 0, 0, 0.45)",
+        backdropFilter: "var(--surface-blur)",
       }}
     >
       <Box
@@ -39,7 +42,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Search sx={{ color: "#0ea5e9" }} />
+                <Search
+                  sx={{
+                    color: "var(--accent-primary)",
+                    filter: "drop-shadow(0 6px 14px rgba(193, 156, 255, 0.45))",
+                  }}
+                />
               </InputAdornment>
             ),
             endAdornment: searchTerm && (
@@ -47,8 +55,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 <Close
                   sx={{
                     cursor: "pointer",
-                    color: "#94a3b8",
-                    "&:hover": { color: "#64748b" },
+                    color: "var(--text-secondary)",
+                    transition: "color 0.3s ease",
+                    "&:hover": { color: "var(--text-primary)" },
                   }}
                   onClick={() => onSearchChange("")}
                 />
@@ -58,17 +67,24 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           sx={{
             flex: 1,
             "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-              backgroundColor: "#f8fafc",
+              borderRadius: 3,
+              backgroundColor: "rgba(255, 255, 255, 0.02)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              transition: "all 0.3s ease",
+              "& input": {
+                color: "var(--text-primary)",
+              },
+              "& fieldset": {
+                borderColor: "transparent",
+              },
               "&:hover": {
-                backgroundColor: "#f1f5f9",
+                backgroundColor: "rgba(224, 212, 255, 0.06)",
+                borderColor: "rgba(224, 212, 255, 0.18)",
               },
               "&.Mui-focused": {
-                backgroundColor: "white",
-                "& fieldset": {
-                  borderColor: "#0ea5e9",
-                  borderWidth: 2,
-                },
+                backgroundColor: "rgba(224, 212, 255, 0.08)",
+                borderColor: "rgba(224, 212, 255, 0.4)",
+                boxShadow: "0 0 0 1px rgba(224, 212, 255, 0.25)",
               },
             },
           }}
@@ -79,10 +95,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               resultCount === 1 ? "product" : "products"
             }`}
             sx={{
-              backgroundColor: "#0ea5e9",
-              color: "white",
+              background: "rgba(224, 212, 255, 0.18)",
+              color: "var(--accent-primary)",
               fontWeight: 600,
-              px: 1,
+              px: 1.5,
+              borderRadius: 999,
+              border: "1px solid rgba(224, 212, 255, 0.3)",
             }}
           />
         )}

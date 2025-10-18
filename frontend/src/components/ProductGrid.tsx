@@ -24,22 +24,23 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       sx={{
         display: "grid",
         gridTemplateColumns: {
-          xs: "1fr",
-          sm: "repeat(2, 1fr)",
-          lg: "repeat(3, 1fr)",
+          xs: "minmax(0, 1fr)",
+          sm: "repeat(2, minmax(0, 1fr))",
+          xl: "repeat(3, minmax(0, 1fr))",
         },
-        gap: 4,
-        mb: 4,
+        gap: { xs: 3.5, md: 4.5 },
+        mb: 6,
+        position: "relative",
       }}
     >
       {products.map((perfume, index) => (
         <Fade
           in
-          timeout={500}
-          style={{ transitionDelay: `${index * 50}ms` }}
+          timeout={480}
+          style={{ transitionDelay: `${index * 60}ms` }}
           key={perfume._id}
         >
-          <Box>
+          <Box sx={{ height: "100%" }}>
             <PerfumeCard perfume={perfume} onViewDetails={handleViewDetails} />
           </Box>
         </Fade>

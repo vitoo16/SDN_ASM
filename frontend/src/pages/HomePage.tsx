@@ -66,7 +66,19 @@ export const HomePage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ backgroundColor: "#f8fafc" }}>
+    <Box
+      sx={{
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          inset: 0,
+          background: "radial-gradient(circle at 20% 0%, rgba(216,198,255,0.12), transparent 55%)",
+          pointerEvents: "none",
+        },
+      }}
+    >
       {/* Hero Section with lazy loading */}
       <Suspense fallback={<LoadingSpinner message="Loading hero section..." />}>
         <HeroSection featuredPerfumes={featuredPerfumes} />

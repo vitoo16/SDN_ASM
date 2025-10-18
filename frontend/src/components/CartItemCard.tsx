@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -6,12 +6,16 @@ import {
   TextField,
   Card,
   CardContent,
-  CardMedia,
   Chip,
   Fade,
   Tooltip,
 } from "@mui/material";
-import { Delete, Add, Remove } from "@mui/icons-material";
+import {
+  Delete,
+  Add,
+  Remove,
+  ImageNotSupported as ImageNotSupportedIcon,
+} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { CartItem } from "../types";
 
@@ -31,6 +35,11 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
   formatPrice,
 }) => {
   const navigate = useNavigate();
+  const [hasImageError, setHasImageError] = useState(false);
+
+  useEffect(() => {
+    setHasImageError(false);
+  }, [item.perfume._id]);
 
   return (
     <Fade in timeout={300 + index * 100}>
@@ -39,50 +48,94 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          p: { xs: 2, sm: 2.5 },
-          transition: "all 0.3s ease",
+          p: { xs: 2.5, sm: 3 },
+          gap: { xs: 2.5, sm: 3 },
           position: "relative",
+          borderRadius: 4,
+          background:
+            "linear-gradient(160deg, rgba(24,28,40,0.92) 0%, rgba(12,15,24,0.92) 100%)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 30px 60px rgba(0,0,0,0.45)",
+          backdropFilter: "var(--surface-blur)",
+          transition: "transform 260ms ease, box-shadow 260ms ease",
+          color: "var(--text-primary)",
           "&:hover": {
-            backgroundColor: "#f8fafc",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            transform: "translateY(-6px)",
+            boxShadow: "0 38px 72px rgba(0,0,0,0.55)",
+            borderColor: "rgba(224,212,255,0.24)",
           },
         }}
       >
-        {/* Product Image */}
         <Box
           sx={{
             position: "relative",
             flexShrink: 0,
-            width: { xs: "100%", sm: 140 },
-            height: { xs: 200, sm: 140 },
-            mb: { xs: 2, sm: 0 },
+            width: { xs: "100%", sm: 168 },
+            height: { xs: 220, sm: 168 },
+            borderRadius: 3,
+            overflow: "hidden",
+            cursor: "pointer",
+            background:
+              "radial-gradient(circle at 30% 20%, rgba(224,212,255,0.18), transparent 70%)",
           }}
+          onClick={() => navigate(`/${item.perfume._id}`)}
         >
-          <CardMedia
-            component="img"
-            image={item.perfume.uri}
-            alt={item.perfume.perfumeName}
+          {!hasImageError ? (
+            <Box
+              component="img"
+              src={item.perfume.uri}
+              alt={item.perfume.perfumeName}
+              onError={() => setHasImageError(true)}
+              sx={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "transform 0.35s ease, filter 0.35s ease",
+                filter: "drop-shadow(0 24px 32px rgba(0,0,0,0.45))",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                  filter: "drop-shadow(0 28px 40px rgba(0,0,0,0.55))",
+                },
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 1,
+                color: "rgba(224,212,255,0.6)",
+                background:
+                  "linear-gradient(145deg, rgba(32,37,54,0.85) 0%, rgba(14,18,28,0.95) 100%)",
+              }}
+            >
+              <ImageNotSupportedIcon fontSize="small" />
+              <Typography variant="caption" sx={{ letterSpacing: "0.12em" }}>
+                Image unavailable
+              </Typography>
+            </Box>
+          )}
+          <Box
             sx={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              borderRadius: 2,
-              cursor: "pointer",
-              transition: "transform 0.3s ease",
-              "&:hover": {
-                transform: "scale(1.05)",
-              },
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              border: "1px solid rgba(224,212,255,0.18)",
+              borderRadius: "inherit",
+              opacity: 0.6,
             }}
-            onClick={() => navigate(`/${item.perfume._id}`)}
           />
         </Box>
 
-        {/* Product Details */}
         <CardContent
           sx={{
             flex: 1,
-            py: { xs: 0, sm: 0 },
-            px: { xs: 0, sm: 2 },
+            p: 0,
+            color: "inherit",
             "&:last-child": { pb: 0 },
           }}
         >
@@ -91,7 +144,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-start",
-              mb: 1,
+              mb: 1.5,
             }}
           >
             <Box sx={{ flex: 1, pr: 2 }}>
@@ -99,12 +152,14 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                 variant="h6"
                 sx={{
                   fontWeight: 600,
-                  mb: 0.5,
+                  mb: 1,
                   cursor: "pointer",
                   fontSize: { xs: "1rem", sm: "1.25rem" },
-                  transition: "color 0.2s ease",
+                  transition: "color 0.2s ease, transform 0.2s ease",
+                  color: "var(--text-primary)",
                   "&:hover": {
-                    color: "#0ea5e9",
+                    color: "var(--accent-primary)",
+                    transform: "translateY(-1px)",
                   },
                 }}
                 onClick={() => navigate(`/${item.perfume._id}`)}
@@ -124,7 +179,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "#64748b",
+                    color: "var(--text-secondary)",
                     fontWeight: 500,
                   }}
                 >
@@ -135,18 +190,19 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                     width: 4,
                     height: 4,
                     borderRadius: "50%",
-                    backgroundColor: "#cbd5e1",
+                    backgroundColor: "rgba(255,255,255,0.16)",
                   }}
                 />
                 <Chip
                   label={item.perfume.concentration}
                   size="small"
                   sx={{
-                    height: 20,
-                    fontSize: "0.7rem",
-                    backgroundColor: "#e0f2fe",
-                    color: "#0284c7",
+                    height: 22,
+                    fontSize: "0.72rem",
+                    backgroundColor: "rgba(224,212,255,0.15)",
+                    color: "var(--accent-primary)",
                     fontWeight: 600,
+                    border: "1px solid rgba(224,212,255,0.25)",
                   }}
                 />
                 <Box
@@ -154,10 +210,13 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                     width: 4,
                     height: 4,
                     borderRadius: "50%",
-                    backgroundColor: "#cbd5e1",
+                    backgroundColor: "rgba(255,255,255,0.16)",
                   }}
                 />
-                <Typography variant="body2" sx={{ color: "#64748b" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "var(--text-secondary)" }}
+                >
                   {item.perfume.volume}ml
                 </Typography>
               </Box>
@@ -166,7 +225,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                 variant="h6"
                 sx={{
                   fontWeight: 700,
-                  color: "#0ea5e9",
+                  color: "var(--accent-primary)",
                   fontSize: { xs: "1.1rem", sm: "1.25rem" },
                 }}
               >
@@ -174,17 +233,16 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
               </Typography>
             </Box>
 
-            {/* Delete Button */}
             <Tooltip title="Remove from cart" arrow>
               <IconButton
                 onClick={() => onRemove(item.perfume._id)}
                 size="small"
                 sx={{
-                  color: "#64748b",
+                  color: "rgba(255,255,255,0.7)",
                   transition: "all 0.2s ease",
                   "&:hover": {
-                    color: "#ef4444",
-                    backgroundColor: "#fee2e2",
+                    color: "#f87171",
+                    backgroundColor: "rgba(248,113,113,0.12)",
                     transform: "rotate(10deg)",
                   },
                 }}
@@ -194,7 +252,6 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
             </Tooltip>
           </Box>
 
-          {/* Quantity Controls */}
           <Box
             sx={{
               display: "flex",
@@ -204,14 +261,14 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
               gap: 2,
               mt: 2,
               pt: 2,
-              borderTop: "1px solid #f1f5f9",
+              borderTop: "1px solid rgba(255,255,255,0.08)",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography
                 variant="body2"
                 sx={{
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   fontWeight: 500,
                   mr: 1,
                   display: { xs: "none", sm: "block" },
@@ -229,15 +286,16 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                     }
                     disabled={item.quantity <= 1}
                     sx={{
-                      border: "1px solid #e2e8f0",
+                      border: "1px solid rgba(255,255,255,0.12)",
                       borderRadius: 1,
+                      backgroundColor: "rgba(255,255,255,0.02)",
                       transition: "all 0.2s ease",
                       "&:hover": {
-                        backgroundColor: "#f1f5f9",
-                        borderColor: "#0ea5e9",
+                        backgroundColor: "rgba(224,212,255,0.12)",
+                        borderColor: "rgba(224,212,255,0.4)",
                       },
                       "&.Mui-disabled": {
-                        opacity: 0.4,
+                        opacity: 0.3,
                       },
                     }}
                   >
@@ -249,21 +307,31 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
               <TextField
                 value={item.quantity}
                 onChange={(e) => {
-                  const value = parseInt(e.target.value) || 1;
+                  const value = parseInt(e.target.value, 10) || 1;
                   onQuantityChange(item.perfume._id, value);
                 }}
                 type="number"
                 inputProps={{ min: 1, max: 99 }}
                 sx={{
-                  width: 60,
+                  width: 64,
                   "& input": {
                     textAlign: "center",
-                    py: 0.5,
+                    py: 0.6,
                     fontWeight: 600,
+                    color: "var(--text-primary)",
                   },
                   "& .MuiOutlinedInput-root": {
+                    backgroundColor: "rgba(255,255,255,0.04)",
+                    borderRadius: 2,
+                    "& fieldset": {
+                      borderColor: "rgba(255,255,255,0.12)",
+                    },
                     "&:hover fieldset": {
-                      borderColor: "#0ea5e9",
+                      borderColor: "rgba(224,212,255,0.35)",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "var(--accent-primary)",
+                      boxShadow: "0 0 0 2px rgba(224,212,255,0.18)",
                     },
                   },
                 }}
@@ -279,15 +347,16 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                     }
                     disabled={item.quantity >= 99}
                     sx={{
-                      border: "1px solid #e2e8f0",
+                      border: "1px solid rgba(255,255,255,0.12)",
                       borderRadius: 1,
+                      backgroundColor: "rgba(255,255,255,0.02)",
                       transition: "all 0.2s ease",
                       "&:hover": {
-                        backgroundColor: "#f1f5f9",
-                        borderColor: "#0ea5e9",
+                        backgroundColor: "rgba(224,212,255,0.12)",
+                        borderColor: "rgba(224,212,255,0.4)",
                       },
                       "&.Mui-disabled": {
-                        opacity: 0.4,
+                        opacity: 0.3,
                       },
                     }}
                   >
@@ -297,12 +366,11 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
               </Tooltip>
             </Box>
 
-            {/* Subtotal */}
             <Box>
               <Typography
                 variant="body2"
                 sx={{
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   fontSize: "0.85rem",
                   display: { xs: "none", sm: "block" },
                 }}
@@ -313,7 +381,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
                 variant="h6"
                 sx={{
                   fontWeight: 700,
-                  color: "#0f172a",
+                  color: "var(--text-primary)",
                   fontSize: { xs: "1rem", sm: "1.15rem" },
                 }}
               >

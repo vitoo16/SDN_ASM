@@ -1,24 +1,18 @@
 import React from "react";
 import {
   Card,
-  CardMedia,
   CardContent,
   Typography,
   Box,
   Chip,
   Button,
   CardActions,
-  Tooltip,
-  Zoom,
   Snackbar,
   Alert,
+  Stack,
 } from "@mui/material";
-import {
-  Visibility,
-  ShoppingCart,
-  Favorite,
-  FavoriteBorder,
-} from "@mui/icons-material";
+import { ShoppingCart, Visibility } from "@mui/icons-material";
+import ImageNotSupportedIcon from "@mui/icons-material/ImageNotSupported";
 import { Perfume } from "../types";
 import { formatPrice, getTargetAudienceIcon } from "../utils/helpers";
 import { ExtraitBadge } from "./ExtraitBadge";
@@ -34,260 +28,282 @@ export const PerfumeCard: React.FC<PerfumeCardProps> = ({
   onViewDetails,
 }) => {
   const { addToCart } = useCart();
-  const [isFavorite, setIsFavorite] = React.useState(false);
   const [isHovered, setIsHovered] = React.useState(false);
   const [showSnackbar, setShowSnackbar] = React.useState(false);
+  const [hasImageError, setHasImageError] = React.useState(false);
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsFavorite(!isFavorite);
-  };
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleAddToCart = (event: React.MouseEvent) => {
+    event.stopPropagation();
     addToCart(perfume, 1);
     setShowSnackbar(true);
   };
 
+  const handleViewDetails = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    onViewDetails(perfume._id);
+  };
+
   return (
     <Card
+      onClick={() => onViewDetails(perfume._id)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       sx={{
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        cursor: "pointer",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         position: "relative",
+        borderRadius: 5,
         overflow: "hidden",
-        borderRadius: 3,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-        border: "1px solid #e2e8f0",
-        "&:hover": {
-          transform: "translateY(-8px)",
-          boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
-        },
+        cursor: "pointer",
+        background:
+          "linear-gradient(150deg, rgba(255,255,255,0.08) 0%, rgba(13,16,23,0.75) 55%, rgba(7,9,15,0.95) 100%)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        boxShadow: isHovered
+          ? "0 35px 65px rgba(0,0,0,0.45)"
+          : "0 18px 45px rgba(0,0,0,0.35)",
+        transition: "transform 320ms ease, box-shadow 320ms ease",
+        transform: isHovered ? "translateY(-10px)" : "translateY(0)",
       }}
-      onClick={() => onViewDetails(perfume._id)}
     >
-      {/* Favorite Button */}
-      <Tooltip
-        title={isFavorite ? "Remove from favorites" : "Add to favorites"}
-      >
-        <Box
-          onClick={handleFavoriteClick}
-          sx={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            zIndex: 2,
-            width: 36,
-            height: 36,
-            borderRadius: "50%",
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            "&:hover": {
-              backgroundColor: "white",
-              transform: "scale(1.1)",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            },
-          }}
-        >
-          {isFavorite ? (
-            <Favorite sx={{ fontSize: 20, color: "#ef4444" }} />
-          ) : (
-            <FavoriteBorder sx={{ fontSize: 20, color: "#64748b" }} />
-          )}
-        </Box>
-      </Tooltip>
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(circle at 80% 0%, rgba(154,214,247,0.15), transparent 55%)",
+          opacity: isHovered ? 0.85 : 0.55,
+          transition: "opacity 320ms ease",
+        }}
+      />
 
-      {/* Image Section */}
       <Box
         sx={{
           position: "relative",
-          paddingTop: "100%",
-          overflow: "hidden",
-          backgroundColor: "#f8fafc",
+          zIndex: 2,
+          px: { xs: 3.5, md: 4.5 },
+          pt: { xs: 2.5, md: 3 },
         }}
       >
-        <CardMedia
-          component="img"
-          image={perfume.uri}
-          alt={perfume.perfumeName}
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: "transform 0.5s ease",
-            transform: isHovered ? "scale(1.1)" : "scale(1)",
-          }}
-        />
-
-        {/* Overlay on hover */}
         <Box
           sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            opacity: isHovered ? 1 : 0,
-            transition: "opacity 0.3s ease",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 1,
+            position: "relative",
+            height: { xs: 260, sm: 280, md: 300 },
+            borderRadius: { xs: 26, md: 30 },
+            overflow: "hidden",
+            background:
+              "linear-gradient(145deg, rgba(21,25,36,0.85) 0%, rgba(41,45,60,0.5) 60%, rgba(21,25,36,0.9) 100%)",
+            boxShadow: "inset 0 18px 32px rgba(0,0,0,0.35)",
           }}
         >
-          <Zoom in={isHovered}>
+          {!hasImageError ? (
+            <Box
+              component="img"
+              src={perfume.uri}
+              alt={perfume.perfumeName}
+              onError={() => setHasImageError(true)}
+              sx={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "transform 320ms ease, filter 320ms ease",
+                transform: isHovered ? "scale(1.05)" : "scale(1)",
+                filter: isHovered
+                  ? "drop-shadow(0 40px 60px rgba(0,0,0,0.45))"
+                  : "drop-shadow(0 24px 36px rgba(0,0,0,0.35))",
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 1,
+                color: "rgba(245,246,249,0.7)",
+                background:
+                  "linear-gradient(135deg, rgba(37,40,55,0.65) 0%, rgba(21,24,36,0.85) 100%)",
+              }}
+            >
+              <ImageNotSupportedIcon sx={{ fontSize: 48 }} />
+              <Typography variant="subtitle2" sx={{ letterSpacing: "0.12em" }}>
+                Image unavailable
+              </Typography>
+            </Box>
+          )}
+
+          <Box
+            sx={{
+              position: "absolute",
+              inset: "auto 0 0",
+              height: "42%",
+              background:
+                "linear-gradient(180deg, rgba(11,13,18,0) 0%, rgba(11,13,18,0.75) 90%, rgba(11,13,18,0.95) 100%)",
+            }}
+          />
+
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(circle at 30% 18%, rgba(255,255,255,0.16), transparent 60%)",
+              opacity: isHovered ? 0.78 : 0.48,
+              transition: "opacity 320ms ease",
+            }}
+          />
+        </Box>
+
+        {isHovered && (
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(6px)",
+              backgroundColor: "rgba(7,9,15,0.45)",
+            }}
+          >
             <Button
               variant="contained"
               startIcon={<Visibility />}
+              onClick={handleViewDetails}
               sx={{
-                backgroundColor: "white",
-                color: "#0ea5e9",
-                "&:hover": {
-                  backgroundColor: "#f8fafc",
-                },
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                borderRadius: 999,
+                px: 4,
+                py: 1.25,
+                boxShadow: "0 18px 40px rgba(164, 196, 255, 0.35)",
               }}
             >
               View
             </Button>
-          </Zoom>
-        </Box>
+          </Box>
+        )}
       </Box>
 
-      {/* Content Section */}
-      <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            mb: 1.5,
-            gap: 1,
-          }}
+      <CardContent sx={{ zIndex: 2, p: 4, pt: 3.5, flexGrow: 1 }}>
+        <Stack
+          direction="row"
+          alignItems="flex-start"
+          spacing={2}
+          justifyContent="space-between"
+          mb={2.5}
         >
-          <Typography
-            variant="h6"
-            component="h3"
-            sx={{
-              fontWeight: 700,
-              flex: 1,
-              fontSize: "1.1rem",
-              color: "#0f172a",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              lineHeight: 1.3,
-            }}
-            title={perfume.perfumeName}
-          >
-            {perfume.perfumeName}
-          </Typography>
+          <Box sx={{ flex: 1 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                letterSpacing: "0.24em",
+                color: "rgba(224,212,255,0.55)",
+                mb: 1,
+              }}
+            >
+              {perfume.brand.brandName}
+            </Typography>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 600,
+                lineHeight: 1.3,
+                letterSpacing: "0.04em",
+                color: "#f5f6f9",
+              }}
+            >
+              {perfume.perfumeName}
+            </Typography>
+          </Box>
           <ExtraitBadge
             concentration={perfume.concentration}
             size="small"
             variant="chip"
           />
-        </Box>
+        </Stack>
 
         <Typography
           variant="body2"
-          color="text.secondary"
           sx={{
-            mb: 2,
-            fontWeight: 500,
-            fontSize: "0.9rem",
+            color: "rgba(245,246,249,0.62)",
+            mb: 3.5,
+            minHeight: 56,
+            letterSpacing: "0.06em",
           }}
         >
-          {perfume.brand.brandName}
+          {perfume.description.slice(0, 120)}
+          {perfume.description.length > 120 ? "…" : ""}
         </Typography>
 
-        <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ mb: 3.5 }}
+        >
           <Chip
             label={`${getTargetAudienceIcon(perfume.targetAudience)} ${
               perfume.targetAudience
             }`}
             size="small"
             sx={{
-              borderColor: "#cbd5e1",
-              color: "#475569",
-              fontWeight: 500,
+              backgroundColor: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "rgba(245,246,249,0.75)",
+              letterSpacing: "0.08em",
             }}
-            variant="outlined"
           />
           <Chip
-            label={`${perfume.volume}ml`}
+            label={`${perfume.volume} ml`}
             size="small"
             sx={{
-              borderColor: "#cbd5e1",
-              color: "#475569",
-              fontWeight: 500,
+              backgroundColor: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "rgba(245,246,249,0.75)",
+              letterSpacing: "0.08em",
             }}
-            variant="outlined"
           />
-        </Box>
+        </Stack>
 
-        <Box
+        <Typography
+          variant="h4"
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            fontWeight: 500,
+            color: "#e0d4ff",
+            letterSpacing: "0.1em",
           }}
         >
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                color: "#0ea5e9",
-              }}
-            >
-              {formatPrice(perfume.price)}
-            </Typography>
-          </Box>
-        </Box>
+          {formatPrice(perfume.price)}
+        </Typography>
       </CardContent>
 
-      {/* Action Buttons */}
-      <CardActions sx={{ p: 2.5, pt: 0 }}>
+      <CardActions sx={{ zIndex: 2, px: 4, pb: 4, pt: 1.5 }}>
         <Button
           fullWidth
           variant="contained"
           startIcon={<ShoppingCart />}
           onClick={handleAddToCart}
           sx={{
-            py: 1.2,
+            py: 1.25,
+            borderRadius: 999,
             fontWeight: 600,
-            background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
-            textTransform: "none",
-            fontSize: "0.95rem",
-            "&:hover": {
-              background: "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
-            },
+            letterSpacing: "0.14em",
           }}
         >
           Add to Cart
         </Button>
       </CardActions>
 
-      {/* Snackbar notification */}
       <Snackbar
         open={showSnackbar}
-        autoHideDuration={3000}
+        autoHideDuration={2800}
         onClose={() => setShowSnackbar(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
