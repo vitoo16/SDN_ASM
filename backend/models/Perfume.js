@@ -5,7 +5,7 @@ const commentSchema = new Schema({
   rating: {
     type: Number,
     min: 1,
-    max: 5,
+    max: 3,
     required: true
   },
   content: {

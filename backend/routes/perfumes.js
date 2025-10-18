@@ -29,7 +29,7 @@ const perfumeValidation = [
 ];
 
 const commentValidation = [
-  body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
+  body('rating').isInt({ min: 1, max: 3 }).withMessage('Rating must be between 1 and 3'),
   body('content').trim().isLength({ min: 5 }).withMessage('Comment must be at least 5 characters')
 ];
 

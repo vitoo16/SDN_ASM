@@ -987,6 +987,7 @@ export const ProfilePage: React.FC = () => {
                                   </Box>
                                   <Rating
                                     value={review.rating}
+                                    max={3}
                                     readOnly
                                     size="small"
                                   />

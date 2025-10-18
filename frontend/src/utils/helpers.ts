@@ -76,7 +76,7 @@ export const validatePassword = (password: string): string[] => {
 };
 
 export const getRatingStars = (rating: number): string => {
-  const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  const stars = '★'.repeat(rating) + '☆'.repeat(3 - rating);
   return stars;
 };
 

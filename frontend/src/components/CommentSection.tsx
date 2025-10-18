@@ -55,7 +55,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 }) => {
   const location = useLocation();
   const { user, isAuthenticated, openAuthModal, setPreLoginPath } = useAuth();
-  const [rating, setRating] = useState<number>(5);
+  const [rating, setRating] = useState<number>(3);
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -64,7 +64,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editCommentId, setEditCommentId] = useState<string>("");
-  const [editRating, setEditRating] = useState<number>(5);
+  const [editRating, setEditRating] = useState<number>(3);
   const [editContent, setEditContent] = useState<string>("");
 
   // Delete dialog state
@@ -260,6 +260,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             </Typography>
             <Rating
               value={rating}
+              max={3}
               onChange={(event, newValue) => {
                 if (newValue !== null) setRating(newValue);
               }}
@@ -389,6 +390,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
           <Rating
             value={userComment.rating}
+            max={3}
             readOnly
             size="small"
             sx={{ mb: 1, color: "#f6c561" }}
@@ -509,6 +511,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                     </Box>
                     <Rating
                       value={comment.rating}
+                      max={3}
                       readOnly
                       size="small"
                       sx={{ color: "#f6c561" }}
@@ -558,6 +561,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             </Typography>
             <Rating
               value={editRating}
+              max={3}
               onChange={(event, newValue) => {
                 if (newValue !== null) setEditRating(newValue);
               }}

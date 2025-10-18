@@ -221,6 +221,7 @@ export const PerfumeDetailPage: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                   <Rating
                     value={averageRating}
+                    max={3}
                     precision={0.1}
                     readOnly
                     size="large"
