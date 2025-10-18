@@ -21,6 +21,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import {
   Close,
   Email,
@@ -64,6 +65,73 @@ const registerSchema = yup.object({
     .required("Year of birth is required"),
   gender: yup.string().required("Gender is required"),
 });
+
+const darkInputFieldSx = {
+  mb: 2.5,
+  "& .MuiInputBase-input": {
+    color: "rgba(241,245,255,0.92)",
+    fontSize: "0.95rem",
+  },
+  "& .MuiInputAdornment-root svg": {
+    color: "rgba(226,232,240,0.75)",
+  },
+  "& .MuiSelect-icon": {
+    color: "rgba(226,232,240,0.75)",
+  },
+  "& .MuiOutlinedInput-root": {
+    borderRadius: 999,
+    backgroundColor: "rgba(21,24,36,0.92)",
+    transition: "all 0.3s ease",
+    "& fieldset": {
+      borderColor: "rgba(148,163,184,0.25)",
+    },
+    "&:hover fieldset": {
+      borderColor: "rgba(224,212,255,0.55)",
+    },
+    "&.Mui-focused": {
+      backgroundColor: "rgba(10,12,20,0.9)",
+      "& fieldset": {
+        borderColor: "var(--accent-primary)",
+        borderWidth: 2,
+      },
+      boxShadow: "0 14px 36px rgba(82,109,255,0.28)",
+    },
+  },
+  "& .MuiFormHelperText-root": {
+    color: "#fda4af",
+  },
+  "& .MuiInputLabel-root": {
+    fontWeight: 500,
+    color: "rgba(224,231,255,0.78)",
+    fontSize: "0.85rem",
+    "&.Mui-focused": {
+      color: "var(--accent-primary)",
+    },
+  },
+} as const;
+
+const AuthActionButton = styled(Button)(() => ({
+  borderRadius: 999,
+  textTransform: "uppercase",
+  letterSpacing: "0.1em",
+  paddingInline: "1.8rem",
+  paddingBlock: "0.85rem",
+  background:
+    "linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(212, 215, 255, 0.92) 100%)",
+  color: "#0b0d12",
+  boxShadow: "0 20px 40px rgba(193, 156, 255, 0.2)",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    background:
+      "linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(193, 200, 255, 0.9) 100%)",
+    boxShadow: "0 28px 52px rgba(193, 156, 255, 0.28)",
+  },
+  "&:disabled": {
+    background: "rgba(100,100,100,0.3)",
+    color: "rgba(255,255,255,0.35)",
+    boxShadow: "none",
+  },
+}));
 
 interface AuthModalProps {
   open: boolean;
@@ -154,9 +222,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           minHeight: "600px",
           maxHeight: "90vh",
           overflow: "hidden",
-          background: "linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
+          position: "relative",
+          background:
+            "linear-gradient(160deg, rgba(12,14,22,0.96) 0%, rgba(4,6,12,0.92) 100%)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 42px 82px rgba(0,0,0,0.55)",
         },
       }}
       TransitionProps={{
@@ -170,10 +240,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           top: 0,
           left: 0,
           right: 0,
-          height: "200px",
+          height: "260px",
           background:
-            "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #8b5cf6 100%)",
-          opacity: 0.1,
+            "radial-gradient(circle at 20% 30%, rgba(224,212,255,0.22), transparent 60%), radial-gradient(circle at 80% 25%, rgba(137,207,255,0.18), transparent 65%)",
+          opacity: 0.8,
+          zIndex: 0,
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(circle at 50% 110%, rgba(37,99,235,0.28), transparent 70%)",
+          opacity: 0.6,
           zIndex: 0,
         }}
       />
@@ -187,9 +267,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           justifyContent: "space-between",
           alignItems: "center",
           p: 3,
-          background: "rgba(255, 255, 255, 0.9)",
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(226, 232, 240, 0.8)",
+          background: "rgba(10,12,20,0.82)",
+          backdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
         }}
       >
         {/* Centered Tabs */}
@@ -204,23 +284,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               "& .MuiTab-root": {
                 textTransform: "none",
                 fontWeight: 600,
-                fontSize: "1.1rem",
+                fontSize: "0.98rem",
                 minWidth: 140,
                 minHeight: 48,
-                borderRadius: 3,
+                borderRadius: 999,
                 mx: 1,
                 transition: "all 0.3s ease",
+                color: "rgba(224,231,255,0.72)",
                 "&.Mui-selected": {
-                  color: "#0ea5e9",
-                  backgroundColor: "rgba(14, 165, 233, 0.1)",
+                  color: "var(--accent-primary)",
+                  backgroundColor: "rgba(79,70,229,0.2)",
+                  boxShadow: "0 14px 26px rgba(79,70,229,0.25)",
                 },
                 "&:hover": {
-                  backgroundColor: "rgba(14, 165, 233, 0.05)",
+                  backgroundColor: "rgba(148,163,184,0.16)",
                 },
               },
               "& .MuiTabs-indicator": {
-                backgroundColor: "#0ea5e9",
-                height: 3,
+                background:
+                  "linear-gradient(135deg, rgba(224,212,255,0.9) 0%, rgba(148,207,255,0.9) 100%)",
+                height: 4,
                 borderRadius: "3px 3px 0 0",
               },
               "& .MuiTabs-flexContainer": {
@@ -239,11 +322,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           onClick={handleClose}
           size="large"
           sx={{
-            color: "#64748b",
-            backgroundColor: "rgba(100, 116, 139, 0.1)",
+            color: "rgba(226,232,240,0.85)",
+            backgroundColor: "rgba(148,163,184,0.12)",
             "&:hover": {
-              backgroundColor: "rgba(100, 116, 139, 0.2)",
-              color: "#0f172a",
+              backgroundColor: "rgba(148,163,184,0.2)",
+              color: "var(--accent-primary)",
             },
           }}
         >
@@ -256,11 +339,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           p: 0,
           position: "relative",
           zIndex: 1,
-          background: "rgba(255, 255, 255, 0.95)",
-          backdropFilter: "blur(10px)",
+          background: "rgba(8,10,18,0.88)",
+          backdropFilter: "blur(18px)",
         }}
       >
-        <Box sx={{ p: 4 }}>
+        <Box
+          sx={{
+            p: 4,
+            color: "var(--text-primary)",
+          }}
+        >
           {/* Enhanced Welcome Message */}
           <Box sx={{ textAlign: "center", mb: 4 }}>
             <Fade in timeout={600}>
@@ -269,13 +357,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   variant="h4"
                   sx={{
                     fontWeight: 700,
-                    color: "#0f172a",
-                    mb: 2,
+                    mb: 1.5,
                     background:
-                      "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+                      "linear-gradient(135deg, rgba(224,212,255,1) 0%, rgba(148,207,255,1) 100%)",
                     backgroundClip: "text",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    fontSize: { xs: "1.6rem", sm: "1.8rem" },
                   }}
                 >
                   {isLogin ? "Welcome Back!" : "Join Odour"}
@@ -283,10 +373,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <Typography
                   variant="body1"
                   sx={{
-                    color: "#64748b",
-                    fontSize: "1.1rem",
+                    color: "rgba(224,231,255,0.78)",
+                    fontSize: "0.95rem",
                     maxWidth: "400px",
                     mx: "auto",
+                    letterSpacing: "0.05em",
                   }}
                 >
                   {isLogin
@@ -303,9 +394,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 severity="error"
                 sx={{
                   mb: 3,
-                  borderRadius: 2,
+                  borderRadius: 3,
+                  background:
+                    "linear-gradient(145deg, rgba(239,68,68,0.18) 0%, rgba(248,113,113,0.12) 100%)",
+                  color: "#fecaca",
+                  border: "1px solid rgba(248,113,113,0.35)",
+                  backdropFilter: "blur(10px)",
                   "& .MuiAlert-icon": {
                     fontSize: "1.5rem",
+                    color: "#f87171",
                   },
                 }}
               >
@@ -329,30 +426,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Email sx={{ color: "#64748b" }} />
+                    <Email sx={{ color: "rgba(226,232,240,0.65)" }} />
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                mb: 3,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 3,
-                  backgroundColor: "rgba(248, 250, 252, 0.8)",
-                  "&:hover fieldset": {
-                    borderColor: "#0ea5e9",
-                  },
-                  "&.Mui-focused": {
-                    backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    "& fieldset": {
-                      borderColor: "#0ea5e9",
-                      borderWidth: 2,
-                    },
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  fontWeight: 500,
-                },
-              }}
+              sx={darkInputFieldSx}
             />
 
             <TextField
@@ -369,7 +447,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Lock sx={{ color: "#64748b" }} />
+                    <Lock sx={{ color: "rgba(226,232,240,0.65)" }} />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -378,33 +456,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       aria-label="toggle password visibility"
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
-                      sx={{ color: "#64748b" }}
+                      sx={{ color: "rgba(226,232,240,0.65)" }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                mb: 3,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 3,
-                  backgroundColor: "rgba(248, 250, 252, 0.8)",
-                  "&:hover fieldset": {
-                    borderColor: "#0ea5e9",
-                  },
-                  "&.Mui-focused": {
-                    backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    "& fieldset": {
-                      borderColor: "#0ea5e9",
-                      borderWidth: 2,
-                    },
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  fontWeight: 500,
-                },
-              }}
+              sx={darkInputFieldSx}
             />
 
             {!isLogin && (
@@ -424,7 +483,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <Lock sx={{ color: "#64748b" }} />
+                          <Lock sx={{ color: "rgba(226,232,240,0.65)" }} />
                         </InputAdornment>
                       ),
                       endAdornment: (
@@ -435,7 +494,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                               setShowConfirmPassword(!showConfirmPassword)
                             }
                             edge="end"
-                            sx={{ color: "#64748b" }}
+                            sx={{ color: "rgba(226,232,240,0.65)" }}
                           >
                             {showConfirmPassword ? (
                               <VisibilityOff />
@@ -446,26 +505,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         </InputAdornment>
                       ),
                     }}
-                    sx={{
-                      mb: 3,
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 3,
-                        backgroundColor: "rgba(248, 250, 252, 0.8)",
-                        "&:hover fieldset": {
-                          borderColor: "#0ea5e9",
-                        },
-                        "&.Mui-focused": {
-                          backgroundColor: "rgba(255, 255, 255, 0.9)",
-                          "& fieldset": {
-                            borderColor: "#0ea5e9",
-                            borderWidth: 2,
-                          },
-                        },
-                      },
-                      "& .MuiInputLabel-root": {
-                        fontWeight: 500,
-                      },
-                    }}
+                    sx={darkInputFieldSx}
                   />
 
                   <TextField
@@ -481,30 +521,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <Person sx={{ color: "#64748b" }} />
+                          <Person sx={{ color: "rgba(226,232,240,0.65)" }} />
                         </InputAdornment>
                       ),
                     }}
-                    sx={{
-                      mb: 3,
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 3,
-                        backgroundColor: "rgba(248, 250, 252, 0.8)",
-                        "&:hover fieldset": {
-                          borderColor: "#0ea5e9",
-                        },
-                        "&.Mui-focused": {
-                          backgroundColor: "rgba(255, 255, 255, 0.9)",
-                          "& fieldset": {
-                            borderColor: "#0ea5e9",
-                            borderWidth: 2,
-                          },
-                        },
-                      },
-                      "& .MuiInputLabel-root": {
-                        fontWeight: 500,
-                      },
-                    }}
+                    sx={darkInputFieldSx}
                   />
 
                   <Autocomplete
@@ -529,35 +550,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           ...params.InputProps,
                           startAdornment: (
                             <InputAdornment position="start">
-                              <CalendarToday sx={{ color: "#64748b" }} />
+                              <CalendarToday
+                                sx={{ color: "rgba(226,232,240,0.65)" }}
+                              />
                             </InputAdornment>
                           ),
                         }}
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            borderRadius: 3,
-                            backgroundColor: "rgba(248, 250, 252, 0.8)",
-                            "&:hover fieldset": {
-                              borderColor: "#0ea5e9",
-                            },
-                            "&.Mui-focused": {
-                              backgroundColor: "rgba(255, 255, 255, 0.9)",
-                              "& fieldset": {
-                                borderColor: "#0ea5e9",
-                                borderWidth: 2,
-                              },
-                            },
-                          },
-                          "& .MuiInputLabel-root": {
-                            fontWeight: 500,
-                          },
-                        }}
+                        sx={{ ...darkInputFieldSx, mb: 0 }}
                       />
                     )}
                     sx={{ mb: 3 }}
                     ListboxProps={{
                       style: {
                         maxHeight: 300,
+                        background: "rgba(8,10,18,0.95)",
+                        color: "var(--text-primary)",
                       },
                     }}
                   />
@@ -567,26 +574,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     margin="normal"
                     required
                     error={!!errors.gender}
-                    sx={{
-                      mb: 3,
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 3,
-                        backgroundColor: "rgba(248, 250, 252, 0.8)",
-                        "&:hover fieldset": {
-                          borderColor: "#0ea5e9",
-                        },
-                        "&.Mui-focused": {
-                          backgroundColor: "rgba(255, 255, 255, 0.9)",
-                          "& fieldset": {
-                            borderColor: "#0ea5e9",
-                            borderWidth: 2,
-                          },
-                        },
-                      },
-                      "& .MuiInputLabel-root": {
-                        fontWeight: 500,
-                      },
-                    }}
+                    sx={darkInputFieldSx}
                   >
                     <InputLabel id="gender-label">Gender</InputLabel>
                     <Select
@@ -596,12 +584,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       {...register("gender")}
                       startAdornment={
                         <InputAdornment position="start">
-                          <Wc sx={{ color: "#64748b" }} />
+                          <Wc sx={{ color: "rgba(226,232,240,0.65)" }} />
                         </InputAdornment>
                       }
                     >
-                      <MenuItem value="male">Male</MenuItem>
-                      <MenuItem value="female">Female</MenuItem>
+                      <MenuItem
+                        value="male"
+                        sx={{ color: "var(--text-primary)" }}
+                      >
+                        Male
+                      </MenuItem>
+                      <MenuItem
+                        value="female"
+                        sx={{ color: "var(--text-primary)" }}
+                      >
+                        Female
+                      </MenuItem>
                     </Select>
                     {errors.gender && (
                       <Typography
@@ -617,40 +615,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </Fade>
             )}
 
-            <Button
+            <AuthActionButton
               type="submit"
               fullWidth
-              variant="contained"
               size="large"
-              sx={{
-                mt: 2,
-                mb: 3,
-                py: 2,
-                fontSize: "1.1rem",
-                fontWeight: 600,
-                background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
-                borderRadius: 3,
-                textTransform: "none",
-                boxShadow: "0 8px 25px rgba(14, 165, 233, 0.3)",
-                border: "1px solid rgba(14, 165, 233, 0.2)",
-                "&:hover": {
-                  background:
-                    "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 12px 35px rgba(14, 165, 233, 0.4)",
-                },
-                "&:active": {
-                  transform: "translateY(0)",
-                },
-                "&:disabled": {
-                  background:
-                    "linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%)",
-                  transform: "none",
-                  boxShadow: "none",
-                },
-                transition: "all 0.3s ease",
-              }}
               disabled={isLoading}
+              sx={{ mt: 2, mb: 3 }}
             >
               {isLoading ? (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -661,20 +631,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </Box>
               ) : (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  {!isLogin && <CheckCircle />}
-                  <Typography variant="inherit">
+                  {!isLogin && <CheckCircle sx={{ color: "var(--black)" }} />}
+                  <Typography variant="button">
                     {isLogin ? "Sign In" : "Create Account"}
                   </Typography>
                 </Box>
               )}
-            </Button>
+            </AuthActionButton>
 
             {/* Enhanced Footer */}
             <Box sx={{ textAlign: "center", mt: 2 }}>
-              <Divider sx={{ mb: 2, opacity: 0.5 }} />
+              <Divider sx={{ mb: 2, borderColor: "rgba(255,255,255,0.08)" }} />
               <Typography
                 variant="body2"
-                sx={{ color: "#94a3b8", fontSize: "0.9rem" }}
+                sx={{
+                  color: "rgba(224,231,255,0.65)",
+                  fontSize: "0.85rem",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                }}
               >
                 By {isLogin ? "signing in" : "creating an account"}, you agree
                 to our Terms of Service and Privacy Policy
