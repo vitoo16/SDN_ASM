@@ -233,13 +233,47 @@ const changePassword = async (req, res) => {
 // Get all members (Admin only)
 const getAllMembers = async (req, res) => {
   try {
-    const members = await Member.find().select("-password");
+    const { search, isAdmin, gender, page = 1, limit = 10 } = req.query;
+    
+    // Build filter object
+    const filter = {};
+    
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    if (isAdmin !== undefined) {
+      filter.isAdmin = isAdmin === 'true';
+    }
+    
+    if (gender) {
+      filter.gender = gender;
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+    
+    const members = await Member.find(filter)
+      .select("-password")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Member.countDocuments(filter);
 
     res.json({
       success: true,
       data: {
         members,
-        count: members.length,
+        pagination: {
+          current: parseInt(page),
+          total: Math.ceil(total / limit),
+          count: members.length,
+          totalItems: total
+        }
       },
     });
   } catch (error) {

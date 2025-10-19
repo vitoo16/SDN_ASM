@@ -75,9 +75,24 @@ export const authAPI = {
 
 // Members API
 export const membersAPI = {
-  getAllMembers: (): Promise<
-    AxiosResponse<ApiResponse<{ members: Member[]; count: number }>>
-  > => api.get("/members/collectors"),
+  getAllMembers: (params?: {
+    search?: string;
+    isAdmin?: string;
+    gender?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<
+    AxiosResponse<ApiResponse<{ members: Member[]; count?: number; pagination?: any }>>
+  > => {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append("search", params.search);
+    if (params?.isAdmin) queryParams.append("isAdmin", params.isAdmin);
+    if (params?.gender) queryParams.append("gender", params.gender);
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    
+    return api.get(`/members/collectors?${queryParams.toString()}`);
+  },
 
   getUserReviews: (): Promise<
     AxiosResponse<ApiResponse<{ reviews: UserReview[]; count: number }>>
@@ -96,11 +111,21 @@ export const membersAPI = {
 
 // Brands API
 export const brandsAPI = {
-  getAllBrands: (): Promise<
-    AxiosResponse<ApiResponse<{ brands: Brand[]; count: number }>>
-  > => api.get("/brands", { 
-    params: { _t: Date.now() } // Cache busting
-  }),
+  getAllBrands: (params?: {
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<
+    AxiosResponse<ApiResponse<{ brands: Brand[]; count?: number; pagination?: any }>>
+  > => {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append("search", params.search);
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    queryParams.append("_t", Date.now().toString());
+    
+    return api.get(`/brands?${queryParams.toString()}`);
+  },
 
   getBrandById: (
     id: string
@@ -128,7 +153,7 @@ export const brandsAPI = {
 export const perfumesAPI = {
   getAllPerfumes: (
     filters?: SearchFilters
-  ): Promise<AxiosResponse<ApiResponse<{ perfumes: Perfume[] }>>> => {
+  ): Promise<AxiosResponse<ApiResponse<{ perfumes: Perfume[]; pagination?: any }>>> => {
     const params = new URLSearchParams();
     if (filters?.search) params.append("search", filters.search);
     if (filters?.brand) params.append("brand", filters.brand);

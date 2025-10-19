@@ -1,16 +1,38 @@
 const Brand = require("../models/Brand");
 const Perfume = require("../models/Perfume");
 
-// Get all brands
+// Get all brands with pagination and search
 const getAllBrands = async (req, res) => {
   try {
-    const brands = await Brand.find().sort({ brandName: 1 });
+    const { search, page = 1, limit = 10 } = req.query;
+
+    // Build filter object
+    const filter = {};
+
+    if (search) {
+      filter.brandName = { $regex: search, $options: "i" };
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    const brands = await Brand.find(filter)
+      .sort({ brandName: 1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Brand.countDocuments(filter);
 
     res.json({
       success: true,
       data: {
         brands,
-        count: brands.length,
+        pagination: {
+          current: parseInt(page),
+          total: Math.ceil(total / limit),
+          count: brands.length,
+          totalItems: total,
+        },
       },
     });
   } catch (error) {

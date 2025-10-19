@@ -14,6 +14,59 @@ import {
 import { Perfume, PerfumeFormData } from "../../types";
 import { perfumesAPI, brandsAPI } from "../../services/api";
 
+const dialogPaperSx = {
+  borderRadius: 4,
+  border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(9, 12, 20, 0.94)",
+  boxShadow: "0 48px 120px rgba(0,0,0,0.65)",
+  backdropFilter: "blur(30px)",
+} as const;
+
+const fieldStyles = {
+  "& .MuiInputBase-root": {
+    borderRadius: 3,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    color: "var(--text-primary)",
+    backdropFilter: "blur(12px)",
+  },
+  "& .MuiInputBase-input": {
+    color: "var(--text-primary)",
+  },
+  "& .MuiInputLabel-root": {
+    color: "var(--text-secondary)",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    border: "none",
+  },
+  "&:hover .MuiOutlinedInput-root": {
+    borderColor: "rgba(193,156,255,0.5)",
+  },
+  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "rgba(193,156,255,0.45)",
+  },
+  "& .Mui-focused .MuiInputLabel-root": {
+    color: "var(--accent-strong)",
+  },
+} as const;
+
+const menuProps = {
+  PaperProps: {
+    sx: {
+      background: "rgba(12, 16, 26, 0.95)",
+      border: "1px solid rgba(255,255,255,0.12)",
+      boxShadow: "0 32px 70px rgba(0,0,0,0.55)",
+      backdropFilter: "blur(18px)",
+      "& .MuiMenuItem-root": {
+        color: "var(--text-primary)",
+      },
+      "& .MuiMenuItem-root.Mui-selected": {
+        backgroundColor: "rgba(193,156,255,0.25)",
+      },
+    },
+  },
+};
+
 interface PerfumeDialogProps {
   open: boolean;
   perfume: Perfume | null;
@@ -125,31 +178,48 @@ const PerfumeDialog: React.FC<PerfumeDialogProps> = ({
       maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: {
-          borderRadius: 3,
-        },
+        sx: dialogPaperSx,
       }}
     >
       <DialogTitle
         sx={{
           fontWeight: 700,
-          fontSize: "1.5rem",
-          color: "#0f172a",
-          borderBottom: "1px solid #e2e8f0",
+          fontSize: "1.6rem",
+          color: "var(--text-primary)",
+          borderBottom: "1px solid var(--divider)",
+          background:
+            "radial-gradient(circle at 15% 20%, rgba(193,156,255,0.14), transparent 55%), radial-gradient(circle at 82% 8%, rgba(126,205,255,0.12), transparent 60%)",
+          px: { xs: 3, md: 4 },
+          py: { xs: 2.5, md: 3 },
         }}
       >
         {perfume ? "Edit Perfume" : "Add New Perfume"}
       </DialogTitle>
 
       <form onSubmit={handleSubmit}>
-        <DialogContent sx={{ pt: 3 }}>
+        <DialogContent
+          sx={{
+            px: { xs: 3, md: 4 },
+            py: { xs: 3, md: 4 },
+            display: "flex",
+            flexDirection: "column",
+            gap: 2.5,
+            background: "rgba(9,12,20,0.6)",
+          }}
+        >
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
 
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gap: 2.5,
+              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+            }}
+          >
             <TextField
               fullWidth
               required
@@ -157,6 +227,7 @@ const PerfumeDialog: React.FC<PerfumeDialogProps> = ({
               name="perfumeName"
               value={formData.perfumeName}
               onChange={handleChange}
+              sx={fieldStyles}
             />
 
             <TextField
@@ -166,62 +237,65 @@ const PerfumeDialog: React.FC<PerfumeDialogProps> = ({
               name="uri"
               value={formData.uri}
               onChange={handleChange}
+              sx={fieldStyles}
             />
 
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <TextField
-                fullWidth
-                required
-                type="number"
-                label="Price"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                inputProps={{ min: 0, step: 0.01 }}
-              />
+            <TextField
+              fullWidth
+              required
+              type="number"
+              label="Price"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              inputProps={{ min: 0, step: 0.01 }}
+              sx={fieldStyles}
+            />
 
-              <TextField
-                fullWidth
-                required
-                type="number"
-                label="Volume (ml)"
-                name="volume"
-                value={formData.volume}
-                onChange={handleChange}
-                inputProps={{ min: 0 }}
-              />
-            </Box>
+            <TextField
+              fullWidth
+              required
+              type="number"
+              label="Volume (ml)"
+              name="volume"
+              value={formData.volume}
+              onChange={handleChange}
+              inputProps={{ min: 0 }}
+              sx={fieldStyles}
+            />
 
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <TextField
-                fullWidth
-                required
-                select
-                label="Concentration"
-                name="concentration"
-                value={formData.concentration}
-                onChange={handleChange}
-              >
-                <MenuItem value="Extrait">Extrait</MenuItem>
-                <MenuItem value="EDP">EDP</MenuItem>
-                <MenuItem value="EDT">EDT</MenuItem>
-                <MenuItem value="EDC">EDC</MenuItem>
-              </TextField>
+            <TextField
+              fullWidth
+              required
+              select
+              label="Concentration"
+              name="concentration"
+              value={formData.concentration}
+              onChange={handleChange}
+              sx={fieldStyles}
+              SelectProps={{ MenuProps: menuProps }}
+            >
+              <MenuItem value="Extrait">Extrait</MenuItem>
+              <MenuItem value="EDP">EDP</MenuItem>
+              <MenuItem value="EDT">EDT</MenuItem>
+              <MenuItem value="EDC">EDC</MenuItem>
+            </TextField>
 
-              <TextField
-                fullWidth
-                required
-                select
-                label="Target Audience"
-                name="targetAudience"
-                value={formData.targetAudience}
-                onChange={handleChange}
-              >
-                <MenuItem value="male">Male</MenuItem>
-                <MenuItem value="female">Female</MenuItem>
-                <MenuItem value="unisex">Unisex</MenuItem>
-              </TextField>
-            </Box>
+            <TextField
+              fullWidth
+              required
+              select
+              label="Target Audience"
+              name="targetAudience"
+              value={formData.targetAudience}
+              onChange={handleChange}
+              sx={fieldStyles}
+              SelectProps={{ MenuProps: menuProps }}
+            >
+              <MenuItem value="male">Male</MenuItem>
+              <MenuItem value="female">Female</MenuItem>
+              <MenuItem value="unisex">Unisex</MenuItem>
+            </TextField>
 
             <TextField
               fullWidth
@@ -231,6 +305,8 @@ const PerfumeDialog: React.FC<PerfumeDialogProps> = ({
               name="brand"
               value={formData.brand}
               onChange={handleChange}
+              sx={fieldStyles}
+              SelectProps={{ MenuProps: menuProps }}
             >
               {brands.map((brand) => (
                 <MenuItem key={brand._id} value={brand._id}>
@@ -248,6 +324,7 @@ const PerfumeDialog: React.FC<PerfumeDialogProps> = ({
               name="description"
               value={formData.description}
               onChange={handleChange}
+              sx={{ ...fieldStyles, gridColumn: { md: "1 / span 2" } }}
             />
 
             <TextField
@@ -259,15 +336,34 @@ const PerfumeDialog: React.FC<PerfumeDialogProps> = ({
               name="ingredients"
               value={formData.ingredients}
               onChange={handleChange}
+              sx={{ ...fieldStyles, gridColumn: { md: "1 / span 2" } }}
             />
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, py: 2, borderTop: "1px solid #e2e8f0" }}>
+        <DialogActions
+          sx={{
+            px: { xs: 3, md: 4 },
+            py: { xs: 2.5, md: 3 },
+            borderTop: "1px solid var(--divider)",
+            background: "rgba(9,12,20,0.68)",
+          }}
+        >
           <Button
             onClick={onClose}
             disabled={loading}
-            sx={{ textTransform: "none", color: "#64748b" }}
+            sx={{
+              textTransform: "none",
+              color: "var(--text-secondary)",
+              borderRadius: 2,
+              border: "1px solid rgba(255,255,255,0.12)",
+              px: 3,
+              background: "rgba(255,255,255,0.02)",
+              "&:hover": {
+                background: "rgba(255,255,255,0.06)",
+                color: "var(--text-primary)",
+              },
+            }}
           >
             Cancel
           </Button>
@@ -277,14 +373,20 @@ const PerfumeDialog: React.FC<PerfumeDialogProps> = ({
             disabled={loading}
             sx={{
               textTransform: "none",
-              background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)",
+              background:
+                "linear-gradient(135deg, rgba(139,92,246,0.85) 0%, rgba(45,212,191,0.78) 100%)",
               "&:hover": {
-                background: "linear-gradient(135deg, #0284c7 0%, #0891b2 100%)",
+                background:
+                  "linear-gradient(135deg, rgba(139,92,246,0.95) 0%, rgba(45,212,191,0.88) 100%)",
+                transform: "translateY(-1px)",
               },
+              borderRadius: 2,
+              px: 3.5,
+              fontWeight: 600,
             }}
           >
             {loading ? (
-              <CircularProgress size={24} sx={{ color: "white" }} />
+              <CircularProgress size={24} sx={{ color: "var(--text-primary)" }} />
             ) : perfume ? (
               "Update"
             ) : (
