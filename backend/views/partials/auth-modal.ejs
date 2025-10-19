@@ -1,0 +1,612 @@
+<!-- Auth Modal -->
+<div class="auth-modal" id="authModal" style="display: none;">
+    <div class="auth-modal-overlay" id="authModalOverlay"></div>
+    <div class="auth-modal-container">
+        <!-- Enhanced Background Pattern -->
+        <div class="auth-modal-bg-pattern-top"></div>
+        <div class="auth-modal-bg-pattern-bottom"></div>
+
+        <!-- Header with Tabs -->
+        <div class="auth-modal-header">
+            <div class="auth-modal-tabs">
+                <button class="auth-tab active" data-tab="login">Sign In</button>
+                <button class="auth-tab" data-tab="register">Sign Up</button>
+            </div>
+            <button class="auth-modal-close" id="authModalClose">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="auth-modal-content">
+            <!-- Login Form -->
+            <div class="auth-form-wrapper active" id="loginForm">
+                <div class="auth-welcome">
+                    <h2 class="auth-title">Welcome Back!</h2>
+                    <p class="auth-subtitle">Sign in to explore our premium fragrance collection</p>
+                </div>
+
+                <% if (typeof loginError !== 'undefined' && loginError) { %>
+                    <div class="alert alert-error">
+                        <span class="material-icons">error</span>
+                        <%= loginError %>
+                    </div>
+                <% } %>
+
+                <form action="/auth/login" method="POST" class="auth-form">
+                    <input type="hidden" name="redirect" value="<%= typeof redirect !== 'undefined' ? redirect : '/' %>" />
+                    
+                    <div class="auth-input-group">
+                        <span class="material-icons auth-input-icon">email</span>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            class="auth-input" 
+                            placeholder="Email Address"
+                            required
+                            autofocus
+                        />
+                    </div>
+
+                    <div class="auth-input-group">
+                        <span class="material-icons auth-input-icon">lock</span>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            class="auth-input" 
+                            placeholder="Password"
+                            required
+                            id="loginPassword"
+                        />
+                        <button type="button" class="auth-password-toggle" data-target="loginPassword">
+                            <span class="material-icons">visibility</span>
+                        </button>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn">
+                        <span>Sign In</span>
+                    </button>
+
+                    <div class="auth-footer">
+                        <p>By signing in, you agree to our Terms of Service and Privacy Policy</p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div class="auth-form-wrapper" id="registerForm">
+                <div class="auth-welcome">
+                    <h2 class="auth-title">Join Odour</h2>
+                    <p class="auth-subtitle">Create your account to discover exquisite scents</p>
+                </div>
+
+                <% if (typeof registerError !== 'undefined' && registerError) { %>
+                    <div class="alert alert-error">
+                        <span class="material-icons">error</span>
+                        <%= registerError %>
+                    </div>
+                <% } %>
+
+                <form action="/auth/register" method="POST" class="auth-form">
+                    <input type="hidden" name="redirect" value="<%= typeof redirect !== 'undefined' ? redirect : '/' %>" />
+                    
+                    <div class="auth-input-group">
+                        <span class="material-icons auth-input-icon">email</span>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            class="auth-input" 
+                            placeholder="Email Address"
+                            required
+                        />
+                    </div>
+
+                    <div class="auth-input-group">
+                        <span class="material-icons auth-input-icon">lock</span>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            class="auth-input" 
+                            placeholder="Password (min 6 characters)"
+                            minlength="6"
+                            required
+                            id="registerPassword"
+                        />
+                        <button type="button" class="auth-password-toggle" data-target="registerPassword">
+                            <span class="material-icons">visibility</span>
+                        </button>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <span class="material-icons auth-input-icon">lock</span>
+                        <input 
+                            type="password" 
+                            name="confirmPassword" 
+                            class="auth-input" 
+                            placeholder="Confirm Password"
+                            minlength="6"
+                            required
+                            id="confirmPassword"
+                        />
+                        <button type="button" class="auth-password-toggle" data-target="confirmPassword">
+                            <span class="material-icons">visibility</span>
+                        </button>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <span class="material-icons auth-input-icon">person</span>
+                        <input 
+                            type="text" 
+                            name="name" 
+                            class="auth-input" 
+                            placeholder="Full Name"
+                            minlength="2"
+                            required
+                        />
+                    </div>
+
+                    <div class="auth-input-group">
+                        <span class="material-icons auth-input-icon">event</span>
+                        <input 
+                            type="number" 
+                            name="YOB" 
+                            class="auth-input" 
+                            placeholder="Year of Birth"
+                            min="<%= new Date().getFullYear() - 80 %>"
+                            max="<%= new Date().getFullYear() %>"
+                            required
+                        />
+                    </div>
+
+                    <div class="auth-input-group">
+                        <span class="material-icons auth-input-icon">wc</span>
+                        <select name="gender" class="auth-input auth-select" required>
+                            <option value="">Select Gender</option>
+                            <option value="true">Male</option>
+                            <option value="false">Female</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn">
+                        <span class="material-icons">check_circle</span>
+                        <span>Create Account</span>
+                    </button>
+
+                    <div class="auth-footer">
+                        <p>By creating an account, you agree to our Terms of Service and Privacy Policy</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Auth Modal Styles */
+.auth-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.auth-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+}
+
+.auth-modal-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    border-radius: 2rem;
+    background: linear-gradient(160deg, rgba(12,14,22,0.96) 0%, rgba(4,6,12,0.92) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 42px 82px rgba(0,0,0,0.55);
+    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.auth-modal-bg-pattern-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 260px;
+    background: radial-gradient(circle at 20% 30%, rgba(224,212,255,0.22), transparent 60%), 
+                radial-gradient(circle at 80% 25%, rgba(137,207,255,0.18), transparent 65%);
+    opacity: 0.8;
+    z-index: 0;
+}
+
+.auth-modal-bg-pattern-bottom {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 110%, rgba(37,99,235,0.28), transparent 70%);
+    opacity: 0.6;
+    z-index: 0;
+}
+
+.auth-modal-header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: rgba(10,12,20,0.82);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.auth-modal-tabs {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.auth-tab {
+    padding: 0.75rem 2.5rem;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: rgba(224,231,255,0.72);
+    font-weight: 600;
+    font-size: 0.98rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-tab:hover {
+    background: rgba(148,163,184,0.16);
+}
+
+.auth-tab.active {
+    color: var(--accent-primary);
+    background: rgba(79,70,229,0.2);
+    box-shadow: 0 14px 26px rgba(79,70,229,0.25);
+}
+
+.auth-modal-close {
+    padding: 0.75rem;
+    border-radius: 50%;
+    border: none;
+    background: rgba(148,163,184,0.12);
+    color: rgba(226,232,240,0.85);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-modal-close:hover {
+    background: rgba(148,163,184,0.2);
+    color: var(--accent-primary);
+}
+
+.auth-modal-content {
+    position: relative;
+    z-index: 1;
+    background: rgba(8,10,18,0.88);
+    backdrop-filter: blur(18px);
+    overflow-y: auto;
+    max-height: calc(90vh - 100px);
+}
+
+.auth-form-wrapper {
+    display: none;
+    padding: 2rem;
+    animation: fadeInContent 0.4s ease;
+}
+
+.auth-form-wrapper.active {
+    display: block;
+}
+
+@keyframes fadeInContent {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-welcome {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, rgba(224,212,255,1) 0%, rgba(148,207,255,1) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.auth-subtitle {
+    color: rgba(224,231,255,0.78);
+    font-size: 0.95rem;
+    max-width: 400px;
+    margin: 0 auto;
+    letter-spacing: 0.05em;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.auth-input-group {
+    position: relative;
+}
+
+.auth-input-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(226,232,240,0.65);
+    font-size: 1.25rem;
+    pointer-events: none;
+}
+
+.auth-input, .auth-select {
+    width: 100%;
+    padding: 1rem 1.25rem 1rem 3.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148,163,184,0.25);
+    background: rgba(21,24,36,0.92);
+    color: rgba(241,245,255,0.92);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.auth-input:focus, .auth-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    border-width: 2px;
+    background: rgba(10,12,20,0.9);
+    box-shadow: 0 14px 36px rgba(82,109,255,0.28);
+}
+
+.auth-input::placeholder {
+    color: rgba(226,232,240,0.4);
+}
+
+.auth-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(226,232,240,0.75)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+    padding-right: 3rem;
+}
+
+.auth-select option {
+    background: rgba(8,10,18,0.95);
+    color: var(--text-primary);
+}
+
+.auth-password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0.5rem;
+    border: none;
+    background: transparent;
+    color: rgba(226,232,240,0.65);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+}
+
+.auth-password-toggle:hover {
+    color: var(--accent-primary);
+}
+
+.auth-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(212, 215, 255, 0.92) 100%);
+    color: #0b0d12;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 20px 40px rgba(193, 156, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.auth-submit-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(193, 200, 255, 0.9) 100%);
+    box-shadow: 0 28px 52px rgba(193, 156, 255, 0.28);
+    transform: translateY(-2px);
+}
+
+.auth-submit-btn:disabled {
+    background: rgba(100,100,100,0.3);
+    color: rgba(255,255,255,0.35);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.auth-footer p {
+    color: rgba(224,231,255,0.65);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .auth-modal-container {
+        max-height: 95vh;
+    }
+    
+    .auth-title {
+        font-size: 1.6rem;
+    }
+    
+    .auth-tab {
+        padding: 0.65rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+<script>
+// Auth Modal JavaScript
+(function() {
+    const modal = document.getElementById('authModal');
+    const overlay = document.getElementById('authModalOverlay');
+    const closeBtn = document.getElementById('authModalClose');
+    const tabs = document.querySelectorAll('.auth-tab');
+    const forms = document.querySelectorAll('.auth-form-wrapper');
+    const passwordToggles = document.querySelectorAll('.auth-password-toggle');
+
+    // Open modal function
+    window.openAuthModal = function(mode = 'login') {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Switch to correct tab
+        tabs.forEach(tab => {
+            if (tab.dataset.tab === mode) {
+                tab.click();
+            }
+        });
+    };
+
+    // Close modal
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', closeModal);
+
+    // ESC key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            closeModal();
+        }
+    });
+
+    // Tab switching
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+            
+            // Update tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update forms
+            forms.forEach(form => {
+                if (form.id === targetTab + 'Form') {
+                    form.classList.add('active');
+                } else {
+                    form.classList.remove('active');
+                }
+            });
+        });
+    });
+
+    // Password toggle
+    passwordToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const targetId = this.dataset.target;
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('.material-icons');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        });
+    });
+
+    // Password confirmation validation
+    const registerFormElement = document.querySelector('#registerForm form');
+    if (registerFormElement) {
+        registerFormElement.addEventListener('submit', function(e) {
+            const password = this.querySelector('[name="password"]').value;
+            const confirmPassword = this.querySelector('[name="confirmPassword"]').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+            }
+        });
+    }
+
+    // Auto-open modal from URL query params
+    const urlParams = new URLSearchParams(window.location.search);
+    const openAuth = urlParams.get('openAuth');
+    if (openAuth && (openAuth === 'login' || openAuth === 'register')) {
+        openAuthModal(openAuth);
+        // Clean URL without reloading
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+    }
+})();
+</script>
+

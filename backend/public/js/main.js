@@ -67,8 +67,22 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener(
   "error",
   function (e) {
-    if (e.target.tagName === "IMG") {
-      e.target.src = "/images/placeholder.jpg"; // fallback image
+    if (e.target.tagName === "IMG" && !e.target.dataset.errorHandled) {
+      // Mark as handled to prevent infinite loop
+      e.target.dataset.errorHandled = "true";
+      
+      // Hide the image and show fallback if available
+      const wrapper = e.target.closest('.perfume-card-image-wrapper, .hero-carousel-image-wrapper, .review-image-wrapper');
+      if (wrapper) {
+        const fallback = wrapper.querySelector('.image-fallback, .card-fallback, .hero-fallback, .review-image-fallback');
+        if (fallback) {
+          e.target.style.display = 'none';
+          fallback.style.display = 'flex';
+        }
+      } else {
+        // If no wrapper/fallback, just hide the broken image
+        e.target.style.display = 'none';
+      }
     }
   },
   true

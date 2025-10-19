@@ -40,7 +40,7 @@
                     </button>
                     
                     <div class="user-dropdown" id="userDropdown">
-                        <a href="/profile" class="dropdown-item">
+                        <a href="/api/members/profile/view" class="dropdown-item">
                             <span class="material-icons">person</span>
                             Profile
                         </a>
@@ -61,8 +61,8 @@
                 </div>
             <% } else { %>
                 <!-- Guest user -->
-                <a href="/auth/login" class="btn-secondary">Login</a>
-                <a href="/auth/register" class="btn-primary">Sign Up</a>
+                <button onclick="openAuthModal('login')" class="btn-secondary">Login</button>
+                <button onclick="openAuthModal('register')" class="btn-primary">Sign Up</button>
             <% } %>
         </div>
 
@@ -95,7 +95,7 @@
                 Cart
                 <span class="cart-badge" id="mobileCartBadge">0</span>
             </a>
-            <a href="/profile" class="mobile-menu-item">
+            <a href="/api/members/profile/view" class="mobile-menu-item">
                 <span class="material-icons">person</span>
                 Profile
             </a>
@@ -113,14 +113,14 @@
                 </button>
             </form>
         <% } else { %>
-            <a href="/auth/login" class="mobile-menu-item">
+            <button onclick="openAuthModal('login')" class="mobile-menu-item" style="width: 100%; text-align: left;">
                 <span class="material-icons">login</span>
                 Login
-            </a>
-            <a href="/auth/register" class="mobile-menu-item">
+            </button>
+            <button onclick="openAuthModal('register')" class="mobile-menu-item" style="width: 100%; text-align: left;">
                 <span class="material-icons">person_add</span>
                 Sign Up
-            </a>
+            </button>
         <% } %>
     </div>
 </nav>

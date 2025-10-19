@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile - Odour Perfume</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/navigation.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/profile.css" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <%- include('partials/navigation') %>
+
+    <main class="profile-page">
+      <div class="container-lg py-5">
+        <div class="profile-shell fade-in">
+          <!-- Profile Header -->
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+            <h1 class="profile-name"><%= user.name %></h1>
+            <p class="profile-email"><%= user.email %></p>
+
+            <% const userId = user._id || user.id; const formattedMemberId =
+            userId && userId.length >= 6 ? '#' + userId.slice(-6).toUpperCase()
+            : null; const hasHighlights = formattedMemberId || (user.YOB &&
+            user.YOB > 0 && !user.isAdmin) || true; %> <% if (hasHighlights) {
+            %>
+            <div class="profile-highlights">
+              <% if (formattedMemberId) { %>
+              <div class="highlight-chip">
+                <span class="material-icons">badge</span>
+                Member ID: <%= formattedMemberId %>
+              </div>
+              <% } %> <% if (user.YOB && user.YOB > 0 && !user.isAdmin) { %>
+              <div class="highlight-chip">
+                <span class="material-icons">event</span>
+                Born: <%= user.YOB %>
+              </div>
+              <% } %> <% if (!user.isAdmin) { %>
+              <div class="highlight-chip">
+                <span class="material-icons">rate_review</span>
+                Reviews: <%= userReviews ? userReviews.length : 0 %>
+              </div>
+              <% } %>
+            </div>
+            <% } %> <% if (user.isAdmin) { %>
+            <div class="admin-badge">
+              <span class="material-icons">admin_panel_settings</span>
+              Administrator
+            </div>
+            <% } %>
+          </div>
+
+          <!-- Profile Body -->
+          <div class="profile-body">
+            <!-- Tabs -->
+            <div class="tabs-wrapper">
+              <button class="tab-btn active" data-tab="profile">
+                <span class="material-icons">person</span>
+                Profile
+              </button>
+              <button class="tab-btn" data-tab="security">
+                <span class="material-icons">lock</span>
+                Security
+              </button>
+              <button class="tab-btn" data-tab="reviews">
+                <span class="material-icons">star</span>
+                My Reviews
+              </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content-wrapper">
+              <!-- Profile Tab -->
+              <div class="tab-panel active" id="profile-panel">
+                <div class="tab-header">
+                  <h3 class="tab-title">Personal Information</h3>
+                  <button class="btn-edit" id="editProfileBtn">
+                    <span class="material-icons">edit</span>
+                    Edit Profile
+                  </button>
+                </div>
+
+                <% if (typeof success !== 'undefined' && success) { %>
+                <div class="alert alert-success">
+                  <span class="material-icons">check_circle</span>
+                  <%= success %>
+                </div>
+                <% } %> <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-error">
+                  <span class="material-icons">error</span>
+                  <%= error %>
+                </div>
+                <% } %>
+
+                <form
+                  action="/api/members/<%= user._id %>"
+                  method="POST"
+                  class="profile-form"
+                  id="profileForm"
+                >
+                  <input type="hidden" name="_method" value="PUT" />
+
+                  <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      class="form-input"
+                      value="<%= user.name %>"
+                      disabled
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Year of Birth</label>
+                    <input
+                      type="number"
+                      name="YOB"
+                      class="form-input"
+                      value="<%= user.YOB %>"
+                      min="1900"
+                      max="<%= new Date().getFullYear() %>"
+                      disabled
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    <div class="gender-chips">
+                      <input type="radio" name="gender" id="male" value="true"
+                      <%= user.gender ? 'checked' : '' %> disabled required>
+                      <label for="male" class="gender-chip">
+                        <span class="material-icons">male</span>
+                        Male
+                      </label>
+                      <input type="radio" name="gender" id="female"
+                      value="false" <%= !user.gender ? 'checked' : '' %>
+                      disabled required>
+                      <label for="female" class="gender-chip">
+                        <span class="material-icons">female</span>
+                        Female
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input
+                      type="email"
+                      class="form-input"
+                      value="<%= user.email %>"
+                      disabled
+                    />
+                    <small class="form-helper">Email cannot be changed</small>
+                  </div>
+
+                  <div class="form-actions" style="display: none">
+                    <button
+                      type="button"
+                      class="btn-secondary"
+                      id="cancelEditBtn"
+                    >
+                      <span class="material-icons">cancel</span>
+                      Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                      <span class="material-icons">save</span>
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Security Tab -->
+              <div class="tab-panel" id="security-panel">
+                <div class="tab-header">
+                  <h3 class="tab-title">Change Password</h3>
+                </div>
+
+                <% if (typeof passwordSuccess !== 'undefined' &&
+                passwordSuccess) { %>
+                <div class="alert alert-success">
+                  <span class="material-icons">check_circle</span>
+                  <%= passwordSuccess %>
+                </div>
+                <% } %> <% if (typeof passwordError !== 'undefined' &&
+                passwordError) { %>
+                <div class="alert alert-error">
+                  <span class="material-icons">error</span>
+                  <%= passwordError %>
+                </div>
+                <% } %>
+
+                <form
+                  action="/api/members/<%= user._id %>/password"
+                  method="POST"
+                  class="profile-form"
+                >
+                  <input type="hidden" name="_method" value="PUT" />
+
+                  <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <input
+                      type="password"
+                      name="currentPassword"
+                      class="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      class="form-input"
+                      minlength="6"
+                      required
+                    />
+                    <small class="form-helper">At least 6 characters</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Confirm New Password</label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      class="form-input"
+                      minlength="6"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                      <span class="material-icons">lock_reset</span>
+                      Change Password
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Reviews Tab -->
+              <div class="tab-panel" id="reviews-panel">
+                <div class="tab-header">
+                  <h3 class="tab-title">My Perfume Reviews</h3>
+                </div>
+
+                <% if (user.isAdmin) { %>
+                <!-- Admin cannot have reviews -->
+                <div class="empty-state">
+                  <span
+                    class="material-icons empty-icon"
+                    style="font-size: 3.5rem"
+                    >admin_panel_settings</span
+                  >
+                  <p>Admins cannot leave reviews</p>
+                </div>
+                <% } else if (userReviews && userReviews.length > 0) { %>
+                <div class="reviews-list">
+                  <% userReviews.forEach(function(review) { %>
+                  <a
+                    href="/perfumes/<%= review.perfumeId %>"
+                    class="review-card"
+                  >
+                    <div class="review-image-wrapper">
+                      <img
+                        src="<%= review.perfumeImage %>"
+                        alt="<%= review.perfumeName %>"
+                        class="review-image"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                      />
+                      <div class="review-image-fallback" style="display: none">
+                        <span class="material-icons">broken_image</span>
+                      </div>
+                    </div>
+                    <div class="review-content">
+                      <div class="review-header">
+                        <div>
+                          <h4 class="review-perfume-name">
+                            <%= review.perfumeName %>
+                          </h4>
+                          <p class="review-brand-name">
+                            by <%= review.brandName %>
+                          </p>
+                        </div>
+                        <div class="review-rating">
+                          <% for (let i = 0; i < 3; i++) { %>
+                          <span
+                            class="material-icons <%= i < review.rating ? 'star-filled' : 'star-empty' %>"
+                          >
+                            <%= i < review.rating ? 'star' : 'star_border' %>
+                          </span>
+                          <% } %>
+                        </div>
+                      </div>
+                      <p class="review-text"><%= review.content %></p>
+                      <p class="review-date">
+                        Reviewed on <%= new
+                        Date(review.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'long', day: 'numeric' }) %> <%
+                        if (review.updatedAt !== review.createdAt) { %> (edited
+                        <%= new
+                        Date(review.updatedAt).toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'long', day: 'numeric' }) %>) <%
+                        } %>
+                      </p>
+                    </div>
+                  </a>
+                  <% }); %>
+                </div>
+                <% } else { %>
+                <div class="empty-state">
+                  <span class="material-icons empty-icon">rate_review</span>
+                  <p>You haven't reviewed any perfumes yet.</p>
+                </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/profile.js"></script>
+
+    <%- include('partials/auth-modal') %>
+  </body>
+</html>

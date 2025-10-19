@@ -4,10 +4,21 @@ const Member = require('../models/Member');
 // Authentication middleware - verify JWT token
 const authenticateToken = async (req, res, next) => {
   try {
+    // Try to get token from Authorization header first
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    let token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+    // If no header token, try to get from cookie (for EJS views)
+    if (!token && req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    }
 
     if (!token) {
+      // For EJS views, redirect to login
+      if (req.accepts('html')) {
+        return res.redirect('/auth/login');
+      }
+      // For API calls, return JSON
       return res.status(401).json({ 
         success: false, 
         message: 'Access token required' 
@@ -19,6 +30,9 @@ const authenticateToken = async (req, res, next) => {
     // Get user from database to ensure they still exist
     const user = await Member.findById(decoded.id);
     if (!user) {
+      if (req.accepts('html')) {
+        return res.redirect('/auth/login');
+      }
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid token - user not found' 
@@ -28,6 +42,9 @@ const authenticateToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    if (req.accepts('html')) {
+      return res.redirect('/auth/login');
+    }
     return res.status(403).json({ 
       success: false, 
       message: 'Invalid or expired token' 

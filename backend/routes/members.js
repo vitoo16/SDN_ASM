@@ -4,6 +4,7 @@ const {
   registerMember,
   loginMember,
   getProfile,
+  renderProfilePage,
   updateProfile,
   changePassword,
   getAllMembers,
@@ -75,6 +76,7 @@ router.post("/login", loginValidation, handleValidationErrors, loginMember);
 
 // Protected routes
 router.get("/profile", authenticateToken, getProfile);
+router.get("/profile/view", authenticateToken, renderProfilePage); // EJS view
 router.get("/reviews", authenticateToken, getUserReviews);
 router.put(
   "/:id",

@@ -6,6 +6,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
+const jwt = require('jsonwebtoken');
 
 // Import routes
 const memberRoutes = require('./routes/members');
@@ -22,7 +23,15 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
-app.use(methodOverride('_method'));
+// Method override for PUT/DELETE from forms
+app.use(methodOverride(function (req, res) {
+  if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+    // look in urlencoded POST bodies and delete it
+    const method = req.body._method;
+    delete req.body._method;
+    return method;
+  }
+}));
 
 // Session configuration
 app.use(session({
@@ -222,16 +231,14 @@ app.get('/collections', async (req, res) => {
 // AUTH ROUTES
 // ======================
 
-// Login Page
+// Login Page - Redirect to home with modal
 app.get('/auth/login', (req, res) => {
   if (req.session.user) {
     return res.redirect('/');
   }
-  res.render('auth/login', {
-    title: 'Login',
-    redirect: req.query.redirect || '/',
-    error: null
-  });
+  // Redirect to home, modal will be opened by client-side script
+  const redirectUrl = req.query.redirect || '/';
+  res.redirect(`${redirectUrl}?openAuth=login`);
 });
 
 // Login POST
@@ -257,7 +264,22 @@ app.post('/auth/login', async (req, res) => {
       });
     }
 
-    // Set session
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: member._id }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
+    );
+
+    // Set JWT token in httpOnly cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    // Also set session for backward compatibility
     req.session.user = {
       _id: member._id.toString(),
       email: member.email,
@@ -279,16 +301,14 @@ app.post('/auth/login', async (req, res) => {
   }
 });
 
-// Register Page
+// Register Page - Redirect to home with modal
 app.get('/auth/register', (req, res) => {
   if (req.session.user) {
     return res.redirect('/');
   }
-  res.render('auth/register', {
-    title: 'Register',
-    redirect: req.query.redirect || '/',
-    error: null
-  });
+  // Redirect to home, modal will be opened by client-side script
+  const redirectUrl = req.query.redirect || '/';
+  res.redirect(`${redirectUrl}?openAuth=register`);
 });
 
 // Register POST
@@ -328,7 +348,22 @@ app.post('/auth/register', async (req, res) => {
       isAdmin: false
     });
 
-    // Set session
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: member._id }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
+    );
+
+    // Set JWT token in httpOnly cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    // Also set session for backward compatibility
     req.session.user = {
       _id: member._id.toString(),
       email: member.email,
@@ -352,6 +387,9 @@ app.post('/auth/register', async (req, res) => {
 
 // Logout
 app.post('/auth/logout', (req, res) => {
+  // Clear the token cookie
+  res.clearCookie('token');
+  
   req.session.destroy((err) => {
     if (err) {
       console.error('Logout error:', err);
