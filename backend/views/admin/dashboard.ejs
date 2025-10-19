@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Elite Perfumes</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/navigation.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/navigation') %>
+
+    <div class="admin-page-background">
+        <div class="admin-container">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="admin-header-content">
+                    <div class="admin-header-left">
+                        <span class="material-icons admin-header-icon">dashboard</span>
+                        <div>
+                            <h1 class="admin-header-title">Admin Dashboard</h1>
+                            <p class="admin-header-subtitle">Manage perfumes, brands, and members</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="admin-dashboard-shell">
+                <!-- Live Overview -->
+                <div class="admin-overview-section">
+                    <div class="overview-header">
+                        <div class="overview-header-left">
+                            <span class="material-icons overview-icon">auto_awesome</span>
+                            <h2 class="overview-title">Live Overview</h2>
+                        </div>
+                        <div class="overview-header-right">
+                            <span class="overview-sync-time" id="syncTime">Synced <%= new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) %></span>
+                            <button class="icon-btn-admin" onclick="refreshMetrics()" id="refreshBtn">
+                                <span class="material-icons">refresh</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <!-- Perfumes Metric -->
+                        <article class="metric-card metric-perfumes">
+                            <div class="metric-header">
+                                <span class="metric-label">Perfumes</span>
+                                <div class="metric-icon-shell">
+                                    <span class="material-icons" style="color: #9ad6f7;">inventory_2</span>
+                                </div>
+                            </div>
+                            <h3 class="metric-count"><%= metrics.perfumes %></h3>
+                            <p class="metric-description">Records synced in real-time</p>
+                        </article>
+
+                        <!-- Brands Metric -->
+                        <article class="metric-card metric-brands">
+                            <div class="metric-header">
+                                <span class="metric-label">Brands</span>
+                                <div class="metric-icon-shell">
+                                    <span class="material-icons" style="color: #c19cff;">bookmark</span>
+                                </div>
+                            </div>
+                            <h3 class="metric-count"><%= metrics.brands %></h3>
+                            <p class="metric-description">Records synced in real-time</p>
+                        </article>
+
+                        <!-- Members Metric -->
+                        <article class="metric-card metric-members">
+                            <div class="metric-header">
+                                <span class="metric-label">Members</span>
+                                <div class="metric-icon-shell">
+                                    <span class="material-icons" style="color: #7dd3fc;">people</span>
+                                </div>
+                            </div>
+                            <h3 class="metric-count"><%= metrics.members %></h3>
+                            <p class="metric-description">Records synced in real-time</p>
+                        </article>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="admin-tabs-wrapper">
+                    <div class="admin-tabs" role="tablist">
+                        <button class="admin-tab active" data-tab="perfumes" onclick="switchTab('perfumes')">
+                            <span class="material-icons">inventory_2</span>
+                            Perfumes
+                        </button>
+                        <button class="admin-tab" data-tab="brands" onclick="switchTab('brands')">
+                            <span class="material-icons">bookmark</span>
+                            Brands
+                        </button>
+                        <button class="admin-tab" data-tab="members" onclick="switchTab('members')">
+                            <span class="material-icons">people</span>
+                            Members
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="admin-tab-content">
+                    <!-- Perfumes Tab -->
+                    <div class="tab-panel active" id="perfumes-panel">
+                        <div class="admin-section-wrapper">
+                            <%- include('./perfumes-management', { perfumes: perfumesData.perfumes || [], pagination: perfumesData.pagination || null, brands: brands || [] }) %>
+                        </div>
+                    </div>
+
+                    <!-- Brands Tab -->
+                    <div class="tab-panel" id="brands-panel">
+                        <div class="admin-section-wrapper">
+                            <%- include('./brands-management', { brands: brandsData.brands || [], pagination: brandsData.pagination || null }) %>
+                        </div>
+                    </div>
+
+                    <!-- Members Tab -->
+                    <div class="tab-panel" id="members-panel">
+                        <div class="admin-section-wrapper">
+                            <%- include('./members-management', { members: membersData.members || [], pagination: membersData.pagination || null }) %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <%- include('../partials/auth-modal') %>
+    <%- include('./perfume-modal') %>
+    <%- include('./brand-modal') %>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/admin.js"></script>
+</body>
+</html>
+

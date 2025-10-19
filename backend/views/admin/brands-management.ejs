@@ -1,0 +1,128 @@
+<div class="admin-panel">
+    <!-- Header -->
+    <div class="panel-header panel-header-brands">
+        <div class="panel-header-row">
+            <div class="panel-header-left">
+                <h2>Brands Management</h2>
+                <p>Curate the house lineup and keep brand identities aligned with your catalog vision.</p>
+                <p class="meta-info">
+                    <%= pagination ? pagination.totalItems : brands.length %> brands •
+                    Updated <%= new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) %>
+                </p>
+            </div>
+            <div class="panel-header-right">
+                <button class="icon-btn-admin" onclick="refreshBrands()">
+                    <span class="material-icons">refresh</span>
+                </button>
+                <button class="btn-gradient" onclick="openBrandDialog(null)">
+                    <span class="material-icons">add</span>
+                    Add Brand
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+        <div class="filters-surface">
+            <div class="filters-grid filters-grid-brands">
+                <input
+                    type="text"
+                    class="filter-input"
+                    id="brandSearch"
+                    placeholder="Search brands..."
+                    onkeyup="filterBrands()"
+                />
+                <button class="btn-secondary" onclick="clearBrandFilters()">
+                    Clear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-table-wrapper">
+        <% if (brands && brands.length > 0) { %>
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="brandsTableBody">
+                        <% brands.forEach(brand => { %>
+                            <tr data-brand-id="<%= brand._id %>" data-brand-name="<%= brand.brandName %>">
+                                <td>
+                                    <div class="table-product-cell">
+                                        <div class="brand-icon-shell">
+                                            <span class="material-icons">bookmark</span>
+                                        </div>
+                                    <div class="table-product-info">
+                                        <h4><%= brand.brandName %></h4>
+                                        <span class="sku">ID: <%= brand._id.toString().slice(-6).toUpperCase() %></span>
+                                    </div>
+                                    </div>
+                                </td>
+                                <td><%= new Date(brand.createdAt).toLocaleDateString() %></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="action-btn btn-edit" onclick="editBrand('<%= brand._id %>')" title="Edit">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="action-btn btn-delete" onclick="deleteBrand('<%= brand._id %>', '<%= brand.brandName %>')" title="Delete">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <% if (pagination && pagination.total > 1) { %>
+                <div class="pagination-wrapper">
+                    <div class="pagination">
+                        <button class="pagination-btn" onclick="goToBrandPage(1)" <%= pagination.current === 1 ? 'disabled' : '' %>>
+                            <span class="material-icons">first_page</span>
+                        </button>
+                        <button class="pagination-btn" onclick="goToBrandPage(<%= pagination.current - 1 %>)" <%= pagination.current === 1 ? 'disabled' : '' %>>
+                            <span class="material-icons">chevron_left</span>
+                        </button>
+
+                        <% for (let i = Math.max(1, pagination.current - 2); i <= Math.min(pagination.total, pagination.current + 2); i++) { %>
+                            <button class="pagination-btn <%= i === pagination.current ? 'active' : '' %>" onclick="goToBrandPage(<%= i %>)">
+                                <%= i %>
+                            </button>
+                        <% } %>
+
+                        <button class="pagination-btn" onclick="goToBrandPage(<%= pagination.current + 1 %>)" <%= pagination.current === pagination.total ? 'disabled' : '' %>>
+                            <span class="material-icons">chevron_right</span>
+                        </button>
+                        <button class="pagination-btn" onclick="goToBrandPage(<%= pagination.total %>)" <%= pagination.current === pagination.total ? 'disabled' : '' %>>
+                            <span class="material-icons">last_page</span>
+                        </button>
+                    </div>
+                    <p class="pagination-info">
+                        Page <%= pagination.current %> of <%= pagination.total %> (<%= pagination.totalItems %> items)
+                    </p>
+                </div>
+            <% } %>
+        <% } else { %>
+            <div class="empty-state">
+                <h3>No brands found</h3>
+                <p>Start by adding a brand to curate your catalog partners.</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Store brand data for JS -->
+<script>
+    window.allBrandsData = <%- JSON.stringify(brands || []) %>;
+</script>
+

@@ -27,23 +27,36 @@
             <h1 class="profile-name"><%= user.name %></h1>
             <p class="profile-email"><%= user.email %></p>
 
-            <% const userId = user._id || user.id; const formattedMemberId =
-            userId && userId.length >= 6 ? '#' + userId.slice(-6).toUpperCase()
-            : null; const hasHighlights = formattedMemberId || (user.YOB &&
-            user.YOB > 0 && !user.isAdmin) || true; %> <% if (hasHighlights) {
+            <% 
+            const userId = user._id || user.id; 
+            const formattedMemberId = userId && userId.length >= 6 ? '#' + userId.slice(-6).toUpperCase() : null;
+            const hasHighlights = formattedMemberId || (user.YOB && user.YOB > 0 && !user.isAdmin) || !user.isAdmin;
             %>
+            
+            <% if (hasHighlights) { %>
             <div class="profile-highlights">
               <% if (formattedMemberId) { %>
               <div class="highlight-chip">
                 <span class="material-icons">badge</span>
                 Member ID: <%= formattedMemberId %>
               </div>
-              <% } %> <% if (user.YOB && user.YOB > 0 && !user.isAdmin) { %>
+              <% } %>
+              
+              <% if (user.YOB && user.YOB > 0 && !user.isAdmin) { %>
               <div class="highlight-chip">
                 <span class="material-icons">event</span>
                 Born: <%= user.YOB %>
               </div>
-              <% } %> <% if (!user.isAdmin) { %>
+              <% } %>
+              
+              <% if (typeof user.gender !== 'undefined' && !user.isAdmin) { %>
+              <div class="highlight-chip">
+                <span class="material-icons"><%= user.gender ? 'male' : 'female' %></span>
+                <%= user.gender ? 'Male' : 'Female' %>
+              </div>
+              <% } %>
+              
+              <% if (!user.isAdmin) { %>
               <div class="highlight-chip">
                 <span class="material-icons">rate_review</span>
                 Reviews: <%= userReviews ? userReviews.length : 0 %>

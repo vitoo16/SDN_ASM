@@ -1,0 +1,153 @@
+<div class="admin-panel">
+    <!-- Header -->
+    <div class="panel-header panel-header-members">
+        <div class="panel-header-row">
+            <div class="panel-header-left">
+                <h2>Members Management</h2>
+                <p>Oversee your community roster, manage access levels, and keep member data in sync.</p>
+                <p class="meta-info" style="color: rgba(34,197,94,0.75);">
+                    <%= pagination ? pagination.totalItems : members.length %> members •
+                    Updated <%= new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) %>
+                </p>
+            </div>
+            <div class="panel-header-right">
+                <button class="icon-btn-admin" onclick="refreshMembers()">
+                    <span class="material-icons">refresh</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+        <div class="filters-header">
+            <span class="material-icons">filter_list</span>
+            <h3>Search & Filters</h3>
+        </div>
+
+        <div class="filters-surface">
+            <div class="filters-grid filters-grid-members">
+                <input
+                    type="text"
+                    class="filter-input"
+                    id="memberSearch"
+                    placeholder="Search members by name or email..."
+                    onkeyup="filterMembers()"
+                />
+
+                <select class="filter-select" id="memberRoleFilter" onchange="filterMembers()">
+                    <option value="">All Roles</option>
+                    <option value="true">Admin</option>
+                    <option value="false">Member</option>
+                </select>
+
+                <select class="filter-select" id="memberGenderFilter" onchange="filterMembers()">
+                    <option value="">All Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+
+            <div>
+                <button class="btn-secondary" onclick="clearMemberFilters()">
+                    Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-table-wrapper">
+        <% if (members && members.length > 0) { %>
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Email</th>
+                            <th>Year of Birth</th>
+                            <th>Gender</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTableBody">
+                        <% members.forEach(member => { %>
+                            <tr data-member-id="<%= member._id %>"
+                                data-member-name="<%= member.name %>"
+                                data-member-email="<%= member.email %>"
+                                data-member-role="<%= member.isAdmin %>"
+                                data-member-gender="<%= member.gender ? 'male' : 'female' %>">
+                                <td>
+                                    <div class="table-product-cell">
+                                        <div class="member-avatar-shell <%= member.isAdmin ? 'member-avatar-admin' : 'member-avatar-user' %>">
+                                            <span class="material-icons">
+                                                <%= member.isAdmin ? 'admin_panel_settings' : 'person' %>
+                                            </span>
+                                        </div>
+                                    <div class="table-product-info">
+                                        <h4><%= member.name %></h4>
+                                        <span class="sku">ID: <%= member._id.toString().slice(-6).toUpperCase() %></span>
+                                    </div>
+                                    </div>
+                                </td>
+                                <td><%= member.email %></td>
+                                <td><%= member.YOB %></td>
+                                <td>
+                                    <span class="table-chip <%= member.gender ? 'chip-gender-male' : 'chip-gender-female' %>">
+                                        <%= member.gender ? 'Male' : 'Female' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="table-chip <%= member.isAdmin ? 'chip-role-admin' : 'chip-role-user' %>">
+                                        <%= member.isAdmin ? 'Admin' : 'User' %>
+                                    </span>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <% if (pagination && pagination.total > 1) { %>
+                <div class="pagination-wrapper">
+                    <div class="pagination">
+                        <button class="pagination-btn" onclick="goToMemberPage(1)" <%= pagination.current === 1 ? 'disabled' : '' %>>
+                            <span class="material-icons">first_page</span>
+                        </button>
+                        <button class="pagination-btn" onclick="goToMemberPage(<%= pagination.current - 1 %>)" <%= pagination.current === 1 ? 'disabled' : '' %>>
+                            <span class="material-icons">chevron_left</span>
+                        </button>
+
+                        <% for (let i = Math.max(1, pagination.current - 2); i <= Math.min(pagination.total, pagination.current + 2); i++) { %>
+                            <button class="pagination-btn <%= i === pagination.current ? 'active' : '' %>" onclick="goToMemberPage(<%= i %>)">
+                                <%= i %>
+                            </button>
+                        <% } %>
+
+                        <button class="pagination-btn" onclick="goToMemberPage(<%= pagination.current + 1 %>)" <%= pagination.current === pagination.total ? 'disabled' : '' %>>
+                            <span class="material-icons">chevron_right</span>
+                        </button>
+                        <button class="pagination-btn" onclick="goToMemberPage(<%= pagination.total %>)" <%= pagination.current === pagination.total ? 'disabled' : '' %>>
+                            <span class="material-icons">last_page</span>
+                        </button>
+                    </div>
+                    <p class="pagination-info">
+                        Page <%= pagination.current %> of <%= pagination.total %> (<%= pagination.totalItems %> items)
+                    </p>
+                </div>
+            <% } %>
+        <% } else { %>
+            <div class="empty-state">
+                <h3>No members found</h3>
+                <p>Invite your first member to build the community.</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Store member data for JS -->
+<script>
+    window.allMembersData = <%- JSON.stringify(members || []) %>;
+</script>
+

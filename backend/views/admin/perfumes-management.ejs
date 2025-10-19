@@ -1,0 +1,182 @@
+<div class="admin-panel">
+    <!-- Header -->
+    <div class="panel-header panel-header-perfumes">
+        <div class="panel-header-row">
+            <div class="panel-header-left">
+                <h2>Perfumes Management</h2>
+                <p>Oversee the full perfume catalog, keep product data fresh, and manage availability in real-time.</p>
+                <p class="meta-info">
+                    <%= pagination ? pagination.totalItems : perfumes.length %> perfumes •
+                    Updated <%= new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) %>
+                </p>
+            </div>
+            <div class="panel-header-right">
+                <button class="icon-btn-admin" onclick="refreshPerfumes()">
+                    <span class="material-icons">refresh</span>
+                </button>
+                <button class="btn-gradient" onclick="openPerfumeDialog(null)">
+                    <span class="material-icons">add</span>
+                    Add Perfume
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+        <div class="filters-header">
+            <span class="material-icons">filter_list</span>
+            <h3>Search & Filters</h3>
+        </div>
+
+        <div class="filters-surface">
+            <div class="filters-grid filters-grid-perfumes">
+                <input
+                    type="text"
+                    class="filter-input"
+                    id="perfumeSearch"
+                    placeholder="Search perfumes by name or notes..."
+                    onkeyup="filterPerfumes()"
+                />
+
+                <select class="filter-select" id="perfumeBrandFilter" onchange="filterPerfumes()">
+                    <option value="">All Brands</option>
+                    <% if (brands && brands.length > 0) { %>
+                        <% brands.forEach(brand => { %>
+                            <option value="<%= brand.brandName %>"><%= brand.brandName %></option>
+                        <% }) %>
+                    <% } %>
+                </select>
+
+                <select class="filter-select" id="perfumeTargetFilter" onchange="filterPerfumes()">
+                    <option value="">All Target Audience</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="unisex">Unisex</option>
+                </select>
+
+                <select class="filter-select" id="perfumeConcentrationFilter" onchange="filterPerfumes()">
+                    <option value="">All Concentration</option>
+                    <option value="Extrait">Extrait</option>
+                    <option value="EDP">EDP</option>
+                    <option value="EDT">EDT</option>
+                    <option value="EDC">EDC</option>
+                </select>
+            </div>
+
+            <div>
+                <button class="btn-secondary" onclick="clearPerfumeFilters()">
+                    Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-table-wrapper">
+        <% if (perfumes && perfumes.length > 0) { %>
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Brand</th>
+                            <th>Price</th>
+                            <th>Concentration</th>
+                            <th>Target</th>
+                            <th>Volume</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="perfumesTableBody">
+                        <% perfumes.forEach(perfume => { %>
+                            <tr data-perfume-id="<%= perfume._id %>"
+                                data-perfume-name="<%= perfume.perfumeName %>"
+                                data-perfume-brand="<%= perfume.brand.brandName %>"
+                                data-perfume-target="<%= perfume.targetAudience %>"
+                                data-perfume-concentration="<%= perfume.concentration %>">
+                                <td>
+                                    <div class="table-product-cell">
+                                        <img src="<%= perfume.uri %>" alt="<%= perfume.perfumeName %>" class="table-product-image" onerror="this.style.display='none'">
+                                    <div class="table-product-info">
+                                        <h4><%= perfume.perfumeName %></h4>
+                                        <span class="sku">SKU: <%= perfume._id.toString().slice(-6).toUpperCase() %></span>
+                                    </div>
+                                    </div>
+                                </td>
+                                <td><%= perfume.brand.brandName %></td>
+                                <td class="table-price">$<%= perfume.price.toFixed(2) %></td>
+                                <td>
+                                    <span class="table-chip <%= perfume.concentration === 'Extrait' ? 'chip-concentration-extrait' : 'chip-concentration-other' %>">
+                                        <%= perfume.concentration %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="table-chip chip-target">
+                                        <%= perfume.targetAudience %>
+                                    </span>
+                                </td>
+                                <td><%= perfume.volume %>ml</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="action-btn btn-view" onclick="viewPerfume('<%= perfume._id %>')" title="View details">
+                                            <span class="material-icons">visibility</span>
+                                        </button>
+                                        <button class="action-btn btn-edit" onclick="editPerfume('<%= perfume._id %>')" title="Edit">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="action-btn btn-delete" onclick="deletePerfume('<%= perfume._id %>', '<%= perfume.perfumeName %>')" title="Delete">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <% if (pagination && pagination.total > 1) { %>
+                <div class="pagination-wrapper">
+                    <div class="pagination">
+                        <button class="pagination-btn" onclick="goToPage(1)" <%= pagination.current === 1 ? 'disabled' : '' %>>
+                            <span class="material-icons">first_page</span>
+                        </button>
+                        <button class="pagination-btn" onclick="goToPage(<%= pagination.current - 1 %>)" <%= pagination.current === 1 ? 'disabled' : '' %>>
+                            <span class="material-icons">chevron_left</span>
+                        </button>
+
+                        <% for (let i = Math.max(1, pagination.current - 2); i <= Math.min(pagination.total, pagination.current + 2); i++) { %>
+                            <button class="pagination-btn <%= i === pagination.current ? 'active' : '' %>" onclick="goToPage(<%= i %>)">
+                                <%= i %>
+                            </button>
+                        <% } %>
+
+                        <button class="pagination-btn" onclick="goToPage(<%= pagination.current + 1 %>)" <%= pagination.current === pagination.total ? 'disabled' : '' %>>
+                            <span class="material-icons">chevron_right</span>
+                        </button>
+                        <button class="pagination-btn" onclick="goToPage(<%= pagination.total %>)" <%= pagination.current === pagination.total ? 'disabled' : '' %>>
+                            <span class="material-icons">last_page</span>
+                        </button>
+                    </div>
+                    <p class="pagination-info">
+                        Page <%= pagination.current %> of <%= pagination.total %> (<%= pagination.totalItems %> items)
+                    </p>
+                </div>
+            <% } %>
+        <% } else { %>
+            <div class="empty-state">
+                <h3>No perfumes found</h3>
+                <p>Create your first perfume to populate the catalog.</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Store perfume data for JS -->
+<script>
+    window.perfumesData = <%- JSON.stringify(perfumes || []) %>;
+    window.brandsData = <%- JSON.stringify(brands || []) %>;
+</script>
+

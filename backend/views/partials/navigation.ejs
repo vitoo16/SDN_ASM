@@ -1,42 +1,42 @@
 <nav class="navigation" id="mainNav">
     <div class="nav-container">
-        <div class="nav-brand">
+        <!-- Left Section - Logo -->
+        <div class="nav-left">
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Menu">
+                <span class="material-icons">menu</span>
+            </button>
             <a href="/" class="brand-link">
-                <span class="brand-icon">🌸</span>
                 <span class="brand-name">Odour</span>
             </a>
         </div>
 
-        <div class="nav-search">
-            <form action="/" method="GET" class="search-form">
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="search-input" 
-                    placeholder="Search perfumes..."
-                    value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
-                />
-                <button type="submit" class="search-btn">
-                    <span class="material-icons">search</span>
-                </button>
-            </form>
+        <!-- Center Section - Navigation Links (Desktop only) -->
+        <div class="nav-center">
+            <a href="/" class="nav-link-btn <%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'active' : '' %>">
+                Home
+            </a>
+            <button onclick="scrollToProducts()" class="nav-link-btn">
+                Shop
+            </button>
         </div>
 
-        <div class="nav-actions">
+        <!-- Right Section - Icons and User Menu -->
+        <div class="nav-right">
+            <button class="nav-icon-btn" aria-label="Search" onclick="alert('Search feature coming soon!')">
+                <span class="material-icons">search</span>
+            </button>
+            <a href="/cart" class="nav-icon-btn cart-link" aria-label="Cart">
+                <span class="material-icons">shopping_cart</span>
+                <span class="cart-badge" id="cartBadge">0</span>
+            </a>
+
             <% if (typeof user !== 'undefined' && user) { %>
                 <!-- Logged in user -->
-                <a href="/cart" class="nav-link cart-link">
-                    <span class="material-icons">shopping_cart</span>
-                    <span class="cart-badge" id="cartBadge">0</span>
-                </a>
-                
                 <div class="user-menu">
-                    <button class="user-menu-btn" onclick="toggleUserMenu()">
+                    <button class="user-avatar-btn" onclick="toggleUserMenu()" aria-label="User menu">
                         <div class="user-avatar">
                             <%= user.name.charAt(0).toUpperCase() %>
                         </div>
-                        <span class="user-name"><%= user.name %></span>
-                        <span class="material-icons dropdown-icon">expand_more</span>
                     </button>
                     
                     <div class="user-dropdown" id="userDropdown">
@@ -45,7 +45,7 @@
                             Profile
                         </a>
                         <% if (user.isAdmin) { %>
-                            <a href="/admin" class="dropdown-item">
+                            <a href="/admin/dashboard" class="dropdown-item">
                                 <span class="material-icons">dashboard</span>
                                 Admin Dashboard
                             </a>
@@ -61,67 +61,58 @@
                 </div>
             <% } else { %>
                 <!-- Guest user -->
-                <button onclick="openAuthModal('login')" class="btn-secondary">Login</button>
-                <button onclick="openAuthModal('register')" class="btn-primary">Sign Up</button>
+                <div class="auth-buttons">
+                    <button onclick="openAuthModal('login')" class="btn-nav-outline">Login</button>
+                    <button onclick="openAuthModal('register')" class="btn-nav-contained">Register</button>
+                </div>
             <% } %>
         </div>
-
-        <!-- Mobile menu button -->
-        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
-            <span class="material-icons">menu</span>
-        </button>
     </div>
 
-    <!-- Mobile menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-search">
-            <form action="/" method="GET" class="search-form">
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="search-input" 
-                    placeholder="Search perfumes..."
-                    value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
-                />
-                <button type="submit" class="search-btn">
-                    <span class="material-icons">search</span>
-                </button>
-            </form>
-        </div>
-        
-        <% if (typeof user !== 'undefined' && user) { %>
-            <a href="/cart" class="mobile-menu-item">
-                <span class="material-icons">shopping_cart</span>
-                Cart
-                <span class="cart-badge" id="mobileCartBadge">0</span>
-            </a>
-            <a href="/api/members/profile/view" class="mobile-menu-item">
-                <span class="material-icons">person</span>
-                Profile
-            </a>
-            <% if (user.isAdmin) { %>
-                <a href="/admin" class="mobile-menu-item">
-                    <span class="material-icons">dashboard</span>
-                    Admin Dashboard
+    <!-- Mobile menu drawer -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="mobile-drawer-overlay" onclick="toggleMobileMenu()"></div>
+        <div class="mobile-drawer-content">
+            <div class="mobile-drawer-header">
+                <span class="mobile-drawer-title">Odour</span>
+            </div>
+            <div class="mobile-drawer-body">
+                <a href="/" class="mobile-menu-item <%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'active' : '' %>">
+                    <span class="material-icons">home</span>
+                    <span>Home</span>
                 </a>
-            <% } %>
-            <div class="mobile-menu-divider"></div>
-            <form action="/auth/logout" method="POST">
-                <button type="submit" class="mobile-menu-item logout-btn">
-                    <span class="material-icons">logout</span>
-                    Logout
+                <button onclick="scrollToProducts(); toggleMobileMenu();" class="mobile-menu-item">
+                    <span class="material-icons">store</span>
+                    <span>Shop</span>
                 </button>
-            </form>
-        <% } else { %>
-            <button onclick="openAuthModal('login')" class="mobile-menu-item" style="width: 100%; text-align: left;">
-                <span class="material-icons">login</span>
-                Login
-            </button>
-            <button onclick="openAuthModal('register')" class="mobile-menu-item" style="width: 100%; text-align: left;">
-                <span class="material-icons">person_add</span>
-                Sign Up
-            </button>
-        <% } %>
+                
+                <div class="mobile-menu-divider"></div>
+                
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <% if (user.isAdmin) { %>
+                        <a href="/admin/dashboard" class="mobile-menu-item">
+                            <span class="material-icons">dashboard</span>
+                            <span>Admin</span>
+                        </a>
+                    <% } %>
+                    <form action="/auth/logout" method="POST" style="margin: 0;">
+                        <button type="submit" class="mobile-menu-item logout">
+                            <span class="material-icons">logout</span>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                <% } else { %>
+                    <button onclick="openAuthModal('login'); toggleMobileMenu();" class="mobile-menu-item">
+                        <span class="material-icons">login</span>
+                        <span>Login</span>
+                    </button>
+                    <button onclick="openAuthModal('register'); toggleMobileMenu();" class="mobile-menu-item">
+                        <span class="material-icons">person_add</span>
+                        <span>Register</span>
+                    </button>
+                <% } %>
+            </div>
+        </div>
     </div>
 </nav>
 
@@ -132,8 +123,16 @@ function toggleUserMenu() {
 }
 
 function toggleMobileMenu() {
-    const menu = document.getElementById('mobileMenu');
-    menu.classList.toggle('show');
+    const drawer = document.getElementById('mobileDrawer');
+    drawer.classList.toggle('show');
+    document.body.classList.toggle('drawer-open');
+}
+
+function scrollToProducts() {
+    const element = document.getElementById('products');
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 // Close dropdowns when clicking outside
@@ -145,5 +144,21 @@ document.addEventListener('click', function(event) {
         dropdown?.classList.remove('show');
     }
 });
-</script>
 
+// Prevent body scroll when drawer is open
+document.addEventListener('DOMContentLoaded', function() {
+    const drawer = document.getElementById('mobileDrawer');
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                if (drawer.classList.contains('show')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            }
+        });
+    });
+    observer.observe(drawer, { attributes: true });
+});
+</script>

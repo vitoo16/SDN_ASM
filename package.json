@@ -11,6 +11,7 @@
     "build": "cd frontend && npm run build"
   },
   "dependencies": {
+    "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "connect-mongo": "^5.0.0",
     "cookie-parser": "^1.4.6",

@@ -1,0 +1,148 @@
+<!-- Perfume Modal -->
+<div class="admin-modal" id="perfumeModal" style="display: none;">
+    <div class="admin-modal-overlay" onclick="closePerfumeModal()"></div>
+    <div class="admin-modal-content">
+        <div class="admin-modal-header">
+            <h2 id="perfumeModalTitle">Add New Perfume</h2>
+            <button class="modal-close-btn" onclick="closePerfumeModal()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <form id="perfumeForm" onsubmit="submitPerfumeForm(event)">
+            <input type="hidden" id="perfumeId" name="perfumeId">
+            
+            <div class="admin-modal-body">
+                <div id="perfumeModalError" class="modal-alert modal-alert-error" style="display: none;"></div>
+
+                <div class="modal-form-grid">
+                    <div class="modal-form-field">
+                        <label class="modal-form-label">
+                            Perfume Name <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="perfumeName" 
+                            id="perfumeName"
+                            class="modal-form-input" 
+                            required
+                        />
+                    </div>
+
+                    <div class="modal-form-field">
+                        <label class="modal-form-label">
+                            Image URL <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="url" 
+                            name="uri" 
+                            id="perfumeUri"
+                            class="modal-form-input" 
+                            required
+                        />
+                    </div>
+
+                    <div class="modal-form-field">
+                        <label class="modal-form-label">
+                            Price <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="price" 
+                            id="perfumePrice"
+                            class="modal-form-input" 
+                            step="0.01"
+                            min="0"
+                            required
+                        />
+                    </div>
+
+                    <div class="modal-form-field">
+                        <label class="modal-form-label">
+                            Volume (ml) <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="volume" 
+                            id="perfumeVolume"
+                            class="modal-form-input" 
+                            min="0"
+                            required
+                        />
+                    </div>
+
+                    <div class="modal-form-field">
+                        <label class="modal-form-label">
+                            Concentration <span class="required">*</span>
+                        </label>
+                        <select name="concentration" id="perfumeConcentration" class="modal-form-select" required>
+                            <option value="Extrait">Extrait</option>
+                            <option value="EDP" selected>EDP</option>
+                            <option value="EDT">EDT</option>
+                            <option value="EDC">EDC</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-field">
+                        <label class="modal-form-label">
+                            Target Audience <span class="required">*</span>
+                        </label>
+                        <select name="targetAudience" id="perfumeTargetAudience" class="modal-form-select" required>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="unisex" selected>Unisex</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-field modal-form-field-full">
+                        <label class="modal-form-label">
+                            Brand <span class="required">*</span>
+                        </label>
+                        <select name="brand" id="perfumeBrand" class="modal-form-select" required>
+                            <option value="">Select a brand</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-field modal-form-field-full">
+                        <label class="modal-form-label">
+                            Description <span class="required">*</span>
+                        </label>
+                        <textarea 
+                            name="description" 
+                            id="perfumeDescription"
+                            class="modal-form-textarea" 
+                            rows="3"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="modal-form-field modal-form-field-full">
+                        <label class="modal-form-label">
+                            Ingredients <span class="required">*</span>
+                        </label>
+                        <textarea 
+                            name="ingredients" 
+                            id="perfumeIngredients"
+                            class="modal-form-textarea" 
+                            rows="2"
+                            required
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-modal-footer">
+                <button type="button" class="modal-btn-cancel" onclick="closePerfumeModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="modal-btn-submit" id="perfumeSubmitBtn">
+                    <span class="btn-text">Create</span>
+                    <span class="btn-spinner" style="display: none;">
+                        <span class="spinner-small"></span>
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
