@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -13,6 +13,7 @@ import {
   Pagination,
 } from "@mui/material";
 import { Add, Refresh, Search } from "@mui/icons-material";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Brand } from "../../types";
 import { brandsAPI } from "../../services/api";
 import BrandTable from "./BrandTable";
@@ -141,85 +142,79 @@ const successAlertSx = {
 const BRANDS_PAGE_SIZE = 10;
 
 const BrandsManagement: React.FC = () => {
-  const [brands, setBrands] = React.useState<Brand[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingBrand, setEditingBrand] = React.useState<Brand | null>(null);
-  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
-  const [lastRefresh, setLastRefresh] = React.useState<Date | null>(null);
-
-  const [page, setPage] = React.useState(1);
-  const [pagination, setPagination] = React.useState<PaginationData | null>(null);
-  const [searchInput, setSearchInput] = React.useState("");
-  const [searchQuery, setSearchQuery] = React.useState("");
-
-  const fetchBrands = useCallback(
-    async (showRefreshLoader = false, currentPage = 1) => {
-      try {
-        if (showRefreshLoader) {
-          setRefreshing(true);
-        } else {
-          setLoading(true);
-        }
-        setError(null);
-
-        const params: Record<string, string | number> = {
-          page: currentPage,
-          limit: BRANDS_PAGE_SIZE,
-        };
-
-        if (searchQuery) {
-          params.search = searchQuery;
-        }
-
-        const response = await brandsAPI.getAllBrands(params);
-        const { brands: fetchedBrands, pagination: paginationData } =
-          response.data.data;
-
-        setBrands(fetchedBrands);
-        if (paginationData) {
-          setPagination({
-            current: paginationData.current ?? currentPage,
-            total: paginationData.total ?? 1,
-            count: paginationData.count ?? fetchedBrands.length,
-            totalItems: paginationData.totalItems ?? fetchedBrands.length,
-          });
-        } else {
-          setPagination(null);
-        }
-        setLastRefresh(new Date());
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to fetch brands");
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    },
-    [searchQuery]
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(
+    null
   );
 
-  React.useEffect(() => {
-    fetchBrands(false, page);
-  }, [fetchBrands, page]);
+  const [page, setPage] = React.useState(1);
+  const [searchInput, setSearchInput] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch((prev) => {
+        const trimmed = searchInput.trim();
+        if (trimmed !== prev) {
+          setPage(1);
+        }
+        return trimmed;
+      });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const {
+    data: brandsData,
+    isLoading,
+    isError,
+    error,
+    isFetching,
+    refetch,
+    dataUpdatedAt,
+  } = useQuery<{ brands: Brand[]; pagination?: PaginationData | null }>({
+    queryKey: ["brands", page, debouncedSearch],
+    queryFn: async () => {
+      const response = await brandsAPI.getAllBrands({
+        page,
+        limit: BRANDS_PAGE_SIZE,
+        search: debouncedSearch || undefined,
+      });
+      return response.data.data;
+    },
+    staleTime: 3 * 60 * 1000,
+  });
+
+  const brands = useMemo<Brand[]>(() => brandsData?.brands ?? [], [brandsData]);
+  const pagination = useMemo<PaginationData | null>(
+    () => brandsData?.pagination ?? null,
+    [brandsData]
+  );
+
+  const lastRefreshTime = useMemo(() => {
+    if (!brandsData) return null;
+    return new Date(dataUpdatedAt || Date.now());
+  }, [brandsData, dataUpdatedAt]);
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => brandsAPI.deleteBrand(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["brands"] });
+    },
+  });
 
   const handleRefresh = useCallback(() => {
-    fetchBrands(true, page);
-  }, [fetchBrands, page]);
-
-  const handleSearch = useCallback(() => {
-    setSearchQuery(searchInput.trim());
-    setPage(1);
-  }, [searchInput]);
+    refetch();
+  }, [refetch]);
 
   const handleClearSearch = useCallback(() => {
     setSearchInput("");
-    if (searchQuery) {
-      setSearchQuery("");
-    }
+    setDebouncedSearch("");
     setPage(1);
-  }, [searchQuery]);
+  }, []);
 
   const handlePageChange = useCallback((_event: any, value: number) => {
     setPage(value);
@@ -243,11 +238,10 @@ const BrandsManagement: React.FC = () => {
       }
 
       try {
-        const brandToDelete = brands.find((b) => b._id === id);
-        await brandsAPI.deleteBrand(id);
+  const brandToDelete = brands.find((b: Brand) => b._id === id);
+        const shouldGoPrev = pagination && pagination.count <= 1 && page > 1;
 
-        const nextPage =
-          pagination && pagination.count <= 1 && page > 1 ? page - 1 : page;
+        await deleteMutation.mutateAsync(id);
 
         if (brandToDelete) {
           setSuccessMessage(
@@ -255,19 +249,14 @@ const BrandsManagement: React.FC = () => {
           );
         }
 
-        if (nextPage !== page) {
-          setPage(nextPage);
-        } else {
-          await fetchBrands(false, page);
+        if (shouldGoPrev) {
+          setPage((prev) => Math.max(prev - 1, 1));
         }
       } catch (err: any) {
-        const errorMessage =
-          err.response?.data?.message || "Failed to delete brand";
-        setError(errorMessage);
-        alert(errorMessage);
+        alert(err.response?.data?.message || "Failed to delete brand");
       }
     },
-    [brands, fetchBrands, page, pagination]
+    [brands, deleteMutation, page, pagination]
   );
 
   const handleDialogClose = useCallback(() => {
@@ -281,9 +270,9 @@ const BrandsManagement: React.FC = () => {
       if (message) {
         setSuccessMessage(message);
       }
-      fetchBrands(false, page);
+      queryClient.invalidateQueries({ queryKey: ["brands"] });
     },
-    [fetchBrands, handleDialogClose, page]
+    [handleDialogClose, queryClient]
   );
 
   const memoizedTable = useMemo(
@@ -293,7 +282,7 @@ const BrandsManagement: React.FC = () => {
     [brands, handleEdit, handleDelete]
   );
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box sx={loadingContainerSx}>
         <CircularProgress size={60} sx={{ color: "#c19cff" }} />
@@ -301,7 +290,7 @@ const BrandsManagement: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <Box sx={sectionWrapperSx}>
         <Alert
@@ -311,7 +300,7 @@ const BrandsManagement: React.FC = () => {
             <Button
               color="inherit"
               size="small"
-              onClick={() => fetchBrands(false, page)}
+              onClick={handleRefresh}
               startIcon={<Refresh />}
               sx={{ textTransform: "none" }}
             >
@@ -324,7 +313,7 @@ const BrandsManagement: React.FC = () => {
             color: "var(--text-primary)",
           }}
         >
-          {error}
+          {(error as any)?.response?.data?.message || "Failed to fetch brands"}
         </Alert>
       </Box>
     );
@@ -377,15 +366,20 @@ const BrandsManagement: React.FC = () => {
                 variant="body2"
                 sx={{ color: "var(--text-secondary)", maxWidth: 420 }}
               >
-                Curate the house lineup and keep brand identities aligned with your catalog vision.
+                Curate the house lineup and keep brand identities aligned with
+                your catalog vision.
               </Typography>
               <Typography
                 variant="caption"
-                sx={{ color: "rgba(193,156,255,0.75)", display: "block", mt: 1.5 }}
+                sx={{
+                  color: "rgba(193,156,255,0.75)",
+                  display: "block",
+                  mt: 1.5,
+                }}
               >
-                {pagination?.totalItems || brands.length} brands • {" "}
-                {lastRefresh
-                  ? `Updated ${lastRefresh.toLocaleTimeString([], {
+                {pagination?.totalItems || brands.length} brands •{" "}
+                {lastRefreshTime
+                  ? `Updated ${lastRefreshTime.toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}`
@@ -404,10 +398,10 @@ const BrandsManagement: React.FC = () => {
                 <span>
                   <IconButton
                     onClick={handleRefresh}
-                    disabled={loading || refreshing}
+                    disabled={isLoading || isFetching}
                     sx={iconButtonSx}
                   >
-                    {refreshing ? (
+                    {isFetching ? (
                       <CircularProgress size={22} sx={{ color: "#c19cff" }} />
                     ) : (
                       <Refresh />
@@ -434,7 +428,6 @@ const BrandsManagement: React.FC = () => {
               placeholder="Search brands..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -444,14 +437,7 @@ const BrandsManagement: React.FC = () => {
               }}
               sx={{ ...fieldStyles, flex: 1, minWidth: 220 }}
             />
-            <Button
-              variant="contained"
-              onClick={handleSearch}
-              sx={{ ...gradientButtonSx, minWidth: 110 }}
-            >
-              Search
-            </Button>
-            {(searchQuery || searchInput) && (
+            {searchInput && (
               <Button
                 variant="outlined"
                 onClick={handleClearSearch}

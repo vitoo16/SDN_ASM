@@ -86,8 +86,12 @@ export const membersAPI = {
   > => {
     const queryParams = new URLSearchParams();
     if (params?.search) queryParams.append("search", params.search);
-    if (params?.isAdmin) queryParams.append("isAdmin", params.isAdmin);
-    if (params?.gender) queryParams.append("gender", params.gender);
+    if (params?.isAdmin !== undefined && params.isAdmin !== "") {
+      queryParams.append("isAdmin", params.isAdmin);
+    }
+    if (params?.gender !== undefined && params.gender !== "") {
+      queryParams.append("gender", params.gender);
+    }
     if (params?.page) queryParams.append("page", params.page.toString());
     if (params?.limit) queryParams.append("limit", params.limit.toString());
     

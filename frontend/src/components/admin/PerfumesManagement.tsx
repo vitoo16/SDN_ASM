@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -8,10 +8,18 @@ import {
   IconButton,
   Tooltip,
   Snackbar,
+  TextField,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Pagination,
 } from "@mui/material";
-import { Add, Refresh } from "@mui/icons-material";
-import { Perfume } from "../../types";
-import { perfumesAPI } from "../../services/api";
+import { Add, Refresh, Search, FilterList } from "@mui/icons-material";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Perfume, Brand } from "../../types";
+import { perfumesAPI, brandsAPI } from "../../services/api";
 import PerfumeTable from "./PerfumeTable";
 import PerfumeDialog from "./PerfumeDialog";
 import PerfumeDetailDialog from "./PerfumeDetailDialog";
@@ -81,11 +89,112 @@ const loadingContainerSx = {
   minHeight: 400,
 } as const;
 
+const filtersSurfaceSx = {
+  display: "flex",
+  flexDirection: "column" as const,
+  gap: 2,
+  background: "rgba(15,23,42,0.65)",
+  borderRadius: 3,
+  padding: { xs: "1.25rem", md: "1.75rem" },
+  border: "1px solid rgba(255,255,255,0.08)",
+  boxShadow: "inset 0 1px 0 rgba(148,163,184,0.08)",
+} as const;
+
+const fieldStyles = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: 2.5,
+    background: "rgba(15,23,42,0.72)",
+    color: "var(--text-primary)",
+    transition: "all 0.2s ease",
+    "& fieldset": {
+      borderColor: "rgba(148,163,184,0.25)",
+    },
+    "&:hover fieldset": {
+      borderColor: "rgba(148,163,184,0.45)",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "rgba(192,132,252,0.95)",
+      boxShadow: "0 0 0 2px rgba(192,132,252,0.18)",
+    },
+  },
+  "& .MuiInputBase-input": {
+    color: "var(--text-primary)",
+  },
+  "& .MuiInputLabel-root": {
+    color: "var(--text-secondary)",
+  },
+  "& .Mui-focused .MuiInputLabel-root": {
+    color: "rgba(192,132,252,0.95)",
+  },
+} as const;
+
+const selectMenuProps = {
+  PaperProps: {
+    sx: {
+      background: "rgba(12, 16, 26, 0.95)",
+      border: "1px solid rgba(255,255,255,0.12)",
+      boxShadow: "0 32px 70px rgba(0,0,0,0.55)",
+      backdropFilter: "blur(18px)",
+      "& .MuiMenuItem-root": {
+        color: "var(--text-primary)",
+      },
+      "& .MuiMenuItem-root.Mui-selected": {
+        backgroundColor: "rgba(139,92,246,0.2)",
+      },
+    },
+  },
+};
+
+const paginationWrapperSx = {
+  px: { xs: 2, md: 3 },
+  pb: { xs: 3, md: 4 },
+  display: "flex",
+  flexDirection: "column" as const,
+  alignItems: "center",
+  gap: 2,
+} as const;
+
+const paginationStyles = {
+  "& .MuiPaginationItem-root": {
+    fontWeight: 600,
+  },
+  "& .Mui-selected": {
+    background:
+      "linear-gradient(135deg, rgba(139,92,246,0.85) 0%, rgba(37,211,255,0.75) 100%)",
+    color: "var(--text-primary)",
+  },
+} as const;
+
+const secondaryButtonSx = {
+  textTransform: "none" as const,
+  fontWeight: 600,
+  borderColor: "rgba(148,163,184,0.35)",
+  color: "var(--text-secondary)",
+  borderRadius: 2.5,
+  px: 2.5,
+  "&:hover": {
+    borderColor: "rgba(148,163,184,0.6)",
+    color: "var(--text-primary)",
+    background: "rgba(148,163,184,0.12)",
+  },
+} as const;
+
+const PERFUMES_PAGE_SIZE = 10;
+const TARGET_OPTIONS = ["male", "female", "unisex"] as const;
+const CONCENTRATION_OPTIONS = ["Extrait", "EDP", "EDT", "EDC"] as const;
+
+type TargetFilter = "" | (typeof TARGET_OPTIONS)[number];
+type ConcentrationFilter = "" | (typeof CONCENTRATION_OPTIONS)[number];
+
+interface PaginationData {
+  current: number;
+  total: number;
+  count: number;
+  totalItems: number;
+}
+
 const PerfumesManagement: React.FC = () => {
-  const [perfumes, setPerfumes] = React.useState<Perfume[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingPerfume, setEditingPerfume] = React.useState<Perfume | null>(
     null
@@ -93,38 +202,114 @@ const PerfumesManagement: React.FC = () => {
   const [successMessage, setSuccessMessage] = React.useState<string | null>(
     null
   );
-  const [lastRefresh, setLastRefresh] = React.useState<Date | null>(null);
   const [viewingPerfume, setViewingPerfume] = React.useState<Perfume | null>(
     null
   );
   const [detailOpen, setDetailOpen] = React.useState(false);
 
-  const fetchPerfumes = useCallback(async (showRefreshLoader = false) => {
-    try {
-      if (showRefreshLoader) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-      setError(null);
-      const response = await perfumesAPI.getAllPerfumes();
-      setPerfumes(response.data.data.perfumes);
-      setLastRefresh(new Date());
-    } catch (error: any) {
-      setError(error.response?.data?.message || "Failed to fetch perfumes");
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+  const [page, setPage] = React.useState(1);
+  const [searchInput, setSearchInput] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+  const [brandFilter, setBrandFilter] = React.useState("");
+  const [targetFilter, setTargetFilter] = React.useState<TargetFilter>("");
+  const [concentrationFilter, setConcentrationFilter] = React.useState<ConcentrationFilter>("");
 
-  React.useEffect(() => {
-    fetchPerfumes(false);
-  }, [fetchPerfumes]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch((prev) => {
+        const trimmed = searchInput.trim();
+        if (trimmed !== prev) {
+          setPage(1);
+        }
+        return trimmed;
+      });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const { data: brandOptionsData } = useQuery<{ brands: Brand[] }>({
+    queryKey: ["brandOptions"],
+    queryFn: async () => {
+      const response = await brandsAPI.getAllBrands({ page: 1, limit: 100 });
+      return response.data.data;
+    },
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const {
+    data: perfumesData,
+    isLoading,
+    isError,
+    error,
+    isFetching,
+    refetch,
+    dataUpdatedAt,
+  } = useQuery<{ perfumes: Perfume[]; pagination?: PaginationData | null }>({
+    queryKey: [
+      "perfumes",
+      page,
+      debouncedSearch,
+      brandFilter,
+      targetFilter,
+      concentrationFilter,
+    ],
+    queryFn: async () => {
+      const response = await perfumesAPI.getAllPerfumes({
+        page,
+        limit: PERFUMES_PAGE_SIZE,
+        search: debouncedSearch || undefined,
+        brand: brandFilter || undefined,
+        targetAudience: targetFilter === "" ? undefined : targetFilter,
+        concentration:
+          concentrationFilter === "" ? undefined : concentrationFilter,
+      });
+      return response.data.data;
+    },
+    staleTime: 3 * 60 * 1000,
+  });
+
+  const perfumes = useMemo<Perfume[]>(
+    () => perfumesData?.perfumes ?? [],
+    [perfumesData]
+  );
+  const pagination = useMemo<PaginationData | null>(
+    () => perfumesData?.pagination ?? null,
+    [perfumesData]
+  );
+  const brandOptions = useMemo<Brand[]>(
+    () => brandOptionsData?.brands ?? [],
+    [brandOptionsData]
+  );
+  const lastRefreshTime = useMemo(() => {
+    if (!perfumesData) return null;
+    return new Date(dataUpdatedAt || Date.now());
+  }, [perfumesData, dataUpdatedAt]);
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => perfumesAPI.deletePerfume(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["perfumes"] });
+    },
+  });
 
   const handleRefresh = useCallback(() => {
-    fetchPerfumes(true);
-  }, [fetchPerfumes]);
+    refetch();
+  }, [refetch]);
+
+  const handleClearFilters = useCallback(() => {
+    setSearchInput("");
+    setDebouncedSearch("");
+    setBrandFilter("");
+  setTargetFilter("");
+  setConcentrationFilter("");
+    setPage(1);
+  }, []);
+
+  const handlePageChange = useCallback((_event: any, value: number) => {
+    setPage(value);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const handleCreate = useCallback(() => {
     setEditingPerfume(null);
@@ -149,22 +334,24 @@ const PerfumesManagement: React.FC = () => {
 
       try {
         const perfumeToDelete = perfumes.find((p) => p._id === id);
-        await perfumesAPI.deletePerfume(id);
+        const shouldGoPrev = pagination && pagination.count <= 1 && page > 1;
 
-        setSuccessMessage(
-          `Perfume "${
-            perfumeToDelete?.perfumeName ?? "Unknown"
-          }" deleted successfully`
-        );
+        await deleteMutation.mutateAsync(id);
 
-        await fetchPerfumes(false);
-      } catch (error: any) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to delete perfume";
-        setError(errorMessage);
+        if (perfumeToDelete) {
+          setSuccessMessage(
+            `Perfume "${perfumeToDelete.perfumeName}" deleted successfully`
+          );
+        }
+
+        if (shouldGoPrev) {
+          setPage((prev) => Math.max(prev - 1, 1));
+        }
+      } catch (err: any) {
+        alert(err.response?.data?.message || "Failed to delete perfume");
       }
     },
-    [fetchPerfumes, perfumes]
+    [deleteMutation, page, pagination, perfumes]
   );
 
   const handleDialogClose = useCallback(() => {
@@ -183,9 +370,9 @@ const PerfumesManagement: React.FC = () => {
       if (message) {
         setSuccessMessage(message);
       }
-      fetchPerfumes(false);
+      queryClient.invalidateQueries({ queryKey: ["perfumes"] });
     },
-    [fetchPerfumes, handleDialogClose]
+    [handleDialogClose, queryClient]
   );
 
   const memoizedTable = useMemo(
@@ -200,7 +387,7 @@ const PerfumesManagement: React.FC = () => {
     [perfumes, handleEdit, handleDelete, handleView]
   );
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box sx={loadingContainerSx}>
         <CircularProgress size={60} sx={{ color: "#c19cff" }} />
@@ -208,7 +395,7 @@ const PerfumesManagement: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <Box sx={sectionWrapperSx}>
         <Alert
@@ -218,7 +405,7 @@ const PerfumesManagement: React.FC = () => {
             <Button
               color="inherit"
               size="small"
-              onClick={() => fetchPerfumes(false)}
+              onClick={handleRefresh}
               startIcon={<Refresh />}
               sx={{ textTransform: "none" }}
             >
@@ -231,7 +418,7 @@ const PerfumesManagement: React.FC = () => {
             color: "var(--text-primary)",
           }}
         >
-          {error}
+          {(error as any)?.response?.data?.message || "Failed to fetch perfumes"}
         </Alert>
       </Box>
     );
@@ -295,9 +482,9 @@ const PerfumesManagement: React.FC = () => {
                   mt: 1.5,
                 }}
               >
-                {perfumes.length} perfumes •{" "}
-                {lastRefresh
-                  ? `Updated ${lastRefresh.toLocaleTimeString([], {
+                {pagination?.totalItems || perfumes.length} perfumes •{" "}
+                {lastRefreshTime
+                  ? `Updated ${lastRefreshTime.toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}`
@@ -316,10 +503,10 @@ const PerfumesManagement: React.FC = () => {
                 <span>
                   <IconButton
                     onClick={handleRefresh}
-                    disabled={loading || refreshing}
+                    disabled={isLoading || isFetching}
                     sx={iconButtonSx}
                   >
-                    {refreshing ? (
+                    {isFetching ? (
                       <CircularProgress size={22} sx={{ color: "#c19cff" }} />
                     ) : (
                       <Refresh />
@@ -339,7 +526,136 @@ const PerfumesManagement: React.FC = () => {
           </Box>
         </Box>
 
+        <Box sx={{ px: { xs: 2, md: 3 }, py: { xs: 2.5, md: 3 } }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
+            <FilterList sx={{ color: "rgba(226,232,240,0.65)" }} />
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, color: "var(--text-primary)" }}
+            >
+              Search & Filters
+            </Typography>
+          </Box>
+
+          <Box sx={filtersSurfaceSx}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  md: "2fr 1fr 1fr",
+                  lg: "2fr 1fr 1fr 1fr",
+                },
+                gap: 2,
+              }}
+            >
+              <TextField
+                placeholder="Search perfumes by name or notes..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search sx={{ color: "rgba(226,232,240,0.6)" }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={fieldStyles}
+              />
+
+              <FormControl fullWidth sx={fieldStyles}>
+                <InputLabel>Brand</InputLabel>
+                <Select
+                  value={brandFilter}
+                  label="Brand"
+                  onChange={(e) => {
+                    setBrandFilter(e.target.value as string);
+                    setPage(1);
+                  }}
+                  MenuProps={selectMenuProps}
+                >
+                  <MenuItem value="">All Brands</MenuItem>
+                  {brandOptions.map((brand) => (
+                    <MenuItem key={brand._id} value={brand.brandName}>
+                      {brand.brandName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth sx={fieldStyles}>
+                <InputLabel>Target Audience</InputLabel>
+                <Select
+                  value={targetFilter}
+                  label="Target Audience"
+                  onChange={(e) => {
+                    setTargetFilter(e.target.value as TargetFilter);
+                    setPage(1);
+                  }}
+                  MenuProps={selectMenuProps}
+                >
+                  <MenuItem value="">All</MenuItem>
+                  {TARGET_OPTIONS.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth sx={fieldStyles}>
+                <InputLabel>Concentration</InputLabel>
+                <Select
+                  value={concentrationFilter}
+                  label="Concentration"
+                  onChange={(e) => {
+                    setConcentrationFilter(e.target.value as ConcentrationFilter);
+                    setPage(1);
+                  }}
+                  MenuProps={selectMenuProps}
+                >
+                  <MenuItem value="">All</MenuItem>
+                  {CONCENTRATION_OPTIONS.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Button
+                variant="outlined"
+                onClick={handleClearFilters}
+                sx={secondaryButtonSx}
+              >
+                Clear Filters
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+
         <Box sx={{ p: { xs: 2, md: 3 } }}>{memoizedTable}</Box>
+
+        {pagination && pagination.total > 1 && (
+          <Box sx={paginationWrapperSx}>
+            <Pagination
+              count={pagination.total}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+              showFirstButton
+              showLastButton
+              sx={paginationStyles}
+            />
+            <Typography variant="body2" sx={{ color: "var(--text-secondary)" }}>
+              Page {pagination.current} of {pagination.total} (
+              {pagination.totalItems} items)
+            </Typography>
+          </Box>
+        )}
       </Box>
 
       <PerfumeDialog

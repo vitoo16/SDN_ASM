@@ -249,8 +249,12 @@ const getAllMembers = async (req, res) => {
       filter.isAdmin = isAdmin === 'true';
     }
     
-    if (gender) {
-      filter.gender = gender;
+    if (gender !== undefined) {
+      if (gender === "true" || gender === true) {
+        filter.gender = true;
+      } else if (gender === "false" || gender === false) {
+        filter.gender = false;
+      }
     }
 
     // Calculate pagination
