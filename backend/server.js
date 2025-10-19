@@ -1,8 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const path = require('path');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const cookieParser = require('cookie-parser');
+const methodOverride = require('method-override');
 
 // Import routes
 const memberRoutes = require('./routes/members');
@@ -11,89 +14,507 @@ const perfumeRoutes = require('./routes/perfumes');
 
 const app = express();
 
+// View engine setup
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
-}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
+app.use(methodOverride('_method'));
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'odour-perfume-secret-key-2024',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/perfume_db',
+    ttl: 24 * 60 * 60 // 1 day
+  }),
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production'
+  }
+}));
 
 // Static files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Routes
-app.use('/api/members', memberRoutes);
-app.use('/api/brands', brandRoutes);
-app.use('/api/perfumes', perfumeRoutes);
-app.use('/api/collectors', memberRoutes); // Alias for /api/members/collectors
+// Middleware to make user available to all views
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  res.locals.isAuthenticated = !!req.session.user;
+  next();
+});
 
-// Health check route
-app.get('/api/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Server is running',
-    timestamp: new Date().toISOString()
+// Helper function to render with layout
+const renderWithLayout = (res, view, data = {}) => {
+  const defaultData = {
+    title: '',
+    additionalCSS: [],
+    additionalJS: [],
+    ...data
+  };
+  
+  res.render(view, {
+    ...defaultData,
+    body: '' // Will be populated by the view
+  });
+};
+
+// Import controllers
+const Perfume = require('./models/Perfume');
+const Brand = require('./models/Brand');
+const Member = require('./models/Member');
+const bcrypt = require('bcryptjs');
+
+// ======================
+// PUBLIC ROUTES
+// ======================
+
+// Home Page
+app.get('/', async (req, res) => {
+  try {
+    const { search, brand, targetAudience, concentration, page = 1 } = req.query;
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
+    // Build filter query
+    let query = {};
+    if (search) {
+      query.perfumeName = { $regex: search, $options: 'i' };
+    }
+    if (brand) {
+      query.brand = brand;
+    }
+    if (targetAudience) {
+      query.targetAudience = targetAudience;
+    }
+    if (concentration) {
+      query.concentration = concentration;
+    }
+
+    // Fetch perfumes with pagination
+    const perfumes = await Perfume.find(query)
+      .populate('brand')
+      .populate('comments.author', 'name email')
+      .limit(limit)
+      .skip(skip)
+      .sort({ createdAt: -1 });
+
+    const totalPerfumes = await Perfume.countDocuments(query);
+    const totalPages = Math.ceil(totalPerfumes / limit);
+
+    // Fetch all brands for filter
+    const brands = await Brand.find().sort({ brandName: 1 });
+
+    // Featured perfumes for hero section
+    const featuredPerfumes = await Perfume.find()
+      .populate('brand')
+      .limit(5)
+      .sort({ createdAt: -1 });
+
+    res.render('home', {
+      perfumes,
+      brands,
+      featuredPerfumes,
+      filters: { search, brand, targetAudience, concentration },
+      pagination: {
+        current: parseInt(page),
+        total: totalPages,
+        totalItems: totalPerfumes
+      },
+      searchQuery: search || ''
+    });
+  } catch (error) {
+    console.error('Error fetching perfumes:', error);
+    res.status(500).render('error', { 
+      error: 'Failed to load perfumes',
+      message: error.message
+    });
+  }
+});
+
+// Perfume Detail Page
+app.get('/perfumes/:id', async (req, res) => {
+  try {
+    const perfume = await Perfume.findById(req.params.id)
+      .populate('brand')
+      .populate('comments.author', 'name email');
+
+    if (!perfume) {
+      return res.status(404).render('error', { 
+        error: 'Perfume not found',
+        message: 'The perfume you are looking for does not exist.'
+      });
+    }
+
+    res.render('perfume-detail', {
+      perfume,
+      title: perfume.perfumeName
+    });
+  } catch (error) {
+    console.error('Error fetching perfume:', error);
+    res.status(500).render('error', { 
+      error: 'Failed to load perfume details',
+      message: error.message
+    });
+  }
+});
+
+// Cart Page
+app.get('/cart', (req, res) => {
+  res.render('cart', {
+    title: 'Shopping Cart'
   });
 });
 
+// Collections/Browse Page (alias for home with filters)
+app.get('/collections', async (req, res) => {
+  try {
+    const { brand, targetAudience, concentration, page = 1 } = req.query;
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    if (brand) query.brand = brand;
+    if (targetAudience) query.targetAudience = targetAudience;
+    if (concentration) query.concentration = concentration;
+
+    const perfumes = await Perfume.find(query)
+      .populate('brand')
+      .populate('comments.author', 'name email')
+      .limit(limit)
+      .skip(skip)
+      .sort({ createdAt: -1 });
+
+    const totalPerfumes = await Perfume.countDocuments(query);
+    const totalPages = Math.ceil(totalPerfumes / limit);
+
+    const brands = await Brand.find().sort({ brandName: 1 });
+
+    res.render('home', {
+      perfumes,
+      brands,
+      featuredPerfumes: [],
+      filters: { brand, targetAudience, concentration, search: '' },
+      pagination: {
+        current: parseInt(page),
+        total: totalPages,
+        totalItems: totalPerfumes
+      },
+      searchQuery: ''
+    });
+  } catch (error) {
+    console.error('Error fetching collections:', error);
+    res.status(500).render('error', { 
+      error: 'Failed to load collections',
+      message: error.message
+    });
+  }
+});
+
+// ======================
+// AUTH ROUTES
+// ======================
+
+// Login Page
+app.get('/auth/login', (req, res) => {
+  if (req.session.user) {
+    return res.redirect('/');
+  }
+  res.render('auth/login', {
+    title: 'Login',
+    redirect: req.query.redirect || '/',
+    error: null
+  });
+});
+
+// Login POST
+app.post('/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const member = await Member.findOne({ email });
+    if (!member) {
+      return res.render('auth/login', {
+        title: 'Login',
+        error: 'Invalid email or password',
+        redirect: req.body.redirect || '/'
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, member.password);
+    if (!isMatch) {
+      return res.render('auth/login', {
+        title: 'Login',
+        error: 'Invalid email or password',
+        redirect: req.body.redirect || '/'
+      });
+    }
+
+    // Set session
+    req.session.user = {
+      _id: member._id.toString(),
+      email: member.email,
+      name: member.name,
+      isAdmin: member.isAdmin,
+      gender: member.gender,
+      YOB: member.YOB
+    };
+
+    const redirectUrl = req.body.redirect || req.query.redirect || '/';
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Login error:', error);
+    res.render('auth/login', {
+      title: 'Login',
+      error: 'An error occurred. Please try again.',
+      redirect: req.body.redirect || '/'
+    });
+  }
+});
+
+// Register Page
+app.get('/auth/register', (req, res) => {
+  if (req.session.user) {
+    return res.redirect('/');
+  }
+  res.render('auth/register', {
+    title: 'Register',
+    redirect: req.query.redirect || '/',
+    error: null
+  });
+});
+
+// Register POST
+app.post('/auth/register', async (req, res) => {
+  try {
+    const { name, email, password, confirmPassword, YOB, gender } = req.body;
+
+    // Validation
+    if (password !== confirmPassword) {
+      return res.render('auth/register', {
+        title: 'Register',
+        error: 'Passwords do not match',
+        redirect: req.body.redirect || '/'
+      });
+    }
+
+    // Check if user exists
+    const existingMember = await Member.findOne({ email });
+    if (existingMember) {
+      return res.render('auth/register', {
+        title: 'Register',
+        error: 'Email already registered',
+        redirect: req.body.redirect || '/'
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new member
+    const member = await Member.create({
+      name,
+      email,
+      password: hashedPassword,
+      YOB: parseInt(YOB),
+      gender: gender === 'true',
+      isAdmin: false
+    });
+
+    // Set session
+    req.session.user = {
+      _id: member._id.toString(),
+      email: member.email,
+      name: member.name,
+      isAdmin: member.isAdmin,
+      gender: member.gender,
+      YOB: member.YOB
+    };
+
+    const redirectUrl = req.body.redirect || req.query.redirect || '/';
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Register error:', error);
+    res.render('auth/register', {
+      title: 'Register',
+      error: 'An error occurred. Please try again.',
+      redirect: req.body.redirect || '/'
+    });
+  }
+});
+
+// Logout
+app.post('/auth/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+    }
+    res.redirect('/');
+  });
+});
+
+// ======================
+// PROTECTED ROUTES
+// ======================
+
+// Auth middleware
+const requireAuth = (req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect('/auth/login?redirect=' + req.originalUrl);
+  }
+  next();
+};
+
+const requireAdmin = (req, res, next) => {
+  if (!req.session.user || !req.session.user.isAdmin) {
+    return res.status(403).render('error', {
+      error: 'Access Denied',
+      message: 'You must be an administrator to access this page.'
+    });
+  }
+  next();
+};
+
+// Profile Page
+app.get('/profile', requireAuth, (req, res) => {
+  res.render('profile', {
+    title: 'My Profile'
+  });
+});
+
+// Admin Dashboard
+app.get('/admin', requireAdmin, (req, res) => {
+  res.render('admin/dashboard', {
+    title: 'Admin Dashboard'
+  });
+});
+
+// ======================
+// COMMENT ROUTES
+// ======================
+
+// Add Comment
+app.post('/perfumes/:id/comments', requireAuth, async (req, res) => {
+  try {
+    const { rating, content } = req.body;
+    const perfume = await Perfume.findById(req.params.id);
+
+    if (!perfume) {
+      return res.status(404).redirect('/');
+    }
+
+    perfume.comments.push({
+      rating: parseInt(rating),
+      content,
+      author: req.session.user._id
+    });
+
+    await perfume.save();
+    res.redirect(`/perfumes/${req.params.id}`);
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.redirect(`/perfumes/${req.params.id}`);
+  }
+});
+
+// Edit Comment
+app.post('/perfumes/:perfumeId/comments/:commentId/edit', requireAuth, async (req, res) => {
+  try {
+    const { rating, content } = req.body;
+    const perfume = await Perfume.findById(req.params.perfumeId);
+
+    if (!perfume) {
+      return res.status(404).redirect('/');
+    }
+
+    const comment = perfume.comments.id(req.params.commentId);
+    if (!comment) {
+      return res.redirect(`/perfumes/${req.params.perfumeId}`);
+    }
+
+    // Check if user is the author or admin
+    if (comment.author.toString() !== req.session.user._id && !req.session.user.isAdmin) {
+      return res.status(403).redirect(`/perfumes/${req.params.perfumeId}`);
+    }
+
+    comment.rating = parseInt(rating);
+    comment.content = content;
+
+    await perfume.save();
+    res.redirect(`/perfumes/${req.params.perfumeId}`);
+  } catch (error) {
+    console.error('Error editing comment:', error);
+    res.redirect(`/perfumes/${req.params.perfumeId}`);
+  }
+});
+
+// Delete Comment
+app.post('/perfumes/:perfumeId/comments/:commentId/delete', requireAuth, async (req, res) => {
+  try {
+    const perfume = await Perfume.findById(req.params.perfumeId);
+
+    if (!perfume) {
+      return res.status(404).redirect('/');
+    }
+
+    const comment = perfume.comments.id(req.params.commentId);
+    if (!comment) {
+      return res.redirect(`/perfumes/${req.params.perfumeId}`);
+    }
+
+    // Check if user is the author or admin
+    if (comment.author.toString() !== req.session.user._id && !req.session.user.isAdmin) {
+      return res.status(403).redirect(`/perfumes/${req.params.perfumeId}`);
+    }
+
+    comment.deleteOne();
+    await perfume.save();
+    res.redirect(`/perfumes/${req.params.perfumeId}`);
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    res.redirect(`/perfumes/${req.params.perfumeId}`);
+  }
+});
+
+// ======================
+// API ROUTES (for AJAX)
+// ======================
+app.use('/api/members', memberRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/perfumes', perfumeRoutes);
+
+// ======================
+// ERROR HANDLERS
+// ======================
+
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
+  res.status(404).render('error', {
+    error: '404 - Page Not Found',
+    message: 'The page you are looking for does not exist.'
   });
 });
 
 // Global error handler
 app.use((error, req, res, next) => {
   console.error('Error:', error);
-  
-  // Mongoose validation error
-  if (error.name === 'ValidationError') {
-    const errors = Object.values(error.errors).map(err => ({
-      field: err.path,
-      message: err.message
-    }));
-    return res.status(400).json({
-      success: false,
-      message: 'Validation Error',
-      errors
-    });
-  }
-  
-  // Mongoose duplicate key error
-  if (error.code === 11000) {
-    const field = Object.keys(error.keyValue)[0];
-    return res.status(400).json({
-      success: false,
-      message: `${field} already exists`
-    });
-  }
-  
-  // JWT errors
-  if (error.name === 'JsonWebTokenError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid token'
-    });
-  }
-  
-  if (error.name === 'TokenExpiredError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Token expired'
-    });
-  }
-
-  res.status(500).json({
-    success: false,
-    message: 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+  res.status(500).render('error', {
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
   });
 });
 
-// Database connection
+// ======================
+// DATABASE & SERVER
+// ======================
+
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/perfume_db');
@@ -104,7 +525,6 @@ const connectDB = async () => {
   }
 };
 
-// Start server
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
@@ -113,6 +533,7 @@ const startServer = async () => {
     
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      console.log(`View the app at: http://localhost:${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (error) {
@@ -124,3 +545,4 @@ const startServer = async () => {
 startServer();
 
 module.exports = app;
+

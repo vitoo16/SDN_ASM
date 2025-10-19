@@ -1,0 +1,271 @@
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card glass-panel fade-in-up">
+            <div class="auth-header">
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join us to discover your perfect scent</p>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <form action="/auth/register" method="POST" class="auth-form" data-loading>
+                <div class="form-group">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        class="form-control" 
+                        placeholder="Enter your full name"
+                        required
+                        minlength="2"
+                        autocomplete="name"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-control" 
+                        placeholder="your@email.com"
+                        required
+                        autocomplete="email"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="YOB" class="form-label">Year of Birth</label>
+                    <input 
+                        type="number" 
+                        id="YOB" 
+                        name="YOB" 
+                        class="form-control" 
+                        placeholder="1990"
+                        required
+                        min="1900"
+                        max="<%= new Date().getFullYear() %>"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    <div class="gender-options">
+                        <label class="gender-option">
+                            <input type="radio" name="gender" value="true" required />
+                            <span class="gender-label">Male</span>
+                        </label>
+                        <label class="gender-option">
+                            <input type="radio" name="gender" value="false" required />
+                            <span class="gender-label">Female</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-control" 
+                        placeholder="Create a password"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                    />
+                    <small class="form-hint">At least 6 characters</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        class="form-control" 
+                        placeholder="Confirm your password"
+                        required
+                        autocomplete="new-password"
+                    />
+                </div>
+
+                <button type="submit" class="btn-primary w-full">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="/auth/login<%= typeof redirect !== 'undefined' && redirect ? '?redirect=' + redirect : '' %>">Sign in</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: radial-gradient(circle at 20% 20%, rgba(216, 198, 255, 0.15), transparent 55%),
+                radial-gradient(circle at 80% 80%, rgba(129, 212, 255, 0.12), transparent 55%),
+                linear-gradient(180deg, #06070a 0%, #10131b 50%, #0b0d12 100%);
+}
+
+.auth-container {
+    max-width: 450px;
+    width: 100%;
+}
+
+.auth-card {
+    padding: 3rem 2.5rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.auth-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.gender-options {
+    display: flex;
+    gap: 1rem;
+}
+
+.gender-option {
+    flex: 1;
+    cursor: pointer;
+}
+
+.gender-option input[type="radio"] {
+    display: none;
+}
+
+.gender-label {
+    display: block;
+    padding: 0.85rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.gender-option input[type="radio"]:checked + .gender-label {
+    border-color: var(--accent-primary);
+    background: rgba(193, 156, 255, 0.2);
+    color: var(--text-primary);
+}
+
+.gender-option:hover .gender-label {
+    border-color: rgba(193, 156, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-hint {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.auth-footer {
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.auth-footer a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.auth-footer a:hover {
+    color: var(--accent-strong);
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+    }
+
+    .gender-options {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+// Password confirmation validation
+document.getElementById('confirmPassword').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (confirmPassword && password !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+document.getElementById('password').addEventListener('input', function() {
+    const confirmPassword = document.getElementById('confirmPassword');
+    if (confirmPassword.value) {
+        confirmPassword.dispatchEvent(new Event('input'));
+    }
+});
+</script>
+

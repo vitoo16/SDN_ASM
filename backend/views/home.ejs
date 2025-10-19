@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odour Perfume - Luxury Fragrance Collection</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/navigation.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <%- include('partials/navigation') %>
+    
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section-new">
+            <div class="hero-background-orb"></div>
+            <div class="container-xl">
+                <div class="hero-grid">
+                    <% if (featuredPerfumes && featuredPerfumes.length > 0) { %>
+                        <!-- Hero Content -->
+                        <div class="hero-content-new fade-in-up" id="heroContent">
+                            <span class="hero-overline">CURATED COLLECTION</span>
+                            <h1 class="hero-title-new">
+                                Minimalist
+                                <span class="hero-title-accent">Gallery Aura</span>
+                            </h1>
+                            <p class="hero-description" id="heroDescription">
+                                <%= featuredPerfumes[0].description.substring(0, 180) %><%= featuredPerfumes[0].description.length > 180 ? '…' : '' %>
+                            </p>
+                            
+                            <div class="hero-actions-new">
+                                <a href="#products" class="btn-primary">
+                                    <span class="material-icons">shopping_bag</span>
+                                    Shop Collection
+                                </a>
+                                <a href="/perfumes/<%= featuredPerfumes[0]._id %>" class="btn-secondary" id="heroViewDetailsBtn">
+                                    <span class="material-icons">play_arrow</span>
+                                    View Details
+                                </a>
+                            </div>
+
+                            <div class="hero-chips">
+                                <span class="hero-chip chip-brand" id="heroChipBrand">
+                                    <%= featuredPerfumes[0].brand.brandName %>
+                                </span>
+                                <span class="hero-chip chip-concentration" id="heroChipConcentration">
+                                    <%= featuredPerfumes[0].concentration %>
+                                </span>
+                                <span class="hero-chip chip-volume" id="heroChipVolume">
+                                    <%= featuredPerfumes[0].volume %> ml
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Hero Carousel -->
+                        <div class="hero-carousel-new">
+                            <div class="hero-carousel-card">
+                                <div class="carousel-shimmer"></div>
+                                <img 
+                                    src="<%= featuredPerfumes[0].uri %>" 
+                                    alt="<%= featuredPerfumes[0].perfumeName %>" 
+                                    class="hero-carousel-image"
+                                    id="heroCarouselImage"
+                                    onerror="handleImageError(this, 'hero')"
+                                />
+                                <div class="image-fallback hero-fallback" id="heroImageFallback" style="display: none;">
+                                    <span class="material-icons" style="font-size: 64px; opacity: 0.5;">broken_image</span>
+                                    <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.7;">Image unavailable</p>
+                                </div>
+                                <div class="carousel-bottom-line"></div>
+                                
+                                <button class="carousel-nav-btn carousel-prev" id="carouselPrev">
+                                    <span class="material-icons">chevron_left</span>
+                                </button>
+                                <button class="carousel-nav-btn carousel-next" id="carouselNext">
+                                    <span class="material-icons">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="hero-content-new fade-in-up">
+                            <span class="hero-overline">CURATED COLLECTION</span>
+                            <h1 class="hero-title-new">
+                                Discover Your
+                                <span class="hero-title-accent">Signature Scent</span>
+                            </h1>
+                            <p class="hero-description">
+                                Explore our curated collection of luxury perfumes from the world's finest brands
+                            </p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <% if (featuredPerfumes && featuredPerfumes.length > 1) { %>
+                    <!-- Carousel Indicators -->
+                    <div class="hero-indicators">
+                        <% featuredPerfumes.forEach(function(perfume, index) { %>
+                            <button 
+                                class="hero-indicator-btn <%= index === 0 ? 'active' : '' %>" 
+                                data-index="<%= index %>"
+                                onclick="goToSlide(<%= index %>)"
+                            >
+                                <%= perfume.perfumeName %>
+                            </button>
+                        <% }); %>
+                    </div>
+                <% } %>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section-new py-6">
+            <div class="container">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="feature-card-new fade-in-up">
+                        <div class="feature-shimmer"></div>
+                        <div class="feature-icon-new" style="border-color: #0ea5e960; box-shadow: 0 16px 32px #0ea5e926;">
+                            <span class="material-icons" style="color: #0ea5e9;">local_shipping</span>
+                        </div>
+                        <h3 class="feature-title-new">Free Shipping</h3>
+                        <p class="feature-text-new">
+                            On orders over $100
+                        </p>
+                    </div>
+
+                    <div class="feature-card-new fade-in-up" style="animation-delay: 0.1s;">
+                        <div class="feature-shimmer"></div>
+                        <div class="feature-icon-new" style="border-color: #10b98160; box-shadow: 0 16px 32px #10b98126;">
+                            <span class="material-icons" style="color: #10b981;">verified_user</span>
+                        </div>
+                        <h3 class="feature-title-new">Authentic Products</h3>
+                        <p class="feature-text-new">
+                            100% genuine fragrances
+                        </p>
+                    </div>
+
+                    <div class="feature-card-new fade-in-up" style="animation-delay: 0.2s;">
+                        <div class="feature-shimmer"></div>
+                        <div class="feature-icon-new" style="border-color: #f59e0b60; box-shadow: 0 16px 32px #f59e0b26;">
+                            <span class="material-icons" style="color: #f59e0b;">refresh</span>
+                        </div>
+                        <h3 class="feature-title-new">Easy Returns</h3>
+                        <p class="feature-text-new">
+                            30-day return policy
+                        </p>
+                    </div>
+
+                    <div class="feature-card-new fade-in-up" style="animation-delay: 0.3s;">
+                        <div class="feature-shimmer"></div>
+                        <div class="feature-icon-new" style="border-color: #8b5cf660; box-shadow: 0 16px 32px #8b5cf626;">
+                            <span class="material-icons" style="color: #8b5cf6;">support_agent</span>
+                        </div>
+                        <h3 class="feature-title-new">24/7 Support</h3>
+                        <p class="feature-text-new">
+                            Dedicated customer service
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section id="products" class="products-section-new py-6">
+            <div class="container-xl">
+                <div class="products-section-header glass-panel fade-in-up mb-5">
+                    <div class="section-header-shimmer"></div>
+                    <div class="section-header-content">
+                        <div class="section-header-title-row">
+                            <span class="material-icons section-icon">tune</span>
+                            <h2 class="section-title-new">Explore Our Collection</h2>
+                        </div>
+                        <p class="section-subtitle-new">
+                            Discover curated fragrances with precise filters and a gallery-grade shopping experience.
+                        </p>
+                        <div class="section-stats">
+                            <span class="stat-chip stat-primary">
+                                <%= perfumes.length %> Total Selections
+                            </span>
+                            <span class="stat-chip stat-secondary">
+                                <%= brands.length %> Maisons
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="products-layout">
+                    <!-- Filters Sidebar -->
+                    <aside class="filters-aside">
+                        <div class="filter-sidebar">
+                            <h3 class="filter-title">Filters</h3>
+                            
+                            <div id="filterForm">
+                                <div class="filter-group">
+                                    <label class="filter-label">Brand</label>
+                                    <select id="brandFilter" class="filter-select">
+                                        <option value="">All Brands</option>
+                                        <% if (brands && brands.length > 0) { %>
+                                            <% brands.forEach(function(brand) { %>
+                                                <option value="<%= brand.brandName %>">
+                                                    <%= brand.brandName %>
+                                                </option>
+                                            <% }); %>
+                                        <% } %>
+                                    </select>
+                                </div>
+
+                                <div class="filter-group">
+                                    <label class="filter-label">Target Audience</label>
+                                    <select id="targetAudienceFilter" class="filter-select">
+                                        <option value="">All</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="unisex">Unisex</option>
+                                    </select>
+                                </div>
+
+                                <div class="filter-group">
+                                    <label class="filter-label">Concentration</label>
+                                    <select id="concentrationFilter" class="filter-select">
+                                        <option value="">All</option>
+                                        <option value="Extrait">Extrait</option>
+                                        <option value="EDP">EDP</option>
+                                        <option value="EDT">EDT</option>
+                                        <option value="EDC">EDC</option>
+                                    </select>
+                                </div>
+
+                                <button type="button" class="clear-filter-btn" onclick="clearFilters()">Clear Filters</button>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Products Grid -->
+                    <div class="products-main">
+                        <% if (perfumes && perfumes.length > 0) { %>
+                            <div class="grid grid-cols-3 gap-4" id="perfumeGrid">
+                                <% perfumes.forEach(function(perfume, index) { %>
+                                    <div class="perfume-card fade-in-up" 
+                                         data-brand="<%= perfume.brand.brandName %>"
+                                         data-target-audience="<%= perfume.targetAudience %>"
+                                         data-concentration="<%= perfume.concentration %>"
+                                         style="animation-delay: <%= index * 0.1 %>s;">
+                                        <div class="perfume-card-image-wrapper">
+                                            <a href="/perfumes/<%= perfume._id %>">
+                                                <img src="<%= perfume.uri %>" 
+                                                     alt="<%= perfume.perfumeName %>" 
+                                                     class="perfume-card-image"
+                                                     onerror="handleImageError(this, 'card')">
+                                            </a>
+                                            <div class="image-fallback card-fallback" style="display: none;">
+                                                <span class="material-icons" style="font-size: 48px; opacity: 0.3;">broken_image</span>
+                                            </div>
+                                        </div>
+                                        <div class="perfume-card-body">
+                                            <div class="perfume-card-brand"><%= perfume.brand.brandName %></div>
+                                            <h3 class="perfume-card-title">
+                                                <a href="/perfumes/<%= perfume._id %>"><%= perfume.perfumeName %></a>
+                                            </h3>
+                                            
+                                            <div class="perfume-card-meta">
+                                                <% if (perfume.comments && perfume.comments.length > 0) { %>
+                                                    <% const avgRating = perfume.comments.reduce((sum, c) => sum + c.rating, 0) / perfume.comments.length; %>
+                                                    <div class="perfume-card-rating">
+                                                        <% for (let i = 0; i < 3; i++) { %>
+                                                            <% if (i < Math.floor(avgRating)) { %>
+                                                                <span class="material-icons star-icon">star</span>
+                                                            <% } else if (i < avgRating) { %>
+                                                                <span class="material-icons star-icon">star_half</span>
+                                                            <% } else { %>
+                                                                <span class="material-icons star-icon" style="opacity: 0.3;">star_border</span>
+                                                            <% } %>
+                                                        <% } %>
+                                                        <span class="rating-text"><%= avgRating.toFixed(1) %> (<%= perfume.comments.length %>)</span>
+                                                    </div>
+                                                <% } %>
+                                                
+                                                <% if (perfume.concentration === 'Extrait') { %>
+                                                    <span class="perfume-card-badge">
+                                                        <span class="material-icons" style="font-size: 1rem;">star</span>
+                                                        Extrait
+                                                    </span>
+                                                <% } %>
+                                            </div>
+                                            
+                                            <div class="perfume-card-price">
+                                                <span class="price-amount">$<%= perfume.price.toFixed(2) %></span>
+                                                <button class="add-to-cart-btn" onclick="addToCart('<%= perfume._id %>', event)">
+                                                    <span class="material-icons">add_shopping_cart</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+
+                            <!-- Pagination -->
+                            <% if (pagination && pagination.total > 1) { %>
+                                <div class="pagination">
+                                    <% if (pagination.current > 1) { %>
+                                        <a href="?<%= new URLSearchParams({...filters, page: pagination.current - 1}).toString() %>" class="pagination-btn">
+                                            <span class="material-icons">chevron_left</span>
+                                        </a>
+                                    <% } else { %>
+                                        <button class="pagination-btn" disabled>
+                                            <span class="material-icons">chevron_left</span>
+                                        </button>
+                                    <% } %>
+
+                                    <span class="pagination-info">
+                                        Page <%= pagination.current %> of <%= pagination.total %>
+                                    </span>
+
+                                    <% if (pagination.current < pagination.total) { %>
+                                        <a href="?<%= new URLSearchParams({...filters, page: pagination.current + 1}).toString() %>" class="pagination-btn">
+                                            <span class="material-icons">chevron_right</span>
+                                        </a>
+                                    <% } else { %>
+                                        <button class="pagination-btn" disabled>
+                                            <span class="material-icons">chevron_right</span>
+                                        </button>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔍</div>
+                                <h3 class="empty-state-title">No Perfumes Found</h3>
+                                <p class="empty-state-text">
+                                    Try adjusting your filters or search terms
+                                </p>
+                                <a href="/" class="btn-primary">Clear Filters</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section class="newsletter-section-new py-6">
+            <div class="newsletter-background-orb"></div>
+            <div class="container">
+                <div class="newsletter-grid">
+                    <!-- Left Column - Text & Social -->
+                    <div class="newsletter-content fade-in-up">
+                        <span class="newsletter-overline">STAY UPDATED</span>
+                        <h2 class="newsletter-title-new">Join Our Newsletter</h2>
+                        <p class="newsletter-text-new">
+                            Subscribe for curated releases, private previews, and atelier stories delivered with poise.
+                        </p>
+                        
+                        <!-- Social Links -->
+                        <div class="newsletter-social">
+                            <a href="#" class="social-link-new" aria-label="Instagram">
+                                <span class="material-icons">photo_camera</span>
+                            </a>
+                            <a href="#" class="social-link-new" aria-label="Facebook">
+                                <span class="material-icons">facebook</span>
+                            </a>
+                            <a href="#" class="social-link-new" aria-label="Twitter">
+                                <span class="material-icons">tag</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Form -->
+                    <div class="newsletter-form-wrapper fade-in-up" style="animation-delay: 0.2s;">
+                        <h3 class="newsletter-form-title">Subscribe Now</h3>
+                        <form class="newsletter-form-new" onsubmit="return handleNewsletterSubmit(event)">
+                            <input 
+                                type="email" 
+                                class="newsletter-input-new" 
+                                placeholder="Enter your email"
+                                required
+                            />
+                            <button type="submit" class="newsletter-submit-btn">
+                                Subscribe
+                                <span class="material-icons">send</span>
+                            </button>
+                        </form>
+                        <p class="newsletter-privacy">
+                            By subscribing, you agree to our 
+                            <a href="#" class="privacy-link">Privacy Policy</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <!-- Initialize featured perfumes data BEFORE loading main.js -->
+    <script>
+        // Store featured perfumes data for carousel on window object
+        window.featuredPerfumesData = <%- JSON.stringify(featuredPerfumes || []) %>;
+        
+        if (window.featuredPerfumesData.length > 0) {
+            console.log('Featured perfumes loaded:', window.featuredPerfumesData.length, 'items');
+        } else {
+            console.log('No featured perfumes available');
+        }
+
+        // ===== CLIENT-SIDE FILTERING =====
+        let allPerfumeCards = [];
+
+        function initFilters() {
+            allPerfumeCards = Array.from(document.querySelectorAll('.perfume-card'));
+            
+            // Attach event listeners
+            document.getElementById('brandFilter').addEventListener('change', applyFilters);
+            document.getElementById('targetAudienceFilter').addEventListener('change', applyFilters);
+            document.getElementById('concentrationFilter').addEventListener('change', applyFilters);
+        }
+
+        function applyFilters() {
+            const brandFilter = document.getElementById('brandFilter').value.toLowerCase();
+            const targetAudienceFilter = document.getElementById('targetAudienceFilter').value.toLowerCase();
+            const concentrationFilter = document.getElementById('concentrationFilter').value;
+
+            let visibleCount = 0;
+
+            allPerfumeCards.forEach(function(card) {
+                const brand = (card.dataset.brand || '').toLowerCase();
+                const targetAudience = (card.dataset.targetAudience || '').toLowerCase();
+                const concentration = card.dataset.concentration || '';
+
+                const matchesBrand = !brandFilter || brand === brandFilter;
+                const matchesAudience = !targetAudienceFilter || targetAudience === targetAudienceFilter;
+                const matchesConcentration = !concentrationFilter || concentration === concentrationFilter;
+
+                if (matchesBrand && matchesAudience && matchesConcentration) {
+                    card.style.display = '';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(function() {
+                        card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, visibleCount * 50);
+                    
+                    visibleCount++;
+                } else {
+                    card.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(-10px)';
+                    
+                    setTimeout(function() {
+                        card.style.display = 'none';
+                    }, 200);
+                }
+            });
+
+            // Show/hide empty state
+            const emptyState = document.querySelector('.empty-state');
+            if (visibleCount === 0) {
+                if (!emptyState) {
+                    const grid = document.getElementById('perfumeGrid');
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-state';
+                    empty.style.gridColumn = '1 / -1';
+                    empty.innerHTML = `
+                        <div class="empty-state-icon">🔍</div>
+                        <h3 class="empty-state-title">No Perfumes Found</h3>
+                        <p class="empty-state-text">Try adjusting your filters</p>
+                        <button onclick="clearFilters()" class="btn-primary">Clear Filters</button>
+                    `;
+                    grid.appendChild(empty);
+                }
+            } else if (emptyState) {
+                emptyState.remove();
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('brandFilter').value = '';
+            document.getElementById('targetAudienceFilter').value = '';
+            document.getElementById('concentrationFilter').value = '';
+            
+            allPerfumeCards.forEach(function(card, index) {
+                card.style.display = '';
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(function() {
+                    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 30);
+            });
+
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+        }
+
+        // Initialize filters when DOM is ready
+        window.addEventListener('DOMContentLoaded', function() {
+            initFilters();
+        });
+
+        // ===== IMAGE FALLBACK HANDLER =====
+        function handleImageError(img, type) {
+            console.log('Image load error:', img.src);
+            
+            if (type === 'hero') {
+                // Hide image, show fallback
+                img.style.display = 'none';
+                const fallback = document.getElementById('heroImageFallback');
+                if (fallback) {
+                    fallback.style.display = 'flex';
+                }
+            } else if (type === 'card') {
+                // Hide image, show fallback
+                img.style.display = 'none';
+                const wrapper = img.closest('.perfume-card-image-wrapper');
+                if (wrapper) {
+                    const fallback = wrapper.querySelector('.card-fallback');
+                    if (fallback) {
+                        fallback.style.display = 'flex';
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Load JavaScript files -->
+    <script src="/js/main.js"></script>
+    <script src="/js/cart.js"></script>
+    
+    <!-- Debug: Verify carousel elements exist -->
+    <script>
+        window.addEventListener('load', function() {
+            console.log('=== CAROUSEL DEBUG ===');
+            console.log('featuredPerfumesData:', window.featuredPerfumesData);
+            console.log('carouselPrev:', document.getElementById('carouselPrev'));
+            console.log('carouselNext:', document.getElementById('carouselNext'));
+            console.log('heroCarouselImage:', document.getElementById('heroCarouselImage'));
+        });
+    </script>
+</body>
+</html>

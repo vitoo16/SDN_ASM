@@ -1,0 +1,93 @@
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-grid">
+            <!-- Brand Section -->
+            <div class="footer-section">
+                <div class="footer-brand">
+                    <span class="footer-brand-icon">🌸</span>
+                    <span class="footer-brand-name">Odour</span>
+                </div>
+                <p class="footer-description">
+                    Discover the finest collection of luxury perfumes. Experience the art of fragrance with our curated selection.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-link" aria-label="Facebook">
+                        <span class="material-icons">facebook</span>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Instagram">
+                        <span class="material-icons">photo_camera</span>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Twitter">
+                        <span class="material-icons">tag</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-section">
+                <h3 class="footer-title">Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/?targetAudience=male">Men's Perfumes</a></li>
+                    <li><a href="/?targetAudience=female">Women's Perfumes</a></li>
+                    <li><a href="/?targetAudience=unisex">Unisex Perfumes</a></li>
+                </ul>
+            </div>
+
+            <!-- Customer Service -->
+            <div class="footer-section">
+                <h3 class="footer-title">Customer Service</h3>
+                <ul class="footer-links">
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/shipping">Shipping Info</a></li>
+                    <li><a href="/returns">Returns</a></li>
+                </ul>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="footer-section">
+                <h3 class="footer-title">Newsletter</h3>
+                <p class="footer-newsletter-text">
+                    Subscribe to get special offers and updates.
+                </p>
+                <form class="newsletter-form" onsubmit="return handleNewsletterSubmit(event)">
+                    <input 
+                        type="email" 
+                        class="newsletter-input" 
+                        placeholder="Enter your email"
+                        required
+                    />
+                    <button type="submit" class="newsletter-btn">
+                        <span class="material-icons">send</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="footer-copyright">
+                © <%= new Date().getFullYear() %> Odour Perfume. All rights reserved.
+            </p>
+            <div class="footer-bottom-links">
+                <a href="/privacy">Privacy Policy</a>
+                <span class="footer-divider">|</span>
+                <a href="/terms">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+function handleNewsletterSubmit(event) {
+    event.preventDefault();
+    const email = event.target.querySelector('input[type="email"]').value;
+    
+    // Show success message (you can implement actual newsletter subscription)
+    alert('Thank you for subscribing! We\'ll send updates to ' + email);
+    event.target.reset();
+    
+    return false;
+}
+</script>
+

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>Odour Perfume</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/navigation.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <% if (typeof additionalCSS !== 'undefined') { %>
+        <% additionalCSS.forEach(function(css) { %>
+            <link rel="stylesheet" href="<%= css %>">
+        <% }); %>
+    <% } %>
+</head>
+<body>
+    <%- include('partials/navigation') %>
+    
+    <main>
+        <%- body %>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <!-- Base JavaScript -->
+    <script src="/js/main.js"></script>
+    <script src="/js/cart.js"></script>
+    <% if (typeof additionalJS !== 'undefined') { %>
+        <% additionalJS.forEach(function(js) { %>
+            <script src="<%= js %>"></script>
+        <% }); %>
+    <% } %>
+</body>
+</html>
+
