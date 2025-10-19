@@ -37,7 +37,8 @@ import { useCart } from "../context/CartContext";
 export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAuthenticated, logout, openAuthModal, setPreLoginPath } = useAuth();
+  const { user, isAuthenticated, logout, openAuthModal, setPreLoginPath } =
+    useAuth();
   const { getCartCount } = useCart();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -120,7 +121,9 @@ export const Navigation: React.FC = () => {
                   },
                 }}
               >
-                <ListItemIcon sx={{ color: "inherit" }}>{item.icon}</ListItemIcon>
+                <ListItemIcon sx={{ color: "inherit" }}>
+                  {item.icon}
+                </ListItemIcon>
                 <ListItemText
                   primaryTypographyProps={{
                     letterSpacing: "0.12em",
@@ -304,32 +307,14 @@ export const Navigation: React.FC = () => {
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 1,
                 fontFamily: "'Playfair Display', serif",
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
-                color: "rgba(255,255,255,0.92)",
+                color: "rgba(245,245,248,0.94)",
+                textShadow: "0 2px 6px rgba(0,0,0,0.45)",
               }}
               onClick={() => navigate("/")}
             >
-              <Box
-                sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  background:
-                    "linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(198, 162, 255, 0.8) 100%)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#0b0d12",
-                  fontSize: "1.2rem",
-                  fontWeight: 700,
-                  boxShadow: "0 10px 25px rgba(193, 156, 255, 0.25)",
-                }}
-              >
-                O
-              </Box>
               Odour
             </Typography>
           </Box>
@@ -445,7 +430,8 @@ export const Navigation: React.FC = () => {
                     fontSize: "0.65rem",
                     height: 18,
                     minWidth: 18,
-                    background: "linear-gradient(135deg, #c19cff 0%, #9ad6f7 100%)",
+                    background:
+                      "linear-gradient(135deg, #c19cff 0%, #9ad6f7 100%)",
                     color: "#0b0d12",
                   },
                 }}
@@ -522,7 +508,9 @@ export const Navigation: React.FC = () => {
                     </MenuItem>
                   )}
 
-                  <Divider sx={{ my: 1, borderColor: "rgba(255,255,255,0.08)" }} />
+                  <Divider
+                    sx={{ my: 1, borderColor: "rgba(255,255,255,0.08)" }}
+                  />
 
                   <MenuItem
                     onClick={handleLogout}

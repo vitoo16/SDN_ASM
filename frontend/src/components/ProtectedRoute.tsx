@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import React from "react";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { CircularProgress, Box } from "@mui/material";
 import { AccessDeniedPage } from "../pages/AccessDeniedPage";
@@ -13,22 +13,36 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requireAdmin = false,
 }) => {
-  const location = useLocation();
-  const { isAuthenticated, isLoading, user, openAuthModal, setPreLoginPath } =
-    useAuth();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      setPreLoginPath(location.pathname);
-      openAuthModal("login");
-    }
-  }, [
-    isLoading,
+  // const location = useLocation();
+  const {
     isAuthenticated,
-    openAuthModal,
-    setPreLoginPath,
-    location.pathname,
-  ]);
+    isLoading,
+    user,
+    // openAuthModal,
+    // setPreLoginPath,
+    // isAuthModalOpen,
+  } = useAuth();
+
+  // useEffect(() => {
+  //   if (!isLoading && !isAuthenticated) {
+  //     setPreLoginPath(location.pathname);
+
+  //     // if (!isAuthModalOpen) {
+  //     //   openAuthModal("login");
+  //     // }
+  //   }
+  // }, [
+  //   isLoading,
+  //   isAuthenticated,
+  //   openAuthModal,
+  //   setPreLoginPath,
+  //   isAuthModalOpen,
+  //   location.pathname,
+  // ]);
+
+  if (!isLoading && !isAuthenticated) {
+    return <AccessDeniedPage />;
+  }
 
   if (isLoading) {
     return (
