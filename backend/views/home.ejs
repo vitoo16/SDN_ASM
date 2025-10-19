@@ -87,9 +87,9 @@
                                 <span class="hero-title-accent">Signature Scent</span>
                             </h1>
                             <p class="hero-description">
-                                Explore our curated collection of luxury perfumes from the world's finest brands
-                            </p>
-                        </div>
+                        Explore our curated collection of luxury perfumes from the world's finest brands
+                    </p>
+                    </div>
                     <% } %>
                 </div>
 
@@ -105,7 +105,7 @@
                                 <%= perfume.perfumeName %>
                             </button>
                         <% }); %>
-                    </div>
+                </div>
                 <% } %>
             </div>
         </section>
@@ -123,7 +123,7 @@
                         <p class="feature-text-new">
                             On orders over $100
                         </p>
-                    </div>
+                </div>
 
                     <div class="feature-card-new fade-in-up" style="animation-delay: 0.1s;">
                         <div class="feature-shimmer"></div>
@@ -234,6 +234,26 @@
 
                     <!-- Products Grid -->
                     <div class="products-main">
+                        <!-- Search Bar -->
+                        <div class="search-bar-container fade-in-up">
+                            <div class="search-input-wrapper">
+                                <span class="material-icons search-icon">search</span>
+                                <input 
+                                    type="text" 
+                                    id="searchInput" 
+                                    class="search-input-field" 
+                                    placeholder="Search perfumes by name..."
+                                    oninput="handleSearch()"
+                                />
+                                <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()" style="display: none;">
+                                    <span class="material-icons">close</span>
+                                </button>
+                            </div>
+                            <div class="search-result-chip" id="searchResultChip" style="display: none;">
+                                <span id="searchResultCount">0</span> <span id="searchResultLabel">products</span>
+                            </div>
+                        </div>
+
                         <% if (perfumes && perfumes.length > 0) { %>
                             <div class="grid grid-cols-3 gap-4" id="perfumeGrid">
                                 <% perfumes.forEach(function(perfume, index) { %>
@@ -243,12 +263,12 @@
                                          data-concentration="<%= perfume.concentration %>"
                                          style="animation-delay: <%= index * 0.1 %>s;">
                                         <div class="perfume-card-image-wrapper">
-                                            <a href="/perfumes/<%= perfume._id %>">
+                                        <a href="/perfumes/<%= perfume._id %>">
                                                 <img src="<%= perfume.uri %>" 
                                                      alt="<%= perfume.perfumeName %>" 
                                                      class="perfume-card-image"
                                                      onerror="handleImageError(this, 'card')">
-                                            </a>
+                                        </a>
                                             <div class="image-fallback card-fallback" style="display: none;">
                                                 <span class="material-icons" style="font-size: 48px; opacity: 0.3;">broken_image</span>
                                             </div>
@@ -369,17 +389,17 @@
                     <div class="newsletter-form-wrapper fade-in-up" style="animation-delay: 0.2s;">
                         <h3 class="newsletter-form-title">Subscribe Now</h3>
                         <form class="newsletter-form-new" onsubmit="return handleNewsletterSubmit(event)">
-                            <input 
-                                type="email" 
+                        <input 
+                            type="email" 
                                 class="newsletter-input-new" 
-                                placeholder="Enter your email"
-                                required
-                            />
+                            placeholder="Enter your email"
+                            required
+                        />
                             <button type="submit" class="newsletter-submit-btn">
                                 Subscribe
                                 <span class="material-icons">send</span>
                             </button>
-                        </form>
+                    </form>
                         <p class="newsletter-privacy">
                             By subscribing, you agree to our 
                             <a href="#" class="privacy-link">Privacy Policy</a>
@@ -415,7 +435,42 @@
             document.getElementById('concentrationFilter').addEventListener('change', applyFilters);
         }
 
+        // Search functionality
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const clearBtn = document.getElementById('searchClearBtn');
+            
+            if (searchTerm) {
+                clearBtn.style.display = 'flex';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+            
+            applyFilters();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').style.display = 'none';
+            applyFilters();
+        }
+
+        function updateSearchResultCount(count) {
+            const chip = document.getElementById('searchResultChip');
+            const countSpan = document.getElementById('searchResultCount');
+            const labelSpan = document.getElementById('searchResultLabel');
+            
+            if (count > 0) {
+                countSpan.textContent = count;
+                labelSpan.textContent = count === 1 ? 'product' : 'products';
+                chip.style.display = 'block';
+            } else {
+                chip.style.display = 'none';
+            }
+        }
+
         function applyFilters() {
+            const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
             const brandFilter = document.getElementById('brandFilter').value.toLowerCase();
             const targetAudienceFilter = document.getElementById('targetAudienceFilter').value.toLowerCase();
             const concentrationFilter = document.getElementById('concentrationFilter').value;
@@ -423,15 +478,17 @@
             let visibleCount = 0;
 
             allPerfumeCards.forEach(function(card) {
+                const perfumeName = (card.querySelector('.perfume-card-title')?.textContent || '').toLowerCase();
                 const brand = (card.dataset.brand || '').toLowerCase();
                 const targetAudience = (card.dataset.targetAudience || '').toLowerCase();
                 const concentration = card.dataset.concentration || '';
 
+                const matchesSearch = !searchTerm || perfumeName.includes(searchTerm);
                 const matchesBrand = !brandFilter || brand === brandFilter;
                 const matchesAudience = !targetAudienceFilter || targetAudience === targetAudienceFilter;
                 const matchesConcentration = !concentrationFilter || concentration === concentrationFilter;
 
-                if (matchesBrand && matchesAudience && matchesConcentration) {
+                if (matchesSearch && matchesBrand && matchesAudience && matchesConcentration) {
                     card.style.display = '';
                     card.style.opacity = '0';
                     card.style.transform = 'translateY(20px)';
@@ -456,6 +513,9 @@
 
             // Show/hide empty state
             const emptyState = document.querySelector('.empty-state');
+            // Update search result count
+            updateSearchResultCount(visibleCount);
+
             if (visibleCount === 0) {
                 if (!emptyState) {
                     const grid = document.getElementById('perfumeGrid');
