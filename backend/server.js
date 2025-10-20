@@ -7,11 +7,13 @@ const MongoStore = require("connect-mongo");
 const cookieParser = require("cookie-parser");
 const methodOverride = require("method-override");
 const jwt = require("jsonwebtoken");
+const passport = require("./config/passport");
 
 // Import routes
 const memberRoutes = require("./routes/members");
 const brandRoutes = require("./routes/brands");
 const perfumeRoutes = require("./routes/perfumes");
+const authRoutes = require("./routes/auth");
 
 const app = express();
 
@@ -53,6 +55,10 @@ app.use(
     },
   })
 );
+
+// Initialize Passport and restore authentication state from session
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Static files
 app.use(express.static(path.join(__dirname, "public")));
@@ -630,6 +636,9 @@ app.post(
 app.use("/api/members", memberRoutes);
 app.use("/api/brands", brandRoutes);
 app.use("/api/perfumes", perfumeRoutes);
+
+// OAuth Routes
+app.use("/auth", authRoutes);
 
 // ======================
 // ERROR HANDLERS

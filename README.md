@@ -34,6 +34,7 @@ A comprehensive perfume e-commerce platform built with MongoDB, Express.js, Reac
 
 ### Additional Features
 - 🔐 JWT-based authentication with token refresh
+- 🌐 **Google OAuth 2.0 Integration** - Sign in with Google (NEW!)
 - 👤 Role-based access control (Admin/Member)
 - 🛡️ Password hashing with bcrypt
 - 📱 Responsive Material-UI design
@@ -82,7 +83,7 @@ cd ..
 
 ### 2. Environment Setup
 
-Create `.env` file in the root directory:
+Create `.env` file in the root directory (or copy from `env.template`):
 
 ```env
 MONGODB_URI=mongodb://localhost:27017/perfume_db
@@ -91,6 +92,19 @@ JWT_EXPIRES_IN=30d
 PORT=5000
 NODE_ENV=development
 CLIENT_URL=http://localhost:3000
+SESSION_SECRET=your-session-secret-key
+
+# Google OAuth 2.0 (Optional - for Google Sign In)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:5000/auth/google/callback
+```
+
+**For Google OAuth Setup**: See [QUICK_START_GOOGLE_OAUTH.md](./QUICK_START_GOOGLE_OAUTH.md)
+
+**Generate secure secrets**:
+```bash
+npm run generate-secrets
 ```
 
 Create `frontend/.env`:
@@ -134,6 +148,8 @@ The application will be available at:
 ### Authentication
 - `POST /api/members/register` - Register new member
 - `POST /api/members/login` - Login member
+- `GET /auth/google` - Initiate Google OAuth (NEW!)
+- `GET /auth/google/callback` - Google OAuth callback (NEW!)
 
 ### Members
 - `GET /api/members/profile` - Get current user profile (Protected)
@@ -166,11 +182,14 @@ The application will be available at:
 ```javascript
 {
   email: String (unique, required),
-  password: String (hashed, required), 
+  password: String (hashed, required for local auth), 
   name: String (required),
-  YOB: Number (required),
-  gender: Boolean (required), // true = male, false = female
-  isAdmin: Boolean (default: false)
+  YOB: Number (required for local auth),
+  gender: Boolean (required for local auth), // true = male, false = female
+  isAdmin: Boolean (default: false),
+  provider: String (enum: ['local', 'google'], default: 'local'), // NEW!
+  googleId: String (unique, sparse), // NEW!
+  avatar: String // Google profile picture URL (NEW!)
 }
 ```
 
@@ -209,11 +228,13 @@ The application will be available at:
 ## 🔐 Security Features
 
 - **JWT Authentication**: Secure token-based authentication
+- **OAuth 2.0**: Google Sign In integration (NEW!)
 - **Password Hashing**: bcrypt with salt rounds
 - **Role-Based Access**: Admin/Member permissions
 - **Self-Access Control**: Members can only edit their own data
 - **Input Validation**: Server-side validation with express-validator
 - **CORS Configuration**: Proper cross-origin request handling
+- **Session Management**: Secure session storage with MongoDB
 
 ## 🎨 UI/UX Features
 
@@ -266,8 +287,10 @@ Test the application with the seeded data:
 - Node.js & Express.js
 - MongoDB & Mongoose
 - JWT for authentication
+- Passport.js with Google OAuth 2.0 (NEW!)
 - bcrypt for password hashing
 - express-validator for validation
+- express-session with MongoStore
 
 **Frontend:**
 - React 18 with TypeScript
@@ -275,6 +298,22 @@ Test the application with the seeded data:
 - React Router v6
 - React Hook Form with Yup validation
 - Axios for API calls
+
+## 📚 Additional Documentation
+
+- **[QUICK_START_GOOGLE_OAUTH.md](./QUICK_START_GOOGLE_OAUTH.md)** - Setup Google OAuth in 5 minutes
+- **[GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md)** - Detailed Google OAuth guide
+- **[CHANGELOG_GOOGLE_OAUTH.md](./CHANGELOG_GOOGLE_OAUTH.md)** - Complete changelog for OAuth integration
+- **[env.template](./env.template)** - Environment variables template
+
+## 🆕 What's New
+
+### October 20, 2025 - Google OAuth 2.0 Integration
+- ✅ Sign in with Google button
+- ✅ Automatic account creation/linking
+- ✅ Google profile picture support
+- ✅ Passport.js integration
+- ✅ Backward compatible with existing accounts
 
 ## 📝 License
 
