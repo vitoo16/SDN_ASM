@@ -1,7 +1,8 @@
 import React from "react";
-import { CredentialResponse } from "@react-oauth/google";
+import { useGoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { Button, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import axios from "axios";
 
 interface GoogleLoginButtonProps {
   onSuccess: (credentialResponse: CredentialResponse) => void;
@@ -90,60 +91,43 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Open Google OAuth in popup
-    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/auth/google/callback`;
-    const scope = "openid profile email";
-    const responseType = "token id_token";
-    
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-      `client_id=${clientId}&` +
-      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-      `response_type=${responseType}&` +
-      `scope=${encodeURIComponent(scope)}&` +
-      `nonce=${Math.random().toString(36)}`;
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        // Fetch user info from Google using the access token
+        const userInfoResponse = await axios.get(
+          'https://www.googleapis.com/oauth2/v3/userinfo',
+          {
+            headers: {
+              Authorization: `Bearer ${tokenResponse.access_token}`,
+            },
+          }
+        );
 
-    const width = 500;
-    const height = 600;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
+        // Create a credential-like object with the ID token equivalent
+        // We'll send the access_token to our backend which will verify it
+        const credentialResponse: CredentialResponse = {
+          credential: tokenResponse.access_token,
+          select_by: 'btn',
+          clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+        };
 
-    const popup = window.open(
-      authUrl,
-      "Google Sign In",
-      `width=${width},height=${height},left=${left},top=${top}`
-    );
-
-    // Listen for the credential from popup
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      
-      if (event.data.type === "GOOGLE_AUTH_SUCCESS") {
-        window.removeEventListener("message", handleMessage);
-        if (popup) popup.close();
-        onSuccess({ credential: event.data.credential } as CredentialResponse);
-      } else if (event.data.type === "GOOGLE_AUTH_ERROR") {
-        window.removeEventListener("message", handleMessage);
-        if (popup) popup.close();
+        onSuccess(credentialResponse);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
         if (onError) onError();
       }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    // Cleanup if popup is closed
-    const checkPopup = setInterval(() => {
-      if (popup && popup.closed) {
-        clearInterval(checkPopup);
-        window.removeEventListener("message", handleMessage);
-      }
-    }, 1000);
-  };
+    },
+    onError: () => {
+      console.error("Google Login Error");
+      if (onError) onError();
+    },
+    flow: 'implicit', // Use implicit flow for better UX in popup
+  });
 
   return (
     <Box sx={{ width: "100%" }}>
-      <GoogleButton onClick={handleGoogleLogin} disabled={disabled}>
+      <GoogleButton onClick={() => login()} disabled={disabled}>
         <GoogleIcon />
         {getButtonText()}
       </GoogleButton>
