@@ -111,16 +111,16 @@ app.get("/", async (req, res) => {
 
     // Build filter query
     let query = {};
-    if (search) {
+    if (search && search !== 'undefined') {
       query.perfumeName = { $regex: search, $options: "i" };
     }
-    if (brand) {
+    if (brand && brand !== 'undefined') {
       query.brand = brand;
     }
-    if (targetAudience) {
+    if (targetAudience && targetAudience !== 'undefined') {
       query.targetAudience = targetAudience;
     }
-    if (concentration) {
+    if (concentration && concentration !== 'undefined') {
       query.concentration = concentration;
     }
 
@@ -543,6 +543,12 @@ app.post("/perfumes/:id/comments", requireAuth, async (req, res) => {
       return res.status(404).redirect("/");
     }
 
+    // Check if user already commented on this perfume
+    if (perfume.hasUserCommented(req.session.user._id)) {
+      req.session.errorMessage = "You have already reviewed this perfume. You can edit your existing review instead.";
+      return res.redirect(`/perfumes/${req.params.id}`);
+    }
+
     perfume.comments.push({
       rating: parseInt(rating),
       content,
@@ -550,9 +556,11 @@ app.post("/perfumes/:id/comments", requireAuth, async (req, res) => {
     });
 
     await perfume.save();
+    req.session.successMessage = "Review submitted successfully!";
     res.redirect(`/perfumes/${req.params.id}`);
   } catch (error) {
     console.error("Error adding comment:", error);
+    req.session.errorMessage = "Failed to submit review. Please try again.";
     res.redirect(`/perfumes/${req.params.id}`);
   }
 });
