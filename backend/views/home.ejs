@@ -262,55 +262,57 @@
                                          data-target-audience="<%= perfume.targetAudience %>"
                                          data-concentration="<%= perfume.concentration %>"
                                          style="animation-delay: <%= index * 0.1 %>s;">
-                                        <div class="perfume-card-image-wrapper">
-                                        <a href="/perfumes/<%= perfume._id %>">
+                                        
+                                        <!-- Clickable card link -->
+                                        <a href="/perfumes/<%= perfume._id %>" class="perfume-card-link">
+                                            <div class="perfume-card-image-wrapper">
                                                 <img src="<%= perfume.uri %>" 
                                                      alt="<%= perfume.perfumeName %>" 
                                                      class="perfume-card-image"
                                                      onerror="handleImageError(this, 'card')">
-                                        </a>
-                                            <div class="image-fallback card-fallback" style="display: none;">
-                                                <span class="material-icons" style="font-size: 48px; opacity: 0.3;">broken_image</span>
+                                                <div class="image-fallback card-fallback" style="display: none;">
+                                                    <span class="material-icons" style="font-size: 48px; opacity: 0.3;">broken_image</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="perfume-card-body">
-                                            <div class="perfume-card-brand"><%= perfume.brand.brandName %></div>
-                                            <h3 class="perfume-card-title">
-                                                <a href="/perfumes/<%= perfume._id %>"><%= perfume.perfumeName %></a>
-                                            </h3>
-                                            
-                                            <div class="perfume-card-meta">
-                                                <% if (perfume.comments && perfume.comments.length > 0) { %>
-                                                    <% const avgRating = perfume.comments.reduce((sum, c) => sum + c.rating, 0) / perfume.comments.length; %>
-                                                    <div class="perfume-card-rating">
-                                                        <% for (let i = 0; i < 3; i++) { %>
-                                                            <% if (i < Math.floor(avgRating)) { %>
-                                                                <span class="material-icons star-icon">star</span>
-                                                            <% } else if (i < avgRating) { %>
-                                                                <span class="material-icons star-icon">star_half</span>
-                                                            <% } else { %>
-                                                                <span class="material-icons star-icon" style="opacity: 0.3;">star_border</span>
-                                                            <% } %>
-                                                        <% } %>
-                                                        <span class="rating-text"><%= avgRating.toFixed(1) %> (<%= perfume.comments.length %>)</span>
-                                                    </div>
-                                                <% } %>
+                                            <div class="perfume-card-body">
+                                                <div class="perfume-card-brand"><%= perfume.brand.brandName %></div>
+                                                <h3 class="perfume-card-title"><%= perfume.perfumeName %></h3>
                                                 
-                                                <% if (perfume.concentration === 'Extrait') { %>
-                                                    <span class="perfume-card-badge">
-                                                        <span class="material-icons" style="font-size: 1rem;">star</span>
-                                                        Extrait
-                                                    </span>
-                                                <% } %>
+                                                <div class="perfume-card-meta">
+                                                    <% if (perfume.comments && perfume.comments.length > 0) { %>
+                                                        <% const avgRating = perfume.comments.reduce((sum, c) => sum + c.rating, 0) / perfume.comments.length; %>
+                                                        <div class="perfume-card-rating">
+                                                            <% for (let i = 0; i < 3; i++) { %>
+                                                                <% if (i < Math.floor(avgRating)) { %>
+                                                                    <span class="material-icons star-icon">star</span>
+                                                                <% } else if (i < avgRating) { %>
+                                                                    <span class="material-icons star-icon">star_half</span>
+                                                                <% } else { %>
+                                                                    <span class="material-icons star-icon" style="opacity: 0.3;">star_border</span>
+                                                                <% } %>
+                                                            <% } %>
+                                                            <span class="rating-text"><%= avgRating.toFixed(1) %> (<%= perfume.comments.length %>)</span>
+                                                        </div>
+                                                    <% } %>
+                                                    
+                                                    <% if (perfume.concentration === 'Extrait') { %>
+                                                        <span class="perfume-card-badge">
+                                                            <span class="material-icons" style="font-size: 1rem;">star</span>
+                                                            Extrait
+                                                        </span>
+                                                    <% } %>
+                                                </div>
+                                                
+                                                <div class="perfume-card-price">
+                                                    <span class="price-amount">$<%= perfume.price.toFixed(2) %></span>
+                                                </div>
                                             </div>
-                                            
-                                            <div class="perfume-card-price">
-                                                <span class="price-amount">$<%= perfume.price.toFixed(2) %></span>
-                                                <button class="add-to-cart-btn" onclick="addToCart('<%= perfume._id %>', event)">
-                                                    <span class="material-icons">add_shopping_cart</span>
-                                                </button>
-                                            </div>
-                                        </div>
+                                        </a>
+                                        
+                                        <!-- Add to cart button (outside the link) -->
+                                        <button class="add-to-cart-btn" onclick="addToCart('<%= perfume._id %>', event)">
+                                            <span class="material-icons">add_shopping_cart</span>
+                                        </button>
                                     </div>
                                 <% }); %>
                              </div>

@@ -320,6 +320,28 @@
 </div>
 
 <script>
+    function handleImageError(img, type) {
+            console.log('Image load error:', img.src);
+            
+            if (type === 'hero') {
+                // Hide image, show fallback
+                img.style.display = 'none';
+                const fallback = document.getElementById('heroImageFallback');
+                if (fallback) {
+                    fallback.style.display = 'flex';
+                }
+            } else if (type === 'card') {
+                // Hide image, show fallback
+                img.style.display = 'none';
+                const wrapper = img.closest('.perfume-card-image-wrapper');
+                if (wrapper) {
+                    const fallback = wrapper.querySelector('.card-fallback');
+                    if (fallback) {
+                        fallback.style.display = 'flex';
+                    }
+                }
+            }
+        }
 // Image fallback handler
 function handlePerfumeImageError(img) {
     console.log('Perfume image failed to load:', img.src);
