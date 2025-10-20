@@ -266,8 +266,8 @@
 
 .btn-nav-outline,
 .btn-nav-contained {
-    padding: 6px 16px;
-    border-radius: 8px;
+    padding: 16px 30px;
+    border-radius: 30px;
     font-size: 0.875rem;
     font-weight: 600;
     text-transform: uppercase;
