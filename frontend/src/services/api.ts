@@ -57,6 +57,9 @@ export const authAPI = {
   login: (data: LoginFormData): Promise<AxiosResponse<AuthResponse>> =>
     api.post("/members/login", data),
 
+  googleLogin: (credential: string): Promise<AxiosResponse<AuthResponse>> =>
+    api.post("/auth/google/verify", { credential }),
+
   getProfile: (): Promise<AxiosResponse<ApiResponse<{ member: Member }>>> =>
     api.get("/members/profile"),
 

@@ -6,6 +6,9 @@ export interface Member {
   YOB: number;
   gender: boolean;
   isAdmin: boolean;
+  provider?: 'local' | 'google'; // OAuth provider
+  googleId?: string; // Google user ID
+  avatar?: string; // Profile picture URL
   createdAt?: string;
   updatedAt?: string;
 }

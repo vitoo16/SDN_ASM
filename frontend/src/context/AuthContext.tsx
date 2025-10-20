@@ -23,6 +23,7 @@ interface AuthState {
 interface AuthContextType extends AuthState {
   login: (data: LoginFormData) => Promise<void>;
   register: (data: RegisterFormData) => Promise<void>;
+  googleLogin: (credential: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: Member) => void;
   updateProfile: (data: {
@@ -233,6 +234,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const googleLogin = async (credential: string) => {
+    try {
+      const response = await authAPI.googleLogin(credential);
+      const { member, token } = response.data.data;
+
+      const normalizedUser = normalizeUser(member);
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
+
+      dispatch({
+        type: "AUTH_SUCCESS",
+        payload: { user: normalizedUser, token },
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -310,6 +329,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     ...state,
     login,
     register,
+    googleLogin,
     logout,
     updateUser,
     updateProfile,

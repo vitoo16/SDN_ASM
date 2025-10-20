@@ -38,6 +38,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useAuth } from "../context/AuthContext";
 import { LoginFormData, RegisterFormData } from "../types";
+import GoogleLoginButton from "./GoogleLoginButton";
+import { CredentialResponse } from "@react-oauth/google";
 
 const loginSchema = yup.object({
   email: yup.string().email("Invalid email").required("Email is required"),
@@ -149,7 +151,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { login, register: registerUser } = useAuth();
+  const { login, register: registerUser, googleLogin } = useAuth();
 
   // Update mode when initialMode prop changes
   useEffect(() => {
@@ -208,6 +210,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setError("");
     reset();
     onClose();
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    try {
+      setIsLoading(true);
+      setError("");
+      await googleLogin(credentialResponse.credential!);
+      onClose();
+      reset();
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || "Google authentication failed"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google authentication failed. Please try again.");
   };
 
   return (
@@ -638,6 +660,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </Box>
               )}
             </AuthActionButton>
+
+            {/* Divider */}
+            <Box sx={{ my: 3, display: "flex", alignItems: "center" }}>
+              <Divider sx={{ flex: 1, borderColor: "rgba(255,255,255,0.15)" }} />
+              <Typography
+                variant="body2"
+                sx={{
+                  px: 2,
+                  color: "rgba(224,231,255,0.6)",
+                  fontSize: "0.85rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                }}
+              >
+                Or continue with
+              </Typography>
+              <Divider sx={{ flex: 1, borderColor: "rgba(255,255,255,0.15)" }} />
+            </Box>
+
+            {/* Google Login Button */}
+            <Box sx={{ mb: 3 }}>
+              <GoogleLoginButton
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                text={isLogin ? "signin_with" : "signup_with"}
+              />
+            </Box>
 
             {/* Enhanced Footer */}
             <Box sx={{ textAlign: "center", mt: 2 }}>
